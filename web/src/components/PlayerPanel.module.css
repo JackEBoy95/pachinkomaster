@@ -1,0 +1,302 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ── Player row ───────────────────────────── */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s, background 0.15s;
+  background: var(--bg-panel-alt);
+  animation: fadeIn 0.2s ease;
+}
+
+.row:hover { border-color: var(--accent-cyan); }
+.row.active {
+  border-color: var(--accent-pink);
+  background: rgba(255, 79, 163, 0.06);
+}
+
+/* ── Ball preview ─────────────────────────── */
+.ballPreview {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* ── Details ──────────────────────────────── */
+.details {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+}
+
+.nameInput {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  padding: 1px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 0;
+}
+.nameInput:focus {
+  border-bottom-color: var(--accent-cyan);
+  outline: none;
+}
+
+.score {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  white-space: nowrap;
+}
+.scoreValue {
+  font-family: var(--font-display);
+  font-size: 13px;
+  line-height: 1;
+}
+.scorePts {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* ── Player count ─────────────────────────── */
+.playerCount {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* ── Skin on ball preview ──────────────────── */
+.skinOnBall {
+  font-size: 13px;
+  line-height: 1;
+  position: absolute;
+  pointer-events: none;
+}
+
+.imgOnBall {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+/* ── Skin picker ──────────────────────────── */
+.skinWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.skinBtn {
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  width: 26px;
+  height: 26px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s;
+  padding: 0;
+}
+.skinBtn:hover { border-color: var(--accent-gold); }
+
+.skinDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 0;
+  z-index: 200;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  animation: fadeIn 0.12s ease;
+  width: 200px;
+  overflow: hidden;
+}
+
+/* ── Skin tabs ────────────────────────────── */
+.skinTabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.skinTabBtn {
+  flex: 1;
+  padding: 7px 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: color 0.12s, background 0.12s;
+}
+.skinTabBtn:hover { color: var(--text-primary); }
+.skinTabBtn.skinTabActive {
+  color: var(--accent-gold);
+  background: var(--bg-panel-alt);
+  box-shadow: inset 0 -2px 0 var(--accent-gold);
+}
+
+/* ── Skin grid ────────────────────────────── */
+.skinGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 3px;
+  padding: 6px;
+}
+
+.skinOption {
+  background: var(--bg-panel-alt);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  width: 100%;
+  aspect-ratio: 1;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.1s, background 0.1s;
+  padding: 0;
+}
+.skinOption:hover { background: var(--bg-panel); border-color: var(--accent-gold); }
+.skinOption.skinSelected { border-color: var(--accent-pink); background: rgba(255,79,163,0.1); }
+
+/* ── Image skins ──────────────────────────── */
+.imageSkinPanel {
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.imgCatSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.imgCatLabel {
+  font-size: 10px;
+  color: var(--accent-gold);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 2px;
+}
+
+.imgSkinOption {
+  font-size: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.imgSkinPreview {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.imgSkinMissing {
+  font-size: 8px;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1;
+}
+
+.imgHint {
+  font-size: 10px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  padding: 4px 2px 2px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 2px;
+}
+
+.imgHint code {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  background: var(--bg-panel-alt);
+  border-radius: 2px;
+  padding: 0 3px;
+  color: var(--accent-cyan);
+}
+
+/* ── Active dot ───────────────────────────── */
+.activeDot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-pink);
+  box-shadow: 0 0 6px var(--accent-pink);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+/* ── Footer ───────────────────────────────── */
+.footer {
+  padding: 10px 14px;
+  border-top: 1px solid var(--border-color);
+}
+.hint {
+  font-size: 11px;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}

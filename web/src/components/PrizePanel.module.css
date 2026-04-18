@@ -1,0 +1,103 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeIn 0.2s ease;
+}
+
+/* ── Prize image slot ─────────────────────── */
+.imgSlot {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border: 1.5px dashed var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-panel-alt);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.imgSlot:hover { border-color: var(--accent-gold); }
+
+.imgThumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.imgPlus {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1;
+  user-select: none;
+}
+
+.imgRemove {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.7);
+  border: none;
+  color: #fff;
+  font-size: 9px;
+  line-height: 14px;
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.imgSlot:hover .imgRemove { opacity: 1; }
+
+.labelInput {
+  flex: 1 1 80px;
+  min-width: 60px;
+  width: auto;
+}
+
+.pointsInput {
+  width: 58px;
+  text-align: center;
+  padding: 6px 4px;
+  -moz-appearance: textfield;
+}
+.pointsInput::-webkit-outer-spin-button,
+.pointsInput::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.ptLabel {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}

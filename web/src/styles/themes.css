@@ -1,0 +1,261 @@
+/* ============================================
+   PACHINKO CHOICE MACHINE — THEME SYSTEM
+   All colours controlled via CSS variables.
+   Swap [data-theme] on <html> to change skin.
+   ============================================ */
+
+/* ── Classic (default) ─────────────────────── */
+:root,
+[data-theme="classic"] {
+  --bg-primary:       #0A0A12;
+  --bg-panel:         #12121E;
+  --bg-panel-alt:     #1A1A2E;
+  --bg-board:         #0D0D1A;
+  --border-color:     #2A2A44;
+
+  --accent-gold:      #F5C842;
+  --accent-pink:      #FF4FA3;
+  --accent-cyan:      #00E5FF;
+  --accent-green:     #39FF14;
+
+  --text-primary:     #E8E8F0;
+  --text-secondary:   #6A6A8A;
+  --text-on-accent:   #0A0A12;
+
+  --peg-color:        #F5C842;
+  --peg-glow:         rgba(245, 200, 66, 0.5);
+  --ball-trail:       rgba(255, 79, 163, 0.6);
+  --board-line:       rgba(42, 42, 68, 0.6);
+  --slot-divider:     rgba(245, 200, 66, 0.3);
+
+  --btn-primary-bg:   #FF4FA3;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #1A1A2E;
+  --btn-secondary-text: #E8E8F0;
+
+  --scanline-opacity: 0.03;
+  --glow-spread:      12px;
+
+  --font-display:     'Black Han Sans', sans-serif;
+  --font-body:        'Rajdhani', sans-serif;
+
+  --skin-name:        'Classic Arcade';
+  --bg-overlay-pattern: none;
+}
+
+/* ── Neon Arcade ───────────────────────────── */
+[data-theme="neon"] {
+  --bg-primary:       #050508;
+  --bg-panel:         #08080F;
+  --bg-panel-alt:     #0D0D18;
+  --bg-board:         #030306;
+  --border-color:     #1A0030;
+
+  --accent-gold:      #FF4FA3;
+  --accent-pink:      #00E5FF;
+  --accent-cyan:      #BF5FFF;
+  --accent-green:     #39FF14;
+
+  --text-primary:     #F0E8FF;
+  --text-secondary:   #6A4A8A;
+  --text-on-accent:   #ffffff;
+
+  --peg-color:        #00E5FF;
+  --peg-glow:         rgba(0, 229, 255, 0.7);
+  --ball-trail:       rgba(191, 95, 255, 0.7);
+  --board-line:       rgba(26, 0, 48, 0.8);
+  --slot-divider:     rgba(0, 229, 255, 0.3);
+
+  --btn-primary-bg:   #BF5FFF;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #0D0D18;
+  --btn-secondary-text: #F0E8FF;
+
+  --scanline-opacity: 0.05;
+  --glow-spread:      20px;
+
+  --skin-name:        'Neon Arcade';
+  --bg-overlay-pattern: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 229, 255, 0.015) 2px,
+    rgba(0, 229, 255, 0.015) 4px
+  );
+}
+
+/* ── Vintage Japan ─────────────────────────── */
+[data-theme="vintage"] {
+  --bg-primary:       #1A0F07;
+  --bg-panel:         #231409;
+  --bg-panel-alt:     #2E1A0D;
+  --bg-board:         #150C05;
+  --border-color:     #4A2E1A;
+
+  --accent-gold:      #E8A020;
+  --accent-pink:      #CC2200;
+  --accent-cyan:      #D4962A;
+  --accent-green:     #8BC34A;
+
+  --text-primary:     #F5E8D0;
+  --text-secondary:   #8A6A4A;
+  --text-on-accent:   #1A0F07;
+
+  --peg-color:        #E8A020;
+  --peg-glow:         rgba(232, 160, 32, 0.5);
+  --ball-trail:       rgba(204, 34, 0, 0.6);
+  --board-line:       rgba(74, 46, 26, 0.7);
+  --slot-divider:     rgba(232, 160, 32, 0.35);
+
+  --btn-primary-bg:   #CC2200;
+  --btn-primary-text: #F5E8D0;
+  --btn-secondary-bg: #2E1A0D;
+  --btn-secondary-text: #F5E8D0;
+
+  --scanline-opacity: 0.02;
+  --glow-spread:      8px;
+
+  --skin-name:        'Vintage Japan';
+  --bg-overlay-pattern: none;
+}
+
+/* ── Gold Luxury ───────────────────────────── */
+[data-theme="gold"] {
+  --bg-primary:       #050505;
+  --bg-panel:         #0A0A0A;
+  --bg-panel-alt:     #111111;
+  --bg-board:         #030303;
+  --border-color:     #2A2000;
+
+  --accent-gold:      #C9A84C;
+  --accent-pink:      #D4AF37;
+  --accent-cyan:      #FFD700;
+  --accent-green:     #B8860B;
+
+  --text-primary:     #F0E8C8;
+  --text-secondary:   #6A5A3A;
+  --text-on-accent:   #050505;
+
+  --peg-color:        #D4AF37;
+  --peg-glow:         rgba(212, 175, 55, 0.6);
+  --ball-trail:       rgba(201, 168, 76, 0.5);
+  --board-line:       rgba(42, 32, 0, 0.8);
+  --slot-divider:     rgba(212, 175, 55, 0.3);
+
+  --btn-primary-bg:   #C9A84C;
+  --btn-primary-text: #050505;
+  --btn-secondary-bg: #111111;
+  --btn-secondary-text: #F0E8C8;
+
+  --scanline-opacity: 0.01;
+  --glow-spread:      16px;
+
+  --skin-name:        'Gold Luxury';
+  --bg-overlay-pattern: none;
+}
+
+/* ── Halloween ─────────────────────────────── */
+[data-theme="halloween"] {
+  --bg-primary:       #0A0005;
+  --bg-panel:         #120009;
+  --bg-panel-alt:     #1A000D;
+  --bg-board:         #060003;
+  --border-color:     #3A1500;
+
+  --accent-gold:      #FF6B00;
+  --accent-pink:      #9B00FF;
+  --accent-cyan:      #FF4500;
+  --accent-green:     #7FFF00;
+
+  --text-primary:     #F0D8E0;
+  --text-secondary:   #6A3A4A;
+  --text-on-accent:   #ffffff;
+
+  --peg-color:        #FF6B00;
+  --peg-glow:         rgba(255, 107, 0, 0.6);
+  --ball-trail:       rgba(155, 0, 255, 0.6);
+  --board-line:       rgba(58, 21, 0, 0.7);
+  --slot-divider:     rgba(255, 107, 0, 0.3);
+
+  --btn-primary-bg:   #9B00FF;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #1A000D;
+  --btn-secondary-text: #F0D8E0;
+
+  --scanline-opacity: 0.04;
+  --glow-spread:      14px;
+
+  --skin-name:        'Halloween';
+  --bg-overlay-pattern: none;
+}
+
+/* ── Space ─────────────────────────────────── */
+[data-theme="space"] {
+  --bg-primary:       #020008;
+  --bg-panel:         #05000F;
+  --bg-panel-alt:     #08001A;
+  --bg-board:         #010005;
+  --border-color:     #0D0030;
+
+  --accent-gold:      #7B68EE;
+  --accent-pink:      #4169E1;
+  --accent-cyan:      #00CED1;
+  --accent-green:     #ADFF2F;
+
+  --text-primary:     #E8E0FF;
+  --text-secondary:   #4A4A7A;
+  --text-on-accent:   #ffffff;
+
+  --peg-color:        #7B68EE;
+  --peg-glow:         rgba(123, 104, 238, 0.7);
+  --ball-trail:       rgba(0, 206, 209, 0.6);
+  --board-line:       rgba(13, 0, 48, 0.8);
+  --slot-divider:     rgba(123, 104, 238, 0.3);
+
+  --btn-primary-bg:   #4169E1;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #08001A;
+  --btn-secondary-text: #E8E0FF;
+
+  --scanline-opacity: 0.02;
+  --glow-spread:      18px;
+
+  --skin-name:        'Space';
+  --bg-overlay-pattern: radial-gradient(ellipse at 20% 50%, rgba(123,104,238,0.03) 0%, transparent 60%),
+                         radial-gradient(ellipse at 80% 20%, rgba(0,206,209,0.03) 0%, transparent 50%);
+}
+
+/* ── Christmas ─────────────────────────────── */
+[data-theme="christmas"] {
+  --bg-primary:       #020A02;
+  --bg-panel:         #030F03;
+  --bg-panel-alt:     #051505;
+  --bg-board:         #010701;
+  --border-color:     #1A3A1A;
+
+  --accent-gold:      #FFD700;
+  --accent-pink:      #CC0000;
+  --accent-cyan:      #228B22;
+  --accent-green:     #32CD32;
+
+  --text-primary:     #F0F8F0;
+  --text-secondary:   #4A6A4A;
+  --text-on-accent:   #ffffff;
+
+  --peg-color:        #FFD700;
+  --peg-glow:         rgba(255, 215, 0, 0.6);
+  --ball-trail:       rgba(204, 0, 0, 0.6);
+  --board-line:       rgba(26, 58, 26, 0.7);
+  --slot-divider:     rgba(255, 215, 0, 0.3);
+
+  --btn-primary-bg:   #CC0000;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #051505;
+  --btn-secondary-text: #F0F8F0;
+
+  --scanline-opacity: 0.02;
+  --glow-spread:      10px;
+
+  --skin-name:        'Christmas';
+  --bg-overlay-pattern: none;
+}
