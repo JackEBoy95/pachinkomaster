@@ -115,8 +115,21 @@
   margin-right: 4px;
 }
 
-.dismissBtn {
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-top: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.shareBtn {
+  font-size: 13px;
+  padding: 10px 18px;
+}
+
+.dismissBtn {
   padding: 12px 40px;
   font-size: 16px;
   letter-spacing: 0.08em;
@@ -245,6 +258,70 @@
   line-height: 1;
 }
 
+/* ── Close button ────────────────────────────── */
+.closeBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  font-size: 14px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s;
+  z-index: 1;
+  line-height: 1;
+}
+.closeBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-gold);
+}
+
+/* ── Pager (reused from tournament style) ────── */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 4px 0 2px;
+  width: 100%;
+  flex-shrink: 0;
+}
+.pageBtn {
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 700;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.pageBtn:hover:not(:disabled) {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+.pageBtn:disabled { opacity: 0.3; cursor: default; }
+.pageInfo {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 44px;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -259,4 +336,41 @@
 @keyframes spin {
   from { transform: rotate(-30deg) scale(0.8); }
   to   { transform: rotate(0deg) scale(1); }
+}
+
+/* ── Mobile ──────────────────────────────────── */
+@media (max-width: 640px) {
+  .card {
+    max-height: 88dvh;
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 18px 20px;
+    gap: 10px;
+  }
+  .multiCard {
+    padding: 20px 14px 16px;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .roundRows {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Compact rows on mobile */
+  .roundRow { padding: 6px 8px; }
+  /* Smaller headline text */
+  .prizeName  { font-size: 26px; }
+  .pointsNum  { font-size: 32px; }
+  .playerName { font-size: 20px; }
+  .winnerName { font-size: 20px; }
+  .winnerBanner { padding: 10px 14px; }
+  /* Card actions stack vertically */
+  .cardActions { flex-direction: column; width: 100%; }
+  .dismissBtn  { width: 100%; }
+  .shareBtn    { width: 100%; }
 }

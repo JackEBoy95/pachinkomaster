@@ -37,6 +37,8 @@
   border-radius: 10px;
   padding: 6px;
   min-width: 180px;
+  max-height: 360px;
+  overflow-y: auto;
   z-index: 500;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5);
   animation: fadeIn 0.15s ease;
@@ -76,7 +78,23 @@
   color: var(--accent-gold);
 }
 
+.divider {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  padding: 6px 10px 2px;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Mobile — hide label, keep swatch + arrow ── */
+@media (max-width: 640px) {
+  .trigger span:not(.arrow) { display: none; }
+  .trigger { padding: 7px 9px; gap: 4px; }
 }

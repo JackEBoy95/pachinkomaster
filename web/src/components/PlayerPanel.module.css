@@ -106,10 +106,18 @@
   pointer-events: none;
 }
 
+.flagOnBall {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
 .imgOnBall {
-  width: 16px;
-  height: 16px;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   position: absolute;
   pointer-events: none;
   border-radius: 50%;
@@ -149,7 +157,9 @@
   box-shadow: 0 8px 24px rgba(0,0,0,0.5);
   animation: fadeIn 0.12s ease;
   width: 200px;
-  overflow: hidden;
+  max-height: 60vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* ── Skin tabs ────────────────────────────── */
@@ -202,6 +212,30 @@
 }
 .skinOption:hover { background: var(--bg-panel); border-color: var(--accent-gold); }
 .skinOption.skinSelected { border-color: var(--accent-pink); background: rgba(255,79,163,0.1); }
+
+/* ── Flag skins ───────────────────────────── */
+.flagSkinPanel {
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.flagCatSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.flagSkinPreview {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
 
 /* ── Image skins ──────────────────────────── */
 .imageSkinPanel {
@@ -268,6 +302,59 @@
   color: var(--accent-cyan);
 }
 
+/* ── Emoji skin panel ────────────────────── */
+.emojiSkinPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 6px 6px;
+}
+
+.emojiSkinOption {
+  font-size: 18px;
+  line-height: 1;
+  padding: 2px;
+}
+
+.emojiPager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 2px 0;
+  border-top: 1px solid var(--border-color);
+  margin-top: 2px;
+}
+
+.emojiPageBtn {
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.emojiPageBtn:hover:not(:disabled) {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+.emojiPageBtn:disabled { opacity: 0.3; cursor: default; }
+
+.emojiPageInfo {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 40px;
+  text-align: center;
+}
+
 /* ── Active dot ───────────────────────────── */
 .activeDot {
   position: absolute;
@@ -279,6 +366,91 @@
   background: var(--accent-pink);
   box-shadow: 0 0 6px var(--accent-pink);
   animation: pulse 1.4s ease-in-out infinite;
+}
+
+/* ── Player search ────────────────────────── */
+.searchWrap {
+  position: relative;
+  padding: 6px 10px 4px;
+  flex-shrink: 0;
+}
+.searchInput {
+  width: 100%;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 5px 28px 5px 10px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.searchInput:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+}
+.searchClear {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+}
+.searchClear:hover { color: var(--text-primary); }
+.searchEmpty {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 12px 10px;
+  text-align: center;
+}
+
+/* ── Flag search (inside skin picker) ────── */
+.flagSearchWrap {
+  position: relative;
+  padding: 4px 0 6px;
+}
+.flagSearchInput {
+  width: 100%;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 5px 24px 5px 8px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.flagSearchInput:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+}
+.flagSearchClear {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 10px;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+}
+.flagSearchClear:hover { color: var(--text-primary); }
+.flagSearchEmpty {
+  font-size: 11px;
+  color: var(--text-secondary);
+  padding: 8px 4px;
+  text-align: center;
 }
 
 /* ── Footer ───────────────────────────────── */

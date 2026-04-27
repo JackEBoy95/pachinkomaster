@@ -12,6 +12,41 @@
   flex: 1;
 }
 
+/* ── Search bar ──────────────────────────── */
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 4px 8px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.searchInput:focus { border-color: var(--accent-cyan); }
+
+.searchClear {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+.searchClear:hover { color: var(--text-primary); }
+
 /* ── Rankings ─────────────────────────────── */
 .rankings {
   display: flex;
@@ -24,6 +59,10 @@
   align-items: center;
   gap: 8px;
   animation: fadeIn 0.3s ease;
+}
+
+.elimRow {
+  opacity: 0.4;
 }
 
 .rank {
@@ -231,6 +270,49 @@
   margin: 0;
 }
 .roundDetail .historyRow:last-child { border-bottom: none; }
+
+/* ── Pagination ───────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 0;
+  flex-shrink: 0;
+}
+
+.pageBtn {
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.pageBtn:hover:not(:disabled) {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+.pageBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.pageInfo {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 36px;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
 
 /* ── Empty ────────────────────────────────── */
 .empty {

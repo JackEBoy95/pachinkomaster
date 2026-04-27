@@ -89,12 +89,33 @@
 .pointsInput::-webkit-outer-spin-button,
 .pointsInput::-webkit-inner-spin-button { -webkit-appearance: none; }
 
+.colorInput {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  padding: 2px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-panel-alt);
+  cursor: pointer;
+}
+.colorInput::-webkit-color-swatch-wrapper { padding: 0; }
+.colorInput::-webkit-color-swatch { border: none; border-radius: 4px; }
+
 .ptLabel {
   font-size: 11px;
   color: var(--text-secondary);
   font-weight: 600;
   letter-spacing: 0.05em;
   white-space: nowrap;
+}
+
+.mobileCapHint {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-align: center;
+  margin: 0 0 4px;
+  opacity: 0.7;
 }
 
 @keyframes fadeIn {

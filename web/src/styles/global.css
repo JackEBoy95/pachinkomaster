@@ -1,5 +1,5 @@
 /* ============================================
-   PACHINKO CHOICE MACHINE — GLOBAL STYLES
+   PACHINKOMASTER — GLOBAL STYLES
    ============================================ */
 
 *, *::before, *::after {
@@ -37,6 +37,11 @@ body::after {
   );
   pointer-events: none;
   z-index: 9999;
+}
+
+/* Suppress scanline during active drops — eliminates full-screen repaint overhead */
+body.dropping::after {
+  display: none;
 }
 
 /* Scrollbars */
@@ -245,4 +250,25 @@ input[type="color"]::-webkit-color-swatch {
 @media (max-width: 900px) {
   body { overflow: auto; }
   html, body, #root { height: auto; }
+}
+
+/* ── Mobile portrait — restore full-height layout ─────── */
+@media (max-width: 640px) {
+  html, body, #root {
+    height: 100dvh;   /* dynamic viewport height — shrinks when address bar shows */
+    overflow: hidden;
+  }
+  body { overflow: hidden; }
+}
+
+/* ── Mobile landscape — same height lock, different width range ─── */
+/* Without this, iOS Safari can reload the page on rotation because  */
+/* the 900px breakpoint sets height:auto and the dvh anchor is lost. */
+@media (orientation: landscape) and (max-height: 500px) {
+  html, body, #root {
+    height: 100dvh;
+    height: 100svh;
+    overflow: hidden;
+  }
+  body { overflow: hidden; }
 }

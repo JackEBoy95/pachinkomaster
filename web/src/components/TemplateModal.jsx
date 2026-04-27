@@ -1,12 +1,24 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { templateShareUrl } from '../hooks/useTemplates'
+import { PREBUILT_TEMPLATES } from '../data/prebuiltTemplates.js'
 import styles from './TemplateModal.module.css'
 
-export default function TemplateModal({ templates, currentBoard, onSave, onLoad, onRename, onRemove, onClose }) {
+function downloadTemplate(tpl) {
+  const data = { name: tpl.name, prizes: tpl.prizes, players: tpl.players, settings: tpl.settings }
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const url  = URL.createObjectURL(blob)
+  const a    = Object.assign(document.createElement('a'), { href: url, download: `${tpl.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json` })
+  document.body.appendChild(a); a.click(); document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+export default function TemplateModal({ templates, currentBoard, onSave, onLoad, onRename, onRemove, onImport, onClose }) {
   const [saveName, setSaveName]       = useState('')
   const [copiedId, setCopiedId]       = useState(null)
   const [renamingId, setRenamingId]   = useState(null)
   const [renameValue, setRenameValue] = useState('')
+  const [importMsg, setImportMsg]     = useState(null)
+  const fileInputRef                  = useRef(null)
 
   function handleSave() {
     const name = saveName.trim() || 'Untitled Board'
@@ -36,6 +48,26 @@ export default function TemplateModal({ templates, currentBoard, onSave, onLoad,
     return new Date(ts).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
   }
 
+  function handleImportFile(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result)
+        if (!Array.isArray(data.prizes) || !Array.isArray(data.players)) throw new Error()
+        onImport({ name: data.name || file.name.replace(/\.json$/i, ''), prizes: data.prizes, players: data.players, settings: data.settings })
+        setImportMsg('✓ Imported!')
+        setTimeout(() => setImportMsg(null), 2500)
+      } catch {
+        setImportMsg('✕ Invalid file')
+        setTimeout(() => setImportMsg(null), 3000)
+      }
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }
+
   return (
     <div className={styles.backdrop} onClick={onClose}>
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
@@ -44,6 +76,22 @@ export default function TemplateModal({ templates, currentBoard, onSave, onLoad,
           <span className={styles.title}>📁 Templates</span>
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
+
+        <div className={styles.modalBody}>
+
+        {/* Import */}
+        <div className={styles.saveSection}>
+          <p className={styles.sectionLabel}>Import from file</p>
+          <div className={styles.saveRow}>
+            <input ref={fileInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={handleImportFile} />
+            <button className={`btn-secondary ${styles.saveBtn}`} onClick={() => fileInputRef.current?.click()}>
+              📂 Choose .json file
+            </button>
+            {importMsg && <span className={styles.importMsg} style={{ color: importMsg.startsWith('✓') ? 'var(--accent-cyan)' : 'var(--accent-pink)' }}>{importMsg}</span>}
+          </div>
+        </div>
+
+        <div className={styles.divider} />
 
         {/* Save current */}
         <div className={styles.saveSection}>
@@ -68,7 +116,32 @@ export default function TemplateModal({ templates, currentBoard, onSave, onLoad,
 
         <div className={styles.divider} />
 
-        {/* Template list */}
+        {/* Starter templates */}
+        <div className={styles.listSection}>
+          <p className={styles.sectionLabel}>Starter templates</p>
+          <div className={styles.list}>
+            {PREBUILT_TEMPLATES.map(tpl => (
+              <div key={tpl.id} className={`${styles.item} ${styles.prebuiltItem}`}>
+                <div className={styles.itemLeft}>
+                  <span className={styles.itemName}>{tpl.name}</span>
+                  <span className={styles.itemMeta}>{tpl.prizes.length} prizes · {tpl.players.length} players</span>
+                </div>
+                <div className={styles.itemActions}>
+                  <button className={styles.actionBtn} onClick={() => { onLoad(tpl); onClose() }} title="Load">
+                    ▶ Load
+                  </button>
+                  <button className={styles.actionBtn} onClick={() => downloadTemplate(tpl)} title="Download as file">
+                    ⬇ Save
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.divider} />
+
+        {/* Saved template list */}
         <div className={styles.listSection}>
           <p className={styles.sectionLabel}>Saved templates</p>
 
@@ -116,6 +189,9 @@ export default function TemplateModal({ templates, currentBoard, onSave, onLoad,
                   >
                     {copiedId === tpl.id ? '✓ Copied!' : '🔗 Share'}
                   </button>
+                  <button className={styles.actionBtn} onClick={() => downloadTemplate(tpl)} title="Download as file">
+                    ⬇ Save
+                  </button>
                   <button className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={() => onRemove(tpl.id)} title="Delete">
                     ✕
                   </button>
@@ -124,6 +200,8 @@ export default function TemplateModal({ templates, currentBoard, onSave, onLoad,
             ))}
           </div>
         </div>
+
+        </div>{/* end modalBody */}
       </div>
     </div>
   )

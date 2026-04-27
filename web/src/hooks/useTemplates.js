@@ -71,5 +71,22 @@ export function useTemplates() {
     })
   }, [])
 
-  return { templates, save, remove, rename }
+  const importFromData = useCallback(({ name, prizes, players, settings }) => {
+    const tpl = {
+      id:        `tpl_${Date.now()}`,
+      name:      (name || 'Imported Board').slice(0, 48),
+      createdAt: Date.now(),
+      prizes:    (prizes  || []).map(p => ({ ...p })),
+      players:   (players || []).map(p => ({ ...p, score: 0 })),
+      settings:  settings ? { ...settings } : {},
+    }
+    setTemplates(prev => {
+      const next = [tpl, ...prev]
+      write(next)
+      return next
+    })
+    return tpl
+  }, [])
+
+  return { templates, save, remove, rename, importFromData }
 }

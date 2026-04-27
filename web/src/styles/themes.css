@@ -1,5 +1,5 @@
 /* ============================================
-   PACHINKO CHOICE MACHINE — THEME SYSTEM
+   PACHINKOMASTER — THEME SYSTEM
    All colours controlled via CSS variables.
    Swap [data-theme] on <html> to change skin.
    ============================================ */
@@ -35,6 +35,7 @@
 
   --scanline-opacity: 0.03;
   --glow-spread:      12px;
+  --fx-glow:          0;
 
   --font-display:     'Black Han Sans', sans-serif;
   --font-body:        'Rajdhani', sans-serif;
@@ -73,6 +74,7 @@
 
   --scanline-opacity: 0.05;
   --glow-spread:      20px;
+  --fx-glow:          1;
 
   --skin-name:        'Neon Arcade';
   --bg-overlay-pattern: repeating-linear-gradient(
@@ -114,6 +116,7 @@
 
   --scanline-opacity: 0.02;
   --glow-spread:      8px;
+  --fx-glow:          0;
 
   --skin-name:        'Vintage Japan';
   --bg-overlay-pattern: none;
@@ -149,6 +152,7 @@
 
   --scanline-opacity: 0.01;
   --glow-spread:      16px;
+  --fx-glow:          0;
 
   --skin-name:        'Gold Luxury';
   --bg-overlay-pattern: none;
@@ -184,6 +188,7 @@
 
   --scanline-opacity: 0.04;
   --glow-spread:      14px;
+  --fx-glow:          0;
 
   --skin-name:        'Halloween';
   --bg-overlay-pattern: none;
@@ -219,6 +224,7 @@
 
   --scanline-opacity: 0.02;
   --glow-spread:      18px;
+  --fx-glow:          1;
 
   --skin-name:        'Space';
   --bg-overlay-pattern: radial-gradient(ellipse at 20% 50%, rgba(123,104,238,0.03) 0%, transparent 60%),
@@ -255,7 +261,270 @@
 
   --scanline-opacity: 0.02;
   --glow-spread:      10px;
+  --fx-glow:          0;
 
   --skin-name:        'Christmas';
+  --bg-overlay-pattern: none;
+}
+
+/* ════════════════════════════════════════════
+   FLAG SKINS
+   ════════════════════════════════════════════ */
+
+/* ── United Kingdom ────────────────────────── */
+[data-theme="flag-gb"] {
+  --bg-primary:       #060A1A;
+  --bg-panel:         #0A1028;
+  --bg-panel-alt:     #0F1535;
+  --bg-board:         #040818;
+  --border-color:     #1A2A5A;
+
+  --accent-gold:      #CF142B;
+  --accent-pink:      #FFFFFF;
+  --accent-cyan:      #012169;
+  --accent-green:     #CF142B;
+
+  --text-primary:     #EEF2FF;
+  --text-secondary:   #5A6A9A;
+  --text-on-accent:   #ffffff;
+
+  --peg-color:        #FFFFFF;
+  --peg-glow:         rgba(255, 255, 255, 0.5);
+  --ball-trail:       rgba(207, 20, 43, 0.7);
+  --board-line:       rgba(1, 33, 105, 0.5);
+  --slot-divider:     rgba(207, 20, 43, 0.4);
+
+  --btn-primary-bg:   #CF142B;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #0F1535;
+  --btn-secondary-text: #EEF2FF;
+
+  --scanline-opacity: 0.02;
+  --glow-spread:      12px;
+  --fx-glow:          0;
+
+  --skin-name:        'United Kingdom';
+  --bg-overlay-pattern: none;
+}
+
+/* ── United States ─────────────────────────── */
+[data-theme="flag-us"] {
+  --bg-primary:       #020C1C;
+  --bg-panel:         #041025;
+  --bg-panel-alt:     #071530;
+  --bg-board:         #010810;
+  --border-color:     #0E2050;
+
+  --accent-gold:      #B22234;
+  --accent-pink:      #FFFFFF;
+  --accent-cyan:      #3C3B6E;
+  --accent-green:     #B22234;
+
+  --text-primary:     #EDF2FF;
+  --text-secondary:   #4A5A8A;
+  --text-on-accent:   #ffffff;
+
+  --peg-color:        #FFFFFF;
+  --peg-glow:         rgba(255, 255, 255, 0.5);
+  --ball-trail:       rgba(178, 34, 52, 0.7);
+  --board-line:       rgba(60, 59, 110, 0.5);
+  --slot-divider:     rgba(178, 34, 52, 0.4);
+
+  --btn-primary-bg:   #B22234;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #071530;
+  --btn-secondary-text: #EDF2FF;
+
+  --scanline-opacity: 0.02;
+  --glow-spread:      12px;
+
+  --fx-glow:          0;
+
+  --skin-name:        'United States';
+  --bg-overlay-pattern: none;
+}
+
+/* ── Japan ─────────────────────────────────── */
+[data-theme="flag-jp"] {
+  --bg-primary:       #0E0808;
+  --bg-panel:         #160C0C;
+  --bg-panel-alt:     #1E1010;
+  --bg-board:         #0A0606;
+  --border-color:     #3A1818;
+
+  --accent-gold:      #BC002D;
+  --accent-pink:      #FF4060;
+  --accent-cyan:      #E8E8E8;
+  --accent-green:     #BC002D;
+
+  --text-primary:     #F5EEF0;
+  --text-secondary:   #7A5A5A;
+  --text-on-accent:   #ffffff;
+
+  --peg-color:        #FFFFFF;
+  --peg-glow:         rgba(255, 255, 255, 0.6);
+  --ball-trail:       rgba(188, 0, 45, 0.7);
+  --board-line:       rgba(58, 24, 24, 0.6);
+  --slot-divider:     rgba(188, 0, 45, 0.35);
+
+  --btn-primary-bg:   #BC002D;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #1E1010;
+  --btn-secondary-text: #F5EEF0;
+
+  --scanline-opacity: 0.02;
+  --glow-spread:      14px;
+
+  --fx-glow:          0;
+
+  --skin-name:        'Japan';
+  --bg-overlay-pattern: none;
+}
+
+/* ── France ────────────────────────────────── */
+[data-theme="flag-fr"] {
+  --bg-primary:       #040A20;
+  --bg-panel:         #070E2A;
+  --bg-panel-alt:     #0A1438;
+  --bg-board:         #020715;
+  --border-color:     #0D1E50;
+
+  --accent-gold:      #EF4135;
+  --accent-pink:      #FFFFFF;
+  --accent-cyan:      #002395;
+  --accent-green:     #EF4135;
+
+  --text-primary:     #EEF2FF;
+  --text-secondary:   #4A5A9A;
+  --text-on-accent:   #ffffff;
+
+  --peg-color:        #FFFFFF;
+  --peg-glow:         rgba(255, 255, 255, 0.5);
+  --ball-trail:       rgba(239, 65, 53, 0.7);
+  --board-line:       rgba(0, 35, 149, 0.4);
+  --slot-divider:     rgba(239, 65, 53, 0.4);
+
+  --btn-primary-bg:   #EF4135;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #0A1438;
+  --btn-secondary-text: #EEF2FF;
+
+  --scanline-opacity: 0.02;
+  --glow-spread:      12px;
+
+  --fx-glow:          0;
+
+  --skin-name:        'France';
+  --bg-overlay-pattern: none;
+}
+
+/* ── Germany ───────────────────────────────── */
+[data-theme="flag-de"] {
+  --bg-primary:       #0A0808;
+  --bg-panel:         #120E0E;
+  --bg-panel-alt:     #1A1414;
+  --bg-board:         #060404;
+  --border-color:     #2A2020;
+
+  --accent-gold:      #FFCC00;
+  --accent-pink:      #DD0000;
+  --accent-cyan:      #FFCC00;
+  --accent-green:     #FFCC00;
+
+  --text-primary:     #F5F0E8;
+  --text-secondary:   #6A5A4A;
+  --text-on-accent:   #0A0808;
+
+  --peg-color:        #FFCC00;
+  --peg-glow:         rgba(255, 204, 0, 0.6);
+  --ball-trail:       rgba(221, 0, 0, 0.6);
+  --board-line:       rgba(42, 32, 32, 0.7);
+  --slot-divider:     rgba(255, 204, 0, 0.35);
+
+  --btn-primary-bg:   #DD0000;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #1A1414;
+  --btn-secondary-text: #F5F0E8;
+
+  --scanline-opacity: 0.02;
+  --glow-spread:      14px;
+
+  --fx-glow:          0;
+
+  --skin-name:        'Germany';
+  --bg-overlay-pattern: none;
+}
+
+/* ── Brazil ────────────────────────────────── */
+[data-theme="flag-br"] {
+  --bg-primary:       #001A08;
+  --bg-panel:         #002210;
+  --bg-panel-alt:     #002E18;
+  --bg-board:         #001006;
+  --border-color:     #004A20;
+
+  --accent-gold:      #FFDF00;
+  --accent-pink:      #009C3B;
+  --accent-cyan:      #002776;
+  --accent-green:     #FFDF00;
+
+  --text-primary:     #EEF8EE;
+  --text-secondary:   #3A6A4A;
+  --text-on-accent:   #001A08;
+
+  --peg-color:        #FFDF00;
+  --peg-glow:         rgba(255, 223, 0, 0.6);
+  --ball-trail:       rgba(0, 156, 59, 0.7);
+  --board-line:       rgba(0, 74, 32, 0.6);
+  --slot-divider:     rgba(255, 223, 0, 0.35);
+
+  --btn-primary-bg:   #009C3B;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #002E18;
+  --btn-secondary-text: #EEF8EE;
+
+  --scanline-opacity: 0.02;
+  --glow-spread:      14px;
+
+  --fx-glow:          0;
+
+  --skin-name:        'Brazil';
+  --bg-overlay-pattern: none;
+}
+
+/* ── South Korea ───────────────────────────── */
+[data-theme="flag-kr"] {
+  --bg-primary:       #080810;
+  --bg-panel:         #0C0C18;
+  --bg-panel-alt:     #101022;
+  --bg-board:         #050508;
+  --border-color:     #20203A;
+
+  --accent-gold:      #C60C30;
+  --accent-pink:      #003478;
+  --accent-cyan:      #C60C30;
+  --accent-green:     #003478;
+
+  --text-primary:     #EEF0F8;
+  --text-secondary:   #4A4A7A;
+  --text-on-accent:   #ffffff;
+
+  --peg-color:        #C60C30;
+  --peg-glow:         rgba(198, 12, 48, 0.6);
+  --ball-trail:       rgba(0, 52, 120, 0.7);
+  --board-line:       rgba(32, 32, 58, 0.6);
+  --slot-divider:     rgba(198, 12, 48, 0.35);
+
+  --btn-primary-bg:   #003478;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #101022;
+  --btn-secondary-text: #EEF0F8;
+
+  --scanline-opacity: 0.02;
+  --glow-spread:      12px;
+
+  --fx-glow:          0;
+
+  --skin-name:        'South Korea';
   --bg-overlay-pattern: none;
 }

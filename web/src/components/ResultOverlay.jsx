@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import styles from './ResultOverlay.module.css'
+import { shareText, shareSucceeded } from '../utils/share'
 
 export default function ResultOverlay({ result, onDismiss }) {
   const confettiRef = useRef(null)
@@ -60,8 +61,17 @@ export default function ResultOverlay({ result, onDismiss }) {
 // ── Single ball result ───────────────────────────────────────────────────────
 function SingleDropCard({ result, onDismiss }) {
   const { player, prize } = result
+  const [shared, setShared] = useState(false)
+
+  async function handleShare() {
+    const text = `🎰 ${player.name} landed on "${prize.label}" (+${prize.points} pts) on PachinkoMaster!`
+    const ok = await shareText(text)
+    if (shareSucceeded(ok)) { setShared(true); setTimeout(() => setShared(false), 2000) }
+  }
+
   return (
     <div className={styles.card} onClick={e => e.stopPropagation()}>
+      <button className={styles.closeBtn} onClick={onDismiss} title="Close">✕</button>
       <BallPreview color={player.color} />
       <div className={styles.playerName} style={{ color: player.color }}>{player.name}</div>
       <div className={styles.wonText}>landed on</div>
@@ -78,7 +88,12 @@ function SingleDropCard({ result, onDismiss }) {
         <span className={styles.pointsNum} style={{ color: prize.color }}>+{prize.points}</span>
         <span className={styles.pointsLabel}>points</span>
       </div>
-      <button className={`btn-primary ${styles.dismissBtn}`} onClick={onDismiss}>Continue</button>
+      <div className={styles.cardActions}>
+        <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleShare}>
+          {shared ? '✓ Copied!' : '🔗 Share'}
+        </button>
+        <button className={`btn-primary ${styles.dismissBtn}`} onClick={onDismiss}>Continue</button>
+      </div>
     </div>
   )
 }
@@ -86,6 +101,20 @@ function SingleDropCard({ result, onDismiss }) {
 // ── Multi-drop round summary ─────────────────────────────────────────────────
 function MultiDropCard({ result, onDismiss }) {
   const { roundResults, roundWinner, roundScores } = result
+  const [shared, setShared] = useState(false)
+  const [page, setPage] = useState(0)
+  const PAGE_SIZE = 8
+
+  async function handleShare() {
+    const sorted = Object.entries(roundScores).sort((a, b) => b[1] - a[1])
+    const lines  = sorted.map(([id, pts]) => {
+      const r = roundResults.find(r => String(r.player.id) === id)
+      return `${r?.player.name ?? '?'}: ${pts}pts`
+    })
+    const text = `🎰 Round results:\n${lines.join(' · ')}${roundWinner ? `\n👑 Winner: ${roundWinner.name}` : ''}`
+    const ok = await shareText(text)
+    if (shareSucceeded(ok)) { setShared(true); setTimeout(() => setShared(false), 2000) }
+  }
 
   // Group by player — sum this round's points per player
   const playerMap = {}
@@ -97,11 +126,14 @@ function MultiDropCard({ result, onDismiss }) {
     playerMap[player.id].roundPts += prize.points
   })
   const rows = Object.values(playerMap).sort((a, b) => b.roundPts - a.roundPts)
+  const pageCount = Math.ceil(rows.length / PAGE_SIZE)
+  const pageRows = rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
   const maxPts = rows[0]?.roundPts || 1
   const winnerPrize = roundWinner ? modePrize(playerMap[roundWinner.id]?.prizes || []) : null
 
   return (
     <div className={`${styles.card} ${styles.multiCard}`} onClick={e => e.stopPropagation()}>
+      <button className={styles.closeBtn} onClick={onDismiss} title="Close">✕</button>
       {/* Winner banner */}
       {roundWinner && (
         <div className={styles.winnerBanner}>
@@ -120,7 +152,7 @@ function MultiDropCard({ result, onDismiss }) {
 
       {/* Per-player breakdown */}
       <div className={styles.roundRows}>
-        {rows.map(({ player, prizes, roundPts }) => {
+        {pageRows.map(({ player, prizes, roundPts }) => {
           const isWinner = player.id === roundWinner?.id
           return (
             <div
@@ -155,7 +187,20 @@ function MultiDropCard({ result, onDismiss }) {
         })}
       </div>
 
-      <button className={`btn-primary ${styles.dismissBtn}`} onClick={onDismiss}>Continue</button>
+      {pageCount > 1 && (
+        <div className={styles.pager}>
+          <button className={styles.pageBtn} onClick={() => setPage(p => Math.max(0, p-1))} disabled={page === 0}>‹</button>
+          <span className={styles.pageInfo}>{page + 1} / {pageCount}</span>
+          <button className={styles.pageBtn} onClick={() => setPage(p => Math.min(pageCount-1, p+1))} disabled={page >= pageCount-1}>›</button>
+        </div>
+      )}
+
+      <div className={styles.cardActions}>
+        <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleShare}>
+          {shared ? '✓ Copied!' : '🔗 Share'}
+        </button>
+        <button className={`btn-primary ${styles.dismissBtn}`} onClick={onDismiss}>Continue</button>
+      </div>
     </div>
   )
 }

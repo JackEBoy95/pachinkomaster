@@ -2,12 +2,17 @@ import { useRef } from 'react'
 import styles from './PrizePanel.module.css'
 
 export default function PrizePanel({ prizes, onAdd, onUpdate, onRemove }) {
+  const isMobileCapped = prizes.length >= 6 && window.innerWidth <= 640
+
   return (
     <div className={`panel ${styles.panel}`}>
       <div className="panel-header">
         <h3>Prizes</h3>
-        <button className="btn-icon" onClick={onAdd} title="Add prize">+</button>
+        <button className="btn-icon" onClick={onAdd} title="Add prize" disabled={isMobileCapped}>+</button>
       </div>
+      {isMobileCapped && (
+        <p className={styles.mobileCapHint}>6 prize max on mobile</p>
+      )}
       <div className={`panel-body ${styles.list}`}>
         {prizes.map((prize) => (
           <PrizeRow
@@ -68,6 +73,7 @@ function PrizeRow({ prize, onUpdate, onRemove, canRemove }) {
       {/* Colour swatch */}
       <input
         type="color"
+        className={styles.colorInput}
         value={prize.color}
         onChange={e => onUpdate(prize.id, 'color', e.target.value)}
         title="Prize colour"

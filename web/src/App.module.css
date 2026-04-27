@@ -407,6 +407,75 @@
   box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
 }
 
+/* ── Tournament controls ─────────────────────── */
+.tournamentStatus {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  background: rgba(245, 200, 66, 0.08);
+  border: 1.5px solid rgba(245, 200, 66, 0.35);
+  border-radius: 20px;
+}
+
+.tournamentBadge {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 8px var(--peg-glow);
+}
+
+.tournamentInfo {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+}
+
+.cancelTournamentBtn {
+  font-size: 12px;
+  padding: 10px 12px;
+  color: var(--text-secondary);
+}
+
+.showerBtn {
+  font-size: 12px;
+  padding: 10px 14px;
+  letter-spacing: 0.06em;
+  font-family: var(--font-display);
+  border-color: rgba(0, 229, 255, 0.4);
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+}
+.showerBtn:hover {
+  background: rgba(0, 229, 255, 0.08);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.15);
+}
+
+.tournamentBtn {
+  font-size: 12px;
+  padding: 10px 14px;
+  letter-spacing: 0.08em;
+  font-family: var(--font-display);
+  border-color: rgba(245, 200, 66, 0.4);
+  color: var(--accent-gold);
+  text-transform: uppercase;
+}
+.tournamentBtn:hover {
+  background: rgba(245, 200, 66, 0.08);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  box-shadow: 0 0 12px rgba(245, 200, 66, 0.2);
+}
+
+/* ── Mobile nav bar ─────────────────────────── */
+.mobileNav {
+  display: none; /* desktop: hidden */
+}
+
 /* ── Responsive ─────────────────────────────── */
 @media (max-width: 900px) {
   .main {
@@ -426,5 +495,220 @@
   .tabContent {
     height: 280px;
     flex: none;
+  }
+}
+
+/* ── Mobile layout (≤ 640px) ─────────────────── */
+@media (max-width: 640px) {
+  /* --- Header --- */
+  .header {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .logoSub   { display: none; }
+  .logoMain  { font-size: 16px; }
+  .logoIcon  { font-size: 18px; }
+  /* Hide speed text labels, keep emojis */
+  .speedBtn span { display: none; }
+  .speedBtn { padding: 6px 8px; }
+  /* Collapse controls row */
+  .controls { gap: 6px; }
+  .templateBtn span:last-child { display: none; } /* hide text, keep emoji */
+  .templateBtn { padding: 6px 9px; }
+  .soundGroup { display: none; } /* hide sound on mobile */
+
+  /* Full-screen height for mobile — dvh handles address bar */
+  .app {
+    height: 100dvh;
+    height: 100svh; /* fallback for older iOS */
+  }
+
+  /* --- Main area --- */
+  .main {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: 0;
+    overflow: hidden;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Panels hidden by default — shown via .mobilePanelVisible */
+  .sidebar {
+    display: none;
+    flex: 1;
+    min-height: 0;
+    height: auto;
+    overflow: hidden;
+  }
+  .sidebar.mobilePanelVisible {
+    display: flex;
+  }
+
+  /* Board section hidden when not on board tab */
+  .boardSection {
+    display: none;
+    flex: 1;
+    min-height: 0;
+    gap: 0;
+  }
+  .boardSection.mobilePanelVisible {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .boardWrapper {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+  }
+
+  /* Drop controls: horizontal scroll strip */
+  .dropArea {
+    padding: 8px 10px;
+    gap: 8px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+    flex-shrink: 0;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-panel);
+  }
+  .dropBtn   { font-size: 14px; padding: 9px 20px; min-width: 90px; }
+  .dropAllBtn, .showerBtn, .tournamentBtn { font-size: 11px; padding: 9px 10px; }
+  .tournamentBtn { order: -1; }
+  .activePill { font-size: 12px; padding: 5px 10px; }
+  .countDisplay { min-width: 60px; }
+
+  /* Tabs: strip at top of panel */
+  .tabBar    { border-radius: 0; border-left: none; border-right: none; }
+  .tabContent { border-radius: 0; border-left: none; border-right: none; height: auto; flex: 1; }
+
+  /* --- Mobile bottom nav --- */
+  .mobileNav {
+    display: flex;
+    flex-shrink: 0;
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border-color);
+    /* safe area for phones with home indicator */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .mobileNavBtn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 8px 4px 6px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.12s, background 0.12s;
+  }
+  .mobileNavBtn:hover    { color: var(--text-primary); }
+  .mobileNavActive       { color: var(--accent-gold) !important; background: rgba(245,200,66,0.07); }
+  .mobileNavBtn span     { font-size: 18px; line-height: 1; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   Mobile landscape  (phone on its side — height ≤ 500 px)
+   Two-column layout: config panel | board. No bottom nav.
+   ══════════════════════════════════════════════════════════ */
+@media (orientation: landscape) and (max-height: 500px) {
+  /* Crush the header to a single slim bar */
+  .header     { padding: 3px 10px; gap: 8px; }
+  .logoIcon   { font-size: 15px; }
+  .logoMain   { font-size: 13px; }
+  .logoSub    { display: none; }
+  .soundGroup { display: none; }
+  .speedBtn span { display: none; }
+  .speedBtn   { padding: 4px 7px; }
+  .controls   { gap: 6px; }
+  .templateBtn span:last-child { display: none; }
+  .templateBtn { padding: 4px 8px; }
+
+  /* Kill the mobile bottom nav — not needed when both panels are visible */
+  .mobileNav  { display: none; }
+
+  /* Two-column grid: narrow config panel on the left, board takes the rest */
+  .main {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    grid-template-rows: 1fr;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* Left config sidebar — always visible, no tab switching needed */
+  .main > aside:first-of-type {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+    overflow: hidden;
+  }
+
+  /* Hide the right leaderboard sidebar to save horizontal space */
+  .main > aside:last-of-type {
+    display: none;
+  }
+
+  /* Board section always visible */
+  .boardSection {
+    display: flex !important;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .boardWrapper {
+    flex: 1;
+    min-height: 0;
+    border-radius: 0;
+    border: none;
+  }
+
+  /* Very compact drop strip */
+  .dropArea {
+    padding: 4px 8px;
+    gap: 6px;
+    flex-shrink: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-panel);
+  }
+  .dropBtn    { font-size: 12px; padding: 6px 14px; min-width: unset; }
+  .dropAllBtn, .showerBtn, .tournamentBtn { font-size: 10px; padding: 6px 8px; }
+  .tournamentStatus { gap: 4px; }
+  .tournamentBadge  { font-size: 10px; }
+  .tournamentInfo   { font-size: 10px; }
+  .countDisplay     { min-width: 50px; }
+  .activePill       { font-size: 10px; padding: 4px 8px; }
+
+  /* Compact tab bar and content */
+  .tabBar    { border-radius: 0; border-left: none; border-right: none; border-top: none; }
+  .tab       { padding: 6px 4px; font-size: 10px; }
+  .tabContent {
+    flex: 1;
+    min-height: 0;
+    border-radius: 0;
+    border: none;
+    overflow: hidden;
   }
 }

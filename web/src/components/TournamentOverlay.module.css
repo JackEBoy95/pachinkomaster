@@ -1,0 +1,364 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 910;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.15s ease;
+}
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 911;
+}
+
+.card {
+  position: relative;
+  z-index: 912;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  width: 420px;
+  max-width: 94vw;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.65);
+  animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  overflow: hidden;
+}
+
+/* ── Always-visible close button ─────────────── */
+.closeBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  font-size: 14px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+  line-height: 1;
+}
+.closeBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-gold);
+  background: var(--bg-panel);
+}
+
+/* ── Header ──────────────────────────────────── */
+.header {
+  padding: 14px 20px 12px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.roundLabel {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--accent-gold);
+  letter-spacing: 0.08em;
+  display: block;
+}
+
+.roundSub {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* ── Tab toggle ───────────────────────────────── */
+.tabs {
+  display: flex;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tabBtn {
+  flex: 1;
+  padding: 10px 12px;
+  background: var(--bg-panel-alt);
+  border: none;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.15s, background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.tabBtn + .tabBtn {
+  border-left: 1px solid var(--border-color);
+}
+.tabBtn:hover { color: var(--text-primary); }
+
+.tabElim.tabActive {
+  background: var(--bg-panel);
+  color: #FF4FA3;
+  box-shadow: inset 0 -2px 0 #FF4FA3;
+}
+
+.tabAdv.tabActive {
+  background: var(--bg-panel);
+  color: #39FF14;
+  box-shadow: inset 0 -2px 0 #39FF14;
+}
+
+.tabCount {
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+/* ── Fixed player list — always 10 rows ──────── */
+.playerList {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 16px;
+  gap: 4px;
+}
+
+.playerRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  height: 38px;
+  box-sizing: border-box;
+}
+
+.playerRowEmpty {
+  height: 38px;
+  border-radius: 7px;
+  border: 1px dashed transparent;
+  box-sizing: border-box;
+}
+
+.elimRow {
+  opacity: 0.5;
+}
+
+.rankNum {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.playerName {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playerScore {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  flex-shrink: 0;
+}
+
+/* ── Pager ────────────────────────────────────── */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 6px 0 10px;
+  flex-shrink: 0;
+}
+
+.pageBtn {
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 700;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.pageBtn:hover:not(:disabled) {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+.pageBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.pageInfo {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 44px;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+/* ── Actions ──────────────────────────────────── */
+.actions {
+  padding: 10px 16px 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.nextBtn {
+  flex: 1;
+  font-size: 14px;
+  padding: 10px 20px;
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+}
+
+.cancelBtn {
+  font-size: 12px;
+  padding: 10px 14px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* ── Champion card ────────────────────────────── */
+.championCard {
+  align-items: center;
+  padding: 32px 28px;
+  gap: 16px;
+  text-align: center;
+}
+
+.shareChampBtn {
+  font-size: 13px;
+  padding: 10px 20px;
+  width: 100%;
+}
+
+.crownRow {
+  font-size: 48px;
+  line-height: 1;
+  animation: bounce 0.8s ease infinite alternate;
+}
+
+.crown {
+  display: inline-block;
+  filter: drop-shadow(0 0 20px #F5C842);
+}
+
+.championLabel {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.championName {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 24px currentColor;
+}
+
+/* ── Mobile ──────────────────────────────────── */
+@media (max-width: 640px) {
+  .card {
+    /* Cap height so the card never taller than the viewport */
+    max-height: 88dvh;
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
+    /* Flex column so playerList can grow/shrink within the cap */
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Player list fills available space and scrolls rather than overflowing */
+  .playerList {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-shrink: 1;
+  }
+
+  /* Hide empty filler rows — they just waste precious mobile height */
+  .playerRowEmpty { display: none; }
+
+  /* Compact rows */
+  .playerRow {
+    height: 34px;
+    padding: 4px 8px;
+  }
+
+  /* Slightly smaller header text */
+  .roundLabel { font-size: 16px; }
+  .header { padding: 10px 44px 8px; } /* side padding makes room for abs close btn */
+
+  /* Compact actions */
+  .actions { padding: 8px 12px 12px; }
+  .nextBtn { font-size: 13px; padding: 9px 14px; }
+  .cancelBtn { font-size: 11px; padding: 9px 10px; }
+
+  /* Compact tabs */
+  .tabBtn { padding: 8px 8px; font-size: 11px; }
+
+  /* Champion card padding */
+  .championCard { padding: 28px 20px 20px; }
+  .championName { font-size: 26px; }
+}
+
+/* ── Animations ──────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0 }
+  to   { opacity: 1 }
+}
+
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(0.88) translateY(16px) }
+  100% { opacity: 1; transform: scale(1) translateY(0) }
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-8px); }
+}

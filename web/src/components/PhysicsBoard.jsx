@@ -3,11 +3,27 @@ import Matter from 'matter-js'
 
 // Module-level image cache so each skin loads only once across renders
 const imgCache = new Map()
+// Pre-rasterized circular bitmaps — avoids per-frame SVG rasterization + clip
+const rasterCache = new Map() // url -> HTMLCanvasElement
+const RASTER_SIZE = 128       // render at 2× for retina sharpness
+
+function preRasterize(src, img) {
+  if (rasterCache.has(src)) return
+  const c = document.createElement('canvas')
+  c.width = c.height = RASTER_SIZE
+  const cx = c.getContext('2d')
+  cx.beginPath()
+  cx.arc(RASTER_SIZE / 2, RASTER_SIZE / 2, RASTER_SIZE / 2, 0, Math.PI * 2)
+  cx.clip()
+  cx.drawImage(img, 0, 0, RASTER_SIZE, RASTER_SIZE)
+  rasterCache.set(src, c)
+}
+
 function getCachedImage(src) {
   if (imgCache.has(src)) return imgCache.get(src)
   const img = new Image()
   img.src = src
-  img.onload  = () => { img._ready = true }
+  img.onload  = () => { img._ready = true; preRasterize(src, img) }
   img.onerror = () => { img._error = true }
   imgCache.set(src, img)
   return img
@@ -47,7 +63,7 @@ function rescueBall(ball, W) {
 }
 
 const PhysicsBoard = forwardRef(function PhysicsBoard(
-  { prizes, activePlayer, onBallLanded, speed, ballSize, pegDensity, bounciness, onPegHit },
+  { prizes, activePlayer, onBallLanded, speed, ballSize, pegDensity, bounciness, onPegHit, skin, locked },
   ref
 ) {
   const containerRef     = useRef(null)
@@ -64,7 +80,16 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const inFlightRef      = useRef(0)
   const stuckTimersRef   = useRef(new Map()) // ballId -> timestamp when slow motion first detected
   const lastSpawnTimeRef = useRef(0)         // timestamp of most recent ball spawn
-  const [dropping, setDropping] = useState(false)
+  const frameCountRef    = useRef(0)         // increments each draw tick for throttling
+  const refreshStylesRef     = useRef(null)
+  const resizeDebounceRef    = useRef(null)
+  const effectiveBallSizeRef = useRef(ballSize)  // capped to board width — kept in sync at setup
+  // Queue of { x, player } entries waiting to enter the physics world.
+  // Used on mobile to cap concurrent balls and keep the simulation fast.
+  const spawnQueueRef = useRef([])
+  const isTouchRef    = useRef(false)  // true once any touch event fires — suppresses synthetic mouse aim
+  const [dropping, setDropping]   = useState(false)
+  const [resizeKey, setResizeKey] = useState(0)  // increments → triggers engine rebuild on resize
 
   const prizesRef       = useRef(prizes)
   const activePlayerRef = useRef(activePlayer)
@@ -89,15 +114,15 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   //   x = margin + spacing * (col + 0.5)
   //
   // Result: no exploitable gap at either wall edge
-  const buildPegs = useCallback((W, H, cols, pegR) => {
+  const buildPegs = useCallback((W, H, cols, pegR, numRows) => {
     const pegs    = []
     const boardH  = H - SLOT_H - 16
-    const rowSpY  = boardH / (PEG_ROWS + 1)
-    const margin  = pegR * 2 + 4          // tiny margin from wall
+    const rowSpY  = boardH / (numRows + 1)
+    const margin  = pegR + 3
     const usableW = W - margin * 2
     const spacing = cols > 1 ? usableW / (cols - 1) : usableW
 
-    for (let row = 0; row < PEG_ROWS; row++) {
+    for (let row = 0; row < numRows; row++) {
       const y = rowSpY * (row + 1) + 8
       if (row % 2 === 0) {
         for (let col = 0; col < cols; col++) {
@@ -112,6 +137,10 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     return pegs
   }, [])
 
+  useEffect(() => {
+    refreshStylesRef.current?.()
+  }, [skin])
+
   // ── Engine setup ──────────────────────────────────────────────────────────
   useEffect(() => {
     const container = containerRef.current
@@ -119,10 +148,41 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     const canvas = canvasRef.current
     let W = container.offsetWidth
     let H = container.offsetHeight
-    canvas.width = W; canvas.height = H
+    // Container is hidden (e.g. mobile tab switch to Config/Scores).
+    // Set up a lightweight watcher so we rebuild the engine once it becomes
+    // visible again — without this, settings changes while hidden leave
+    // engineRef null permanently and the board appears frozen.
+    if (W === 0 || H === 0) {
+      const watcher = new ResizeObserver(() => {
+        if (container.offsetWidth > 0 && container.offsetHeight > 0) {
+          watcher.disconnect()
+          setResizeKey(k => k + 1)
+        }
+      })
+      watcher.observe(container)
+      return () => watcher.disconnect()
+    }
+    // Scale canvas to physical pixels for crisp rendering on retina / high-DPR
+    // mobile screens (iPhone dpr=2–3). Without this every canvas pixel is a blurry
+    // 2–3px block, making the ball visually larger than its physics circle.
+    const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    canvas.width  = W * dpr
+    canvas.height = H * dpr
 
-    const BR    = ballSize
+    // Scale ball size and peg columns down to fit the board width.
+    // Ensures balls aren't larger than the gap between pegs on small screens.
+    const BR    = Math.min(ballSize, Math.max(6, Math.floor(W / 28)))
     const PEG_R = Math.max(3, Math.round(BR * 0.42))
+    // Physics-correct column cap: gap between adjacent pegs (spacing - 2*PEG_R)
+    // must be ≥ 2*BR (ball diameter) + 4px safety margin.
+    // spacing = usableW / (cols-1), so cols ≤ 1 + usableW / (2*BR + 2*PEG_R + 4)
+    const usableW      = W - (PEG_R + 3) * 2
+    const maxSafeCols  = Math.max(4, Math.floor(1 + usableW / (2 * BR + 2 * PEG_R + 4)))
+    const effectiveCols = Math.min(pegDensity, maxSafeCols)
+    effectiveBallSizeRef.current = BR   // spawnBall reads this
+    // More peg rows on portrait boards so the ball has more decisions to make
+    const aspectRatio  = H / W
+    const pegRows      = aspectRatio > 1.4 ? 14 : aspectRatio > 0.9 ? 11 : PEG_ROWS
     const BNC   = bounciness
     pegRadiusRef.current = PEG_R
 
@@ -143,7 +203,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         mkStatic({ restitution: 0.1, label: 'divider' }))
     })
 
-    const pegs = buildPegs(W, H, pegDensity, PEG_R)
+    const pegs = buildPegs(W, H, effectiveCols, PEG_R, pegRows)
     pegPositionsRef.current = pegs
     const pegBodies = pegs.map(({ x, y }) =>
       Matter.Bodies.circle(x, y, PEG_R, mkStatic({ restitution: BNC, label: 'peg' }))
@@ -173,6 +233,12 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
           // collision checks — this is the main performance fix for large drops
           Matter.Composite.remove(engine.world, ball)
 
+          // Drain spawn queue: one ball landed → one queued ball enters the world.
+          // This keeps concurrent physics bodies capped on mobile without slowing
+          // down the overall drop (inFlightRef already counted queued balls).
+          const next = spawnQueueRef.current.shift()
+          if (next) spawnBall(next.x, next.player)
+
           setTimeout(() => {
             onBallLanded(idx, ball.playerId ?? null, isLast)
             if (isLast) {
@@ -184,21 +250,78 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       })
     })
 
+    // ── CSS var cache — read once per ~2 s instead of every frame ───────────
+    let cssVars = {}
+    function refreshCSSVars() {
+      cssVars = {
+        bgBoard:     getCSSVar('--bg-board')     || '#0D0D1A',
+        boardLine:   getCSSVar('--board-line')   || 'rgba(42,42,68,0.4)',
+        pegColor:    getCSSVar('--peg-color')    || '#F5C842',
+        pegGlow:     getCSSVar('--peg-glow')     || 'rgba(245,200,66,0.5)',
+        glowSpread:  parseInt(getCSSVar('--glow-spread')) || 12,
+        ballTrail:   getCSSVar('--ball-trail')   || 'rgba(255,79,163,0.6)',
+        bgPanel:     getCSSVar('--bg-panel')     || '#12121E',
+        slotDivider: getCSSVar('--slot-divider') || 'rgba(245,200,66,0.3)',
+        textSec:     getCSSVar('--text-secondary') || '#6A6A8A',
+        fxGlow:      getCSSVar('--fx-glow') === '1',
+      }
+    }
+    refreshCSSVars()
+
+    // ── Peg offscreen canvas — blit once per frame instead of N gradients ────
+    let pegCanvas = null
+    function buildPegCanvas() {
+      pegCanvas = document.createElement('canvas')
+      pegCanvas.width = W * dpr; pegCanvas.height = H * dpr
+      const pc = pegCanvas.getContext('2d')
+      pc.scale(dpr, dpr) // all peg coords are CSS pixels → scale to physical
+      if (cssVars.fxGlow) {
+        pc.shadowColor = cssVars.pegGlow
+        pc.shadowBlur  = cssVars.glowSpread
+      }
+      pegPositionsRef.current.forEach(({ x, y }) => {
+        if (cssVars.fxGlow) {
+          const gr = pc.createRadialGradient(x, y, 0, x, y, PEG_R * 3)
+          gr.addColorStop(0, cssVars.pegGlow); gr.addColorStop(1, 'transparent')
+          pc.fillStyle = gr
+          pc.beginPath(); pc.arc(x, y, PEG_R * 3, 0, Math.PI * 2); pc.fill()
+        }
+        pc.fillStyle = cssVars.pegColor
+        pc.beginPath(); pc.arc(x, y, PEG_R, 0, Math.PI * 2); pc.fill()
+      })
+      pc.shadowBlur = 0
+    }
+    buildPegCanvas()
+    refreshStylesRef.current = () => { refreshCSSVars(); buildPegCanvas() }
+
     // ── Draw loop ────────────────────────────────────────────────────────────
     let animId
     const draw = () => {
       animId = requestAnimationFrame(draw)
       Matter.Runner.tick(runner, engine, 1000 / 60)
       const ctx = canvas.getContext('2d')
+      // Reset to DPR-scaled identity each frame so CSS-pixel coordinates from
+      // Matter.js map cleanly to physical pixels. setTransform replaces the
+      // current matrix rather than accumulating, so save/restore within the
+      // frame never corrupt the base scale.
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.clearRect(0, 0, W, H)
 
-      ctx.fillStyle = getCSSVar('--bg-board') || '#0D0D1A'
+      ctx.fillStyle = cssVars.bgBoard
       ctx.fillRect(0, 0, W, H)
 
-      ctx.strokeStyle = getCSSVar('--board-line') || 'rgba(42,42,68,0.4)'
-      ctx.lineWidth = 1
-      for (let x = 0; x < W; x += 32) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke() }
-      for (let y = 0; y < H; y += 32) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke() }
+      // ── Load tier — drives all quality decisions this frame ───────────────
+      const inFlight   = inFlightRef.current
+      const isHighLoad = inFlight > 50   // heavy multi-player drop
+      const isMedLoad  = inFlight > 10   // moderate load
+      document.body.classList.toggle('dropping', inFlight > 0)
+
+      if (!isHighLoad) {
+        ctx.strokeStyle = cssVars.boardLine
+        ctx.lineWidth = 1
+        for (let x = 0; x < W; x += 32) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke() }
+        for (let y = 0; y < H; y += 32) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke() }
+      }
 
       // Aim
       if (hoveringRef.current && aimXRef.current !== null && !droppingRef.current) {
@@ -212,57 +335,60 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         ctx.beginPath(); ctx.arc(ax, BR + 6, BR, 0, Math.PI * 2); ctx.fill()
       }
 
-      // ── Stuck-ball rescue ──────────────────────────────────────────────────
-      if (inFlightRef.current > 0) {
-        const now       = Date.now()
+      // ── Stuck-ball rescue (throttled: only every 20 frames) ─────────────
+      frameCountRef.current += 1
+      if (inFlightRef.current > 0 && frameCountRef.current % 20 === 0) {
+        const now        = Date.now()
         const ballBodies = Matter.Composite.allBodies(engine.world).filter(b => b.label === 'ball')
 
-        // Per-ball: nudge if stalled for more than STUCK_DELAY ms
         ballBodies.forEach(b => {
-          const speed = Math.sqrt(b.velocity.x ** 2 + b.velocity.y ** 2)
-          if (speed < STUCK_SPEED) {
+          const spd = Math.sqrt(b.velocity.x ** 2 + b.velocity.y ** 2)
+          if (spd < STUCK_SPEED) {
             if (!stuckTimersRef.current.has(b.id)) {
               stuckTimersRef.current.set(b.id, now)
             } else if (now - stuckTimersRef.current.get(b.id) > STUCK_DELAY) {
               rescueBall(b, W)
-              stuckTimersRef.current.delete(b.id) // reset so it gets a fresh window
+              stuckTimersRef.current.delete(b.id)
             }
           } else {
-            stuckTimersRef.current.delete(b.id) // moving fine — clear its timer
+            stuckTimersRef.current.delete(b.id)
           }
         })
 
-        // Global rescue: if still balls in flight GLOBAL_RESCUE ms after the last spawn,
-        // kick every remaining ball harder so the round always resolves
         if (lastSpawnTimeRef.current > 0 && now - lastSpawnTimeRef.current > GLOBAL_RESCUE) {
           ballBodies.forEach(b => rescueBall(b, W))
-          lastSpawnTimeRef.current = now // reset so we don't kick every frame
+          lastSpawnTimeRef.current = now
         }
       }
 
-      // Trails
+      // Trails — only on glow-enabled themes, then tiered by load
+      const trailActive = cssVars.fxGlow && !isHighLoad
+      const trailDecay  = isMedLoad ? 0.10 : 0.05   // faster fade under medium load
       trailsRef.current = trailsRef.current.filter(t => t.alpha > 0)
-      trailsRef.current.forEach(t => {
-        ctx.globalAlpha = t.alpha
-        ctx.fillStyle = getCSSVar('--ball-trail') || 'rgba(255,79,163,0.6)'
-        ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2); ctx.fill()
-        t.alpha -= 0.05
-      })
-      ctx.globalAlpha = 1
+      if (trailActive) {
+        const trailColor = cssVars.ballTrail
+        trailsRef.current.forEach(t => {
+          ctx.globalAlpha = t.alpha
+          ctx.fillStyle = trailColor
+          ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2); ctx.fill()
+          t.alpha -= trailDecay
+        })
+        ctx.globalAlpha = 1
+      } else {
+        trailsRef.current.length = 0
+      }
 
-      // Pegs
-      const pegColor = getCSSVar('--peg-color') || '#F5C842'
-      const pegGlow  = getCSSVar('--peg-glow')  || 'rgba(245,200,66,0.5)'
-      const glowBlur = parseInt(getCSSVar('--glow-spread')) || 12
-      pegPositionsRef.current.forEach(({ x, y }) => {
-        const gr = ctx.createRadialGradient(x, y, 0, x, y, PEG_R * 3)
-        gr.addColorStop(0, pegGlow); gr.addColorStop(1, 'transparent')
-        ctx.fillStyle = gr
-        ctx.beginPath(); ctx.arc(x, y, PEG_R * 3, 0, Math.PI * 2); ctx.fill()
-        ctx.fillStyle = pegColor; ctx.shadowColor = pegGlow; ctx.shadowBlur = glowBlur
-        ctx.beginPath(); ctx.arc(x, y, PEG_R, 0, Math.PI * 2); ctx.fill()
-        ctx.shadowBlur = 0
-      })
+      // Pegs — blit pre-rendered offscreen canvas (full quality) or fast fallback.
+      // Draw into CSS-pixel space (0, 0, W, H); the dpr setTransform above maps
+      // that to physical pixels, giving crisp output on retina displays.
+      if (!isHighLoad && pegCanvas) {
+        ctx.drawImage(pegCanvas, 0, 0, W, H)
+      } else {
+        ctx.fillStyle = cssVars.pegColor
+        pegPositionsRef.current.forEach(({ x, y }) => {
+          ctx.beginPath(); ctx.arc(x, y, PEG_R, 0, Math.PI * 2); ctx.fill()
+        })
+      }
 
       // Balls
       Matter.Composite.allBodies(engine.world)
@@ -270,44 +396,74 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         .forEach(b => {
           const { x, y } = b.position
           const r = b.ballRadius || BR
-          trailsRef.current.push({ x, y, r: r * 0.65, alpha: 0.45 })
+          if (trailActive) trailsRef.current.push({ x, y, r: r * 0.65, alpha: 0.45 })
 
-          ctx.fillStyle = 'rgba(0,0,0,0.3)'
-          ctx.beginPath(); ctx.ellipse(x, y + r * 0.6, r * 0.8, r * 0.3, 0, 0, Math.PI * 2); ctx.fill()
+          // Drop shadow — skip on high load
+          if (!isHighLoad) {
+            ctx.fillStyle = 'rgba(0,0,0,0.3)'
+            ctx.beginPath(); ctx.ellipse(x, y + r * 0.6, r * 0.8, r * 0.3, 0, 0, Math.PI * 2); ctx.fill()
+          }
 
-          const bg = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.05, x, y, r)
-          const bc = b.ballColor || '#FF4FA3'
-          bg.addColorStop(0, shiftColor(bc, 65)); bg.addColorStop(0.55, bc); bg.addColorStop(1, shiftColor(bc, -45))
-          ctx.fillStyle = bg; ctx.shadowColor = bc; ctx.shadowBlur = 18
-          ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill()
-          ctx.shadowBlur = 0
-
-          ctx.fillStyle = 'rgba(255,255,255,0.28)'
-          ctx.beginPath(); ctx.arc(x - r * 0.28, y - r * 0.28, r * 0.28, 0, Math.PI * 2); ctx.fill()
-
-          if (b.ballSkin?.startsWith('flag:')) {
-            ctx.font = `${Math.round(r * 1.1)}px serif`
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-            ctx.fillText(b.ballSkin.replace('flag:', ''), x, y + 1)
-          } else if (b.ballSkin?.startsWith('img:')) {
-            const key = b.ballSkin.replace('img:', '')
-            const img = getCachedImage(`/skins/${key}.png`)
-            if (img._ready) {
-              ctx.save()
-              ctx.beginPath(); ctx.arc(x, y, r * 0.78, 0, Math.PI * 2); ctx.clip()
-              ctx.drawImage(img, x - r * 0.78, y - r * 0.78, r * 1.56, r * 1.56)
-              ctx.restore()
+          if (b.ballSkin?.startsWith('cflag:')) {
+            // Use pre-rasterized bitmap — no save/clip/restore, just a fast blit
+            const code   = b.ballSkin.replace('cflag:', '')
+            const src    = `https://hatscripts.github.io/circle-flags/flags/${code}.svg`
+            const bitmap = rasterCache.get(src)
+            if (bitmap) {
+              ctx.drawImage(bitmap, x - r, y - r, r * 2, r * 2)
+            } else {
+              getCachedImage(src) // queue the load if not started
+              ctx.fillStyle = b.ballColor || '#888'
+              ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill()
             }
-          } else if (b.playerName) {
-            ctx.fillStyle = 'rgba(255,255,255,0.9)'
-            ctx.font = `bold ${Math.max(7, Math.round(r * 0.65))}px Rajdhani, sans-serif`
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-            ctx.fillText(b.playerName.slice(0, 4), x, y + 1)
+            if (!isMedLoad) {
+              ctx.fillStyle = 'rgba(255,255,255,0.2)'
+              ctx.beginPath(); ctx.arc(x - r * 0.28, y - r * 0.28, r * 0.28, 0, Math.PI * 2); ctx.fill()
+            }
+          } else {
+            // Standard gradient ball
+            const bg = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.05, x, y, r)
+            const bc = b.ballColor || '#FF4FA3'
+            bg.addColorStop(0, shiftColor(bc, 65)); bg.addColorStop(0.55, bc); bg.addColorStop(1, shiftColor(bc, -45))
+            ctx.fillStyle = bg
+            if (cssVars.fxGlow && !isHighLoad) { ctx.shadowColor = bc; ctx.shadowBlur = 18 }
+            ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill()
+            ctx.shadowBlur = 0
+
+            if (!isMedLoad) {
+              ctx.fillStyle = 'rgba(255,255,255,0.28)'
+              ctx.beginPath(); ctx.arc(x - r * 0.28, y - r * 0.28, r * 0.28, 0, Math.PI * 2); ctx.fill()
+            }
+
+            if (b.ballSkin?.startsWith('img:')) {
+              const key = b.ballSkin.replace('img:', '')
+              const img = getCachedImage(`/skins/${key}.png`)
+              if (img._ready) {
+                ctx.save()
+                ctx.beginPath(); ctx.arc(x, y, r * 0.78, 0, Math.PI * 2); ctx.clip()
+                ctx.drawImage(img, x - r * 0.78, y - r * 0.78, r * 1.56, r * 1.56)
+                ctx.restore()
+              }
+            } else if (b.ballSkin?.startsWith('emoji:')) {
+              const cp = b.ballSkin.replace('emoji:', '')
+              const img = getCachedImage(`/emojis/${cp}.svg`)
+              if (img._ready) {
+                ctx.save()
+                ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.clip()
+                ctx.drawImage(img, x - r, y - r, r * 2, r * 2)
+                ctx.restore()
+              }
+            } else if (b.playerName) {
+              ctx.fillStyle = 'rgba(255,255,255,0.9)'
+              ctx.font = `bold ${Math.max(7, Math.round(r * 0.65))}px Rajdhani, sans-serif`
+              ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+              ctx.fillText(b.playerName.slice(0, 4), x, y + 1)
+            }
           }
         })
 
       // Slot bar
-      ctx.fillStyle = getCSSVar('--bg-panel') || '#12121E'
+      ctx.fillStyle = cssVars.bgPanel
       ctx.fillRect(0, H - SLOT_H, W, SLOT_H)
       const cp = prizesRef.current; const sW = W / cp.length
       cp.forEach((prize, i) => {
@@ -315,7 +471,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         ctx.fillStyle = hexToRgba(prize.color, 0.12); ctx.fillRect(sx + 1, H - SLOT_H, sW - 2, SLOT_H)
         ctx.fillStyle = prize.color; ctx.fillRect(sx + 1, H - SLOT_H, sW - 2, 3)
         if (i > 0) {
-          ctx.strokeStyle = getCSSVar('--slot-divider') || 'rgba(245,200,66,0.3)'; ctx.lineWidth = 1
+          ctx.strokeStyle = cssVars.slotDivider; ctx.lineWidth = 1
           ctx.beginPath(); ctx.moveTo(sx, H - SLOT_H); ctx.lineTo(sx, H); ctx.stroke()
         }
 
@@ -337,13 +493,13 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
           ctx.textAlign = 'left'; ctx.textBaseline = 'middle'
           const label = prize.label.length > 8 ? prize.label.slice(0, 7) + '…' : prize.label
           ctx.fillText(label, textX, H - SLOT_H + 16)
-          ctx.fillStyle = getCSSVar('--text-secondary') || '#6A6A8A'; ctx.font = '600 9px Rajdhani, sans-serif'
+          ctx.fillStyle = cssVars.textSec; ctx.font = '600 9px Rajdhani, sans-serif'
           ctx.fillText(`${prize.points}pts`, textX, H - SLOT_H + 30)
         } else {
           ctx.fillStyle = prize.color; ctx.font = 'bold 11px Rajdhani, sans-serif'
           ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
           ctx.fillText(prize.label.length > 10 ? prize.label.slice(0, 9) + '…' : prize.label, mx, H - SLOT_H + 18)
-          ctx.fillStyle = getCSSVar('--text-secondary') || '#6A6A8A'; ctx.font = '600 10px Rajdhani, sans-serif'
+          ctx.fillStyle = cssVars.textSec; ctx.font = '600 10px Rajdhani, sans-serif'
           ctx.fillText(`${prize.points}pts`, mx, H - SLOT_H + 34)
         }
       })
@@ -351,9 +507,24 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     draw()
 
     const ro = new ResizeObserver(() => {
-      W = container.offsetWidth; H = container.offsetHeight
-      canvas.width = W; canvas.height = H
-      pegPositionsRef.current = buildPegs(W, H, pegDensity, PEG_R)
+      const newW = container.offsetWidth
+      const newH = container.offsetHeight
+      // Container is hidden (mobile tab switch) — ignore completely
+      if (newW === 0 || newH === 0) return
+      canvas.width = newW * dpr; canvas.height = newH * dpr
+      // If dimensions changed meaningfully, schedule a full engine rebuild
+      if (Math.abs(newW - W) > 30 || Math.abs(newH - H) > 30) {
+        clearTimeout(resizeDebounceRef.current)
+        resizeDebounceRef.current = setTimeout(() => setResizeKey(k => k + 1), 350)
+      }
+      W = newW; H = newH
+      const resUsableW     = W - (PEG_R + 3) * 2
+      const resMaxSafeCols = Math.max(4, Math.floor(1 + resUsableW / (2 * BR + 2 * PEG_R + 4)))
+      const resCols        = Math.min(pegDensity, resMaxSafeCols)
+      const resAspect      = H / W
+      const resPegRows     = resAspect > 1.4 ? 14 : resAspect > 0.9 ? 11 : PEG_ROWS
+      pegPositionsRef.current = buildPegs(W, H, resCols, PEG_R, resPegRows)
+      buildPegCanvas()
     })
     ro.observe(container)
 
@@ -362,16 +533,17 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       Matter.Runner.stop(runner); Matter.Engine.clear(engine)
       droppingRef.current = false; inFlightRef.current = 0; setDropping(false)
       stuckTimersRef.current.clear(); lastSpawnTimeRef.current = 0
+      spawnQueueRef.current = []
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prizes.length, ballSize, pegDensity, bounciness, buildPegs, onBallLanded])
+  }, [prizes.length, ballSize, pegDensity, bounciness, buildPegs, onBallLanded, resizeKey])
 
   // ── Spawn one ball ────────────────────────────────────────────────────────
   // All balls spawn from the SAME x/y position.
   // The "funnel" effect comes from randomised initial velocity — not position spread.
   const spawnBall = useCallback((x, player) => {
     if (!engineRef.current) return
-    const BR  = ballSizeRef.current
+    const BR  = effectiveBallSizeRef.current  // scaled to board width at setup time
     const BNC = bouncinessRef.current
     const mult = speedRef.current === 'slow' ? 0.55 : speedRef.current === 'fast' ? 2.2 : 1
     engineRef.current.gravity.y = 1.2 * mult
@@ -393,7 +565,6 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     Matter.Body.setVelocity(ball, { x: Math.sin(angle) * spd, y: Math.cos(angle) * spd * 0.3 })
 
     landedRef.current.delete(ball.id)
-    inFlightRef.current += 1
     lastSpawnTimeRef.current = Date.now()
     Matter.Composite.add(engineRef.current.world, ball)
   }, [])
@@ -403,7 +574,9 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     if (!engineRef.current || droppingRef.current) return
     const canvas = canvasRef.current
     if (!canvas) return
-    const W  = canvas.width
+    // Use container CSS-pixel width — canvas.width is now dpr-scaled (physical
+    // pixels) and must NOT be used as a physics world coordinate.
+    const W  = containerRef.current?.offsetWidth || canvas.offsetWidth
     const BR = ballSizeRef.current
     const x  = aimXRef.current !== null
       ? Math.max(BR + 2, Math.min(W - BR - 2, aimXRef.current))
@@ -411,65 +584,136 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
 
     droppingRef.current = true
     setDropping(true)
+    // Set total expected BEFORE any setTimeout fires so early-landing balls
+    // never see inFlightRef hit 0 prematurely
+    inFlightRef.current = count
 
-    // Scale stagger down for bigger counts so the engine never has too many
-    // balls in flight simultaneously (keeps physics snappy)
-    const stagger = Math.max(60, Math.round(400 / count))
+    const minMs  = speedRef.current === 'fast' ? 15 : speedRef.current === 'slow' ? 60 : 35
+    const stagger = Math.max(minMs, Math.round(400 / count))
     for (let i = 0; i < count; i++) {
       setTimeout(() => spawnBall(x, player), i * stagger)
     }
   }, [spawnBall])
 
-  // ── Drop all players simultaneously from same drop point ─────────────────
-  // Each player's ball spawns from the SAME x with different random velocities
-  const dropAllPlayers = useCallback((players, count = 1) => {
+  // ── Drop all players simultaneously ──────────────────────────────────────
+  // spread: 0 = all from same x | 'funnel' = ±20% of W around centre | 'shower' = full width
+  const dropAllPlayers = useCallback((players, count = 1, spread = 0) => {
     if (!engineRef.current || droppingRef.current) return
     const canvas = canvasRef.current
     if (!canvas) return
-    const W  = canvas.width
+    // Use container CSS-pixel width — canvas.width is now dpr-scaled (physical
+    // pixels) and must NOT be used as a physics world coordinate.
+    const W  = containerRef.current?.offsetWidth || canvas.offsetWidth
     const BR = ballSizeRef.current
-    const x  = aimXRef.current !== null
+    const centreX = aimXRef.current !== null
       ? Math.max(BR + 2, Math.min(W - BR - 2, aimXRef.current))
       : W / 2
+
+    // ── Preload all player skin images before any ball spawns ────────────────
+    // Kicks off CDN fetches immediately so flag images arrive before balls land,
+    // rather than being fetched lazily per draw-frame.
+    players.forEach(p => {
+      if (!p.ballSkin) return
+      if (p.ballSkin.startsWith('cflag:')) {
+        getCachedImage(`https://hatscripts.github.io/circle-flags/flags/${p.ballSkin.replace('cflag:', '')}.svg`)
+      } else if (p.ballSkin.startsWith('emoji:')) {
+        getCachedImage(`/emojis/${p.ballSkin.replace('emoji:', '')}.svg`)
+      }
+    })
 
     droppingRef.current = true
     setDropping(true)
 
-    // All players × count balls, all from same x, staggered 80ms apart
     const allDrops = []
     players.forEach(player => {
       for (let i = 0; i < count; i++) allDrops.push(player)
     })
-    // Shuffle so balls don't arrive in strict player order (looks more chaotic)
+    // Set total expected BEFORE any setTimeout fires — prevents early-landing
+    // balls from seeing inFlightRef hit 0 before all balls are even spawned
+    inFlightRef.current = allDrops.length
+    // Shuffle spawn order each call so no player gets a consistent lane
     for (let i = allDrops.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [allDrops[i], allDrops[j]] = [allDrops[j], allDrops[i]]
     }
-    const stagger = Math.max(50, Math.round(600 / allDrops.length))
-    allDrops.forEach((player, i) => {
-      setTimeout(() => spawnBall(x, player), i * stagger)
-    })
+
+    const getX = () => {
+      if (spread === 'funnel') {
+        const x = centreX + (Math.random() - 0.5) * W * 0.2
+        return Math.max(BR + 2, Math.min(W - BR - 2, x))
+      }
+      if (spread === 'shower') return BR + 2 + Math.random() * (W - (BR + 2) * 2)
+      return centreX
+    }
+
+    const minMs = speedRef.current === 'fast' ? 10 : speedRef.current === 'slow' ? 50 : 20
+
+    // On narrow boards (mobile) cap how many balls are in the physics world at
+    // once — physics is O(n²) so 100 simultaneous balls kills frame rate.
+    // inFlightRef still counts the full total; spawnQueueRef drains as balls land.
+    const isMobile = W < 600
+    const concurrentLimit = isMobile ? 20 : allDrops.length
+
+    if (concurrentLimit >= allDrops.length) {
+      // Desktop / small drop: stagger everything normally
+      const stagger = Math.max(minMs, Math.round(500 / allDrops.length))
+      allDrops.forEach((player, i) => {
+        setTimeout(() => spawnBall(getX(), player), i * stagger)
+      })
+    } else {
+      // Mobile queue mode: spawn first batch now, rest drain via collision handler
+      spawnQueueRef.current = allDrops.slice(concurrentLimit).map(p => ({ x: getX(), player: p }))
+      const stagger = Math.max(minMs, Math.round(400 / concurrentLimit))
+      for (let i = 0; i < concurrentLimit; i++) {
+        setTimeout(() => spawnBall(getX(), allDrops[i]), i * stagger)
+      }
+    }
   }, [spawnBall])
 
   useImperativeHandle(ref, () => ({ dropBalls, dropAllPlayers }), [dropBalls, dropAllPlayers])
 
+  // Desktop: track cursor position for the aim guide and drop-from-cursor.
+  // Skipped on touch devices — synthetic mousemove from taps would lock the aim
+  // at the last tap position and affect all subsequent button-triggered drops.
   const handleMouseMove = useCallback((e) => {
+    if (isTouchRef.current) return
     const rect = canvasRef.current?.getBoundingClientRect()
     if (!rect) return
     aimXRef.current = e.clientX - rect.left
   }, [])
 
+  // Mobile tap: use touch X for this drop only, then clear aim so the next
+  // button-triggered drop falls from centre. preventDefault stops the browser
+  // firing a synthetic click event after touchend (which would double-drop).
+  const handleTouchEnd = useCallback((e) => {
+    isTouchRef.current = true
+    if (locked || droppingRef.current) return
+    e.preventDefault()
+    const rect = canvasRef.current?.getBoundingClientRect()
+    if (!rect) return
+    const touch = e.changedTouches[0]
+    aimXRef.current = touch.clientX - rect.left
+    dropBalls(1)
+    // Clear immediately — dropBalls already captured x synchronously above.
+    // This ensures button-triggered drops always fall from centre, not the last tap.
+    aimXRef.current = null
+  }, [dropBalls, locked])
+
   return (
     <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%' }}>
       <canvas
         ref={canvasRef}
-        style={{ width: '100%', height: '100%', display: 'block', cursor: dropping ? 'wait' : 'crosshair' }}
+        style={{
+          width: '100%', height: '100%', display: 'block',
+          cursor: locked ? 'default' : dropping ? 'wait' : 'crosshair',
+        }}
         onMouseMove={handleMouseMove}
-        onMouseEnter={() => { hoveringRef.current = true }}
+        onMouseEnter={() => { if (!isTouchRef.current) hoveringRef.current = true }}
         onMouseLeave={() => { hoveringRef.current = false }}
-        onClick={() => dropBalls(1)}
+        onTouchEnd={handleTouchEnd}
+        onClick={locked ? undefined : () => { if (!isTouchRef.current) dropBalls(1) }}
       />
-      {!dropping && (
+      {!dropping && !locked && (
         <div style={{
           position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)',
           color: 'var(--text-secondary)', fontSize: 12, fontFamily: 'var(--font-body)',

@@ -1,21 +1,57 @@
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import styles from './Leaderboard.module.css'
 
-export default function Leaderboard({ players, history, onClear }) {
-  const sorted   = [...players].sort((a, b) => b.score - a.score)
+const PAGE_SIZE = 12
+
+export default function Leaderboard({ players, history, onClear, tournament }) {
+  const [search, setSearch] = useState('')
+  const [page,   setPage]   = useState(0)
+
+  // Dedup by id in case of stale/duplicate state
+  const unique = useMemo(() => {
+    const seen = new Set()
+    return players.filter(p => { if (seen.has(p.id)) return false; seen.add(p.id); return true })
+  }, [players])
+
+  const sorted = useMemo(
+    () => [...unique].sort((a, b) => b.score - a.score),
+    [unique]
+  )
   const maxScore = sorted[0]?.score || 1
 
-  // Group history by roundId, preserving insertion order (newest first)
-  const rounds = []
-  const seen   = new Map()
-  history.forEach(entry => {
-    if (!seen.has(entry.roundId)) {
-      const group = { roundId: entry.roundId, entries: [] }
-      seen.set(entry.roundId, group)
-      rounds.push(group)
-    }
-    seen.get(entry.roundId).entries.push(entry)
-  })
+  // Build survivor set for tournament eliminated indicator
+  const survivorIds = useMemo(() => {
+    if (!tournament) return null
+    return new Set(tournament.survivors.map(p => p.id))
+  }, [tournament])
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    return q ? sorted.filter(p => p.name.toLowerCase().includes(q)) : sorted
+  }, [sorted, search])
+
+  // Reset to page 0 when search or player list changes
+  useEffect(() => { setPage(0) }, [search, unique.length])
+
+  const pageCount = Math.ceil(filtered.length / PAGE_SIZE)
+  const pageRows  = search
+    ? filtered                                                          // show all during search
+    : filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+
+  // Group history by roundId, newest first
+  const rounds = useMemo(() => {
+    const groups = []
+    const seen   = new Map()
+    history.forEach(entry => {
+      if (!seen.has(entry.roundId)) {
+        const g = { roundId: entry.roundId, entries: [] }
+        seen.set(entry.roundId, g)
+        groups.push(g)
+      }
+      seen.get(entry.roundId).entries.push(entry)
+    })
+    return groups
+  }, [history])
 
   return (
     <div className={`panel ${styles.panel}`}>
@@ -25,27 +61,70 @@ export default function Leaderboard({ players, history, onClear }) {
           <button className="btn-icon" onClick={onClear} title="Clear scores">↺</button>
         )}
       </div>
+
+      {unique.length > 8 && (
+        <div className={styles.searchBar}>
+          <input
+            className={styles.searchInput}
+            placeholder="Search players…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          {search && (
+            <button className={styles.searchClear} onClick={() => setSearch('')}>✕</button>
+          )}
+        </div>
+      )}
+
       <div className={`panel-body ${styles.body}`}>
         {/* Rankings */}
         <div className={styles.rankings}>
-          {sorted.map((player, i) => (
-            <div key={player.id} className={styles.rankRow}>
-              <span className={`${styles.rank} ${i === 0 && player.score > 0 ? styles.crown : ''}`}>
-                {i === 0 && player.score > 0 ? '👑' : `#${i + 1}`}
-              </span>
+          {pageRows.map(player => {
+            const rank       = sorted.indexOf(player)
+            const eliminated = survivorIds !== null && !survivorIds.has(player.id)
+            return (
               <div
-                className={styles.rankBar}
-                style={{ '--bar-w': `${(player.score / maxScore) * 100}%`, '--bar-color': player.color }}
+                key={player.id}
+                className={`${styles.rankRow} ${eliminated ? styles.elimRow : ''}`}
               >
-                <div className={styles.barFill} />
+                <span className={`${styles.rank} ${rank === 0 && player.score > 0 && !eliminated ? styles.crown : ''}`}>
+                  {eliminated
+                    ? '💀'
+                    : rank === 0 && player.score > 0 ? '👑' : `#${rank + 1}`}
+                </span>
+                <div
+                  className={styles.rankBar}
+                  style={{ '--bar-w': `${(player.score / maxScore) * 100}%`, '--bar-color': player.color }}
+                >
+                  <div className={styles.barFill} />
+                </div>
+                <div className={styles.rankInfo}>
+                  <span className={styles.rankName} style={{ color: eliminated ? 'var(--text-secondary)' : player.color }}>
+                    {player.name}
+                  </span>
+                  <span className={styles.rankScore}>{player.score}</span>
+                </div>
               </div>
-              <div className={styles.rankInfo}>
-                <span className={styles.rankName} style={{ color: player.color }}>{player.name}</span>
-                <span className={styles.rankScore}>{player.score}</span>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
+
+        {/* Pagination */}
+        {!search && pageCount > 1 && (
+          <div className={styles.pagination}>
+            <button
+              className={styles.pageBtn}
+              onClick={() => setPage(p => Math.max(0, p - 1))}
+              disabled={page === 0}
+            >‹</button>
+            <span className={styles.pageInfo}>{page + 1} / {pageCount}</span>
+            <button
+              className={styles.pageBtn}
+              onClick={() => setPage(p => Math.min(pageCount - 1, p + 1))}
+              disabled={page >= pageCount - 1}
+            >›</button>
+          </div>
+        )}
 
         {/* Grouped history */}
         {rounds.length > 0 && (
@@ -67,12 +146,10 @@ export default function Leaderboard({ players, history, onClear }) {
   )
 }
 
-// ── Single round group ────────────────────────────────────────────────────────
 function RoundGroup({ group }) {
   const { entries } = group
   const [open, setOpen] = useState(false)
 
-  // Single ball — render inline, no toggle needed
   if (entries.length === 1) {
     const e = entries[0]
     return (
@@ -86,26 +163,19 @@ function RoundGroup({ group }) {
     )
   }
 
-  // Multi-ball round — show summary row + expandable detail
   const totalPts = entries.reduce((s, e) => s + e.points, 0)
-  // Find player with most points this round
   const ptsByPlayer = {}
   entries.forEach(e => { ptsByPlayer[e.playerName] = (ptsByPlayer[e.playerName] || 0) + e.points })
   const topPlayer = Object.entries(ptsByPlayer).sort((a, b) => b[1] - a[1])[0]
 
   return (
     <div className={styles.roundGroup}>
-      {/* Summary header — always visible */}
       <button className={styles.roundHeader} onClick={() => setOpen(v => !v)}>
         <span className={styles.roundChevron}>{open ? '▾' : '▸'}</span>
         <span className={styles.roundBadge}>{entries.length} balls</span>
-        <span className={styles.roundTopPlayer}>
-          {topPlayer?.[0]}
-        </span>
+        <span className={styles.roundTopPlayer}>{topPlayer?.[0]}</span>
         <span className={styles.roundTotalPts}>+{totalPts}</span>
       </button>
-
-      {/* Expandable rows */}
       {open && (
         <div className={styles.roundDetail}>
           {entries.map(e => (
