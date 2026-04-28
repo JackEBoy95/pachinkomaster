@@ -102,8 +102,9 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const effectiveBallSizeRef = useRef(ballSize)  // capped to board width — kept in sync at setup
   // Queue of { x, player } entries waiting to enter the physics world.
   // Used on mobile to cap concurrent balls and keep the simulation fast.
-  const spawnQueueRef = useRef([])
-  const isTouchRef    = useRef(false)  // true once any touch event fires — suppresses synthetic mouse aim
+  const spawnQueueRef    = useRef([])
+  const isTouchRef       = useRef(false)  // true once any touch event fires — suppresses synthetic mouse aim
+  const physicsWorldWRef = useRef(0)      // W used to build the current physics engine (walls, pegs)
   const [dropping, setDropping]   = useState(false)
   const [resizeKey, setResizeKey] = useState(0)  // increments → triggers engine rebuild on resize
 
@@ -193,6 +194,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     const maxSafeCols  = Math.max(4, Math.floor(1 + usableW / (2 * BR + 2 * PEG_R + 4)))
     const effectiveCols = Math.min(pegDensity, maxSafeCols)
     effectiveBallSizeRef.current = BR   // spawnBall reads this
+    physicsWorldWRef.current     = W    // drop functions must clamp to THIS width, not live container width
     // More peg rows on portrait boards so the ball has more decisions to make
     const aspectRatio  = H / W
     const pegRows      = aspectRatio > 1.4 ? 14 : aspectRatio > 0.9 ? 11 : PEG_ROWS
@@ -531,11 +533,13 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         resizeDebounceRef.current = setTimeout(() => setResizeKey(k => k + 1), 350)
       }
       W = newW; H = newH
-      // Recompute BR for the new width so balls spawned during the debounce
-      // window are already the correct size for the updated peg layout.
+      // Recompute peg layout for the new visual size so the peg canvas is
+      // redrawn correctly. Ball size (effectiveBallSizeRef) is intentionally
+      // NOT updated here — it must stay at the value used to build the physics
+      // world (walls/pegs) so balls spawned during the debounce window are
+      // correctly sized for the CURRENT physics boundaries, not the new ones.
       const resBR          = computeBR(W, ballSize, pegDensity)
       const resPEG_R       = Math.max(3, Math.round(resBR * 0.42))
-      effectiveBallSizeRef.current = resBR
       const resUsableW     = W - (resPEG_R + 3) * 2
       const resMaxSafeCols = Math.max(4, Math.floor(1 + resUsableW / (2 * resBR + 2 * resPEG_R + 4)))
       const resCols        = Math.min(pegDensity, resMaxSafeCols)
@@ -592,9 +596,11 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     if (!engineRef.current || droppingRef.current) return
     const canvas = canvasRef.current
     if (!canvas) return
-    // Use container CSS-pixel width — canvas.width is now dpr-scaled (physical
-    // pixels) and must NOT be used as a physics world coordinate.
-    const W  = containerRef.current?.offsetWidth || canvas.offsetWidth
+    // Use the W the physics engine was built with — NOT the live container width.
+    // During the 350ms resize debounce the container may already report the new
+    // (larger) size while walls/pegs are still at the old size.  Spawning beyond
+    // the old right wall puts balls outside the physics world and they get stuck.
+    const W  = physicsWorldWRef.current || containerRef.current?.offsetWidth || canvas.offsetWidth
     const BR = ballSizeRef.current
     const x  = aimXRef.current !== null
       ? Math.max(BR + 2, Math.min(W - BR - 2, aimXRef.current))
@@ -619,9 +625,11 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     if (!engineRef.current || droppingRef.current) return
     const canvas = canvasRef.current
     if (!canvas) return
-    // Use container CSS-pixel width — canvas.width is now dpr-scaled (physical
-    // pixels) and must NOT be used as a physics world coordinate.
-    const W  = containerRef.current?.offsetWidth || canvas.offsetWidth
+    // Use the W the physics engine was built with — NOT the live container width.
+    // During the 350ms resize debounce the container may already report the new
+    // (larger) size while walls/pegs are still at the old size.  Spawning beyond
+    // the old right wall puts balls outside the physics world and they get stuck.
+    const W  = physicsWorldWRef.current || containerRef.current?.offsetWidth || canvas.offsetWidth
     const BR = ballSizeRef.current
     const centreX = aimXRef.current !== null
       ? Math.max(BR + 2, Math.min(W - BR - 2, aimXRef.current))
