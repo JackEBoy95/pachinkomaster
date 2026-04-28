@@ -53,6 +53,22 @@ function getCSSVar(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
 }
 
+// Compute the largest ball radius that can physically pass between pegs at the
+// requested density on a board of width W.
+//
+// Derivation: for a ball of radius BR and peg radius PEG_R ≈ 0.42·BR to fit
+// through the gap between same-row pegs we need:
+//   gap = spacing − 2·PEG_R ≥ 2·BR + clearance
+//   spacing = usableW / (cols − 1)
+// Substituting PEG_R = 0.42·BR and solving for BR gives the density cap below.
+// We also keep the original W/28 hard cap so very narrow boards stay sane.
+function computeBR(W, ballSize, pegDensity) {
+  const k          = Math.max(3, pegDensity - 1)           // cols − 1
+  const densityCap = Math.floor((W - 6 * (k + 1)) / (0.84 + 2.84 * k))
+  const widthCap   = Math.floor(W / 28)
+  return Math.min(ballSize, Math.max(6, Math.min(densityCap, widthCap)))
+}
+
 // Kick a stuck ball toward the board centre and downward
 function rescueBall(ball, W) {
   const toCenter = ball.position.x < W / 2 ? 1 : -1
@@ -169,13 +185,10 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     canvas.width  = W * dpr
     canvas.height = H * dpr
 
-    // Scale ball size and peg columns down to fit the board width.
-    // Ensures balls aren't larger than the gap between pegs on small screens.
-    const BR    = Math.min(ballSize, Math.max(6, Math.floor(W / 28)))
+    // Ball radius scales with both board width AND peg density so balls always
+    // physically fit through the gaps regardless of window size.
+    const BR    = computeBR(W, ballSize, pegDensity)
     const PEG_R = Math.max(3, Math.round(BR * 0.42))
-    // Physics-correct column cap: gap between adjacent pegs (spacing - 2*PEG_R)
-    // must be ≥ 2*BR (ball diameter) + 4px safety margin.
-    // spacing = usableW / (cols-1), so cols ≤ 1 + usableW / (2*BR + 2*PEG_R + 4)
     const usableW      = W - (PEG_R + 3) * 2
     const maxSafeCols  = Math.max(4, Math.floor(1 + usableW / (2 * BR + 2 * PEG_R + 4)))
     const effectiveCols = Math.min(pegDensity, maxSafeCols)
@@ -518,12 +531,17 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         resizeDebounceRef.current = setTimeout(() => setResizeKey(k => k + 1), 350)
       }
       W = newW; H = newH
-      const resUsableW     = W - (PEG_R + 3) * 2
-      const resMaxSafeCols = Math.max(4, Math.floor(1 + resUsableW / (2 * BR + 2 * PEG_R + 4)))
+      // Recompute BR for the new width so balls spawned during the debounce
+      // window are already the correct size for the updated peg layout.
+      const resBR          = computeBR(W, ballSize, pegDensity)
+      const resPEG_R       = Math.max(3, Math.round(resBR * 0.42))
+      effectiveBallSizeRef.current = resBR
+      const resUsableW     = W - (resPEG_R + 3) * 2
+      const resMaxSafeCols = Math.max(4, Math.floor(1 + resUsableW / (2 * resBR + 2 * resPEG_R + 4)))
       const resCols        = Math.min(pegDensity, resMaxSafeCols)
       const resAspect      = H / W
       const resPegRows     = resAspect > 1.4 ? 14 : resAspect > 0.9 ? 11 : PEG_ROWS
-      pegPositionsRef.current = buildPegs(W, H, resCols, PEG_R, resPegRows)
+      pegPositionsRef.current = buildPegs(W, H, resCols, resPEG_R, resPegRows)
       buildPegCanvas()
     })
     ro.observe(container)
