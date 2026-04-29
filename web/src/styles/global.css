@@ -272,3 +272,44 @@ input[type="color"]::-webkit-color-swatch {
   }
   body { overflow: hidden; }
 }
+
+/* ── Rotate-to-portrait overlay ─────────────────────────────────── */
+.rotate-overlay {
+  display: none;
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .rotate-overlay {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #0d0d1a;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-align: center;
+    padding: 24px;
+  }
+  .rotate-overlay__icon {
+    font-size: 3.5rem;
+    animation: rotate-hint 1.8s ease-in-out infinite;
+  }
+  .rotate-overlay__title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.02em;
+  }
+  .rotate-overlay__sub {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.95rem;
+    color: #6a6a8a;
+  }
+  @keyframes rotate-hint {
+    0%, 100% { transform: rotate(0deg); }
+    40%       { transform: rotate(90deg); }
+    60%       { transform: rotate(90deg); }
+  }
+}

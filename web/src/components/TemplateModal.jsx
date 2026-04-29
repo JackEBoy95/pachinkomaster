@@ -73,7 +73,7 @@ export default function TemplateModal({ templates, currentBoard, onSave, onLoad,
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className={styles.header}>
-          <span className={styles.title}>📁 Templates</span>
+          <span className={styles.title}>🎮 Games</span>
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
 
@@ -118,7 +118,7 @@ export default function TemplateModal({ templates, currentBoard, onSave, onLoad,
 
         {/* Starter templates */}
         <div className={styles.listSection}>
-          <p className={styles.sectionLabel}>Starter templates</p>
+          <p className={styles.sectionLabel}>Game presets</p>
           <div className={styles.list}>
             {PREBUILT_TEMPLATES.map(tpl => (
               <div key={tpl.id} className={`${styles.item} ${styles.prebuiltItem}`}>
@@ -143,10 +143,10 @@ export default function TemplateModal({ templates, currentBoard, onSave, onLoad,
 
         {/* Saved template list */}
         <div className={styles.listSection}>
-          <p className={styles.sectionLabel}>Saved templates</p>
+          <p className={styles.sectionLabel}>Saved games</p>
 
           {templates.length === 0 && (
-            <div className={styles.empty}>No templates saved yet</div>
+            <div className={styles.empty}>No games saved yet</div>
           )}
 
           <div className={styles.list}>

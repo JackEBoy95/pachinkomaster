@@ -28,9 +28,9 @@ const HELP_ITEMS = [
     body: 'Enable Tournament in the Configure tab. After each round the bottom performers are eliminated. Set how many to cut per round or leave on Auto (25%). The last player standing wins.',
   },
   {
-    emoji: '📋',
-    title: 'Templates',
-    body: 'Tap the Templates button to load a pre-built prize set — great for quick starts. Templates include things like Yes/No, Wheel of Lunch, and World Cup Nations.',
+    emoji: '🎮',
+    title: 'Games',
+    body: 'Tap the Games button to load a pre-built prize set — great for quick starts. Game presets include things like Yes/No, Wheel of Lunch, and World Cup Nations.',
   },
   {
     emoji: '🎨',

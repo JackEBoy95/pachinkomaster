@@ -174,6 +174,13 @@ export default function App() {
 
   return (
     <div className={styles.app}>
+      {/* ── Landscape rotation prompt ────────────── */}
+      <div className="rotate-overlay">
+        <div className="rotate-overlay__icon">📱</div>
+        <div className="rotate-overlay__title">Rotate your phone</div>
+        <div className="rotate-overlay__sub">PachinkoMaster works best in portrait mode</div>
+      </div>
+
       {/* ── Shared template import banner ───────── */}
       {sharedTpl && (
         <div className={styles.importBanner}>
@@ -213,9 +220,9 @@ export default function App() {
           <button
             className={styles.templateBtn}
             onClick={() => setShowTemplates(true)}
-            title="Save / load templates"
+            title="Save / load games"
           >
-            📁 Templates
+            🎮 Games
           </button>
 
           <SkinSelector currentSkin={skin} onChange={setSkin} />
