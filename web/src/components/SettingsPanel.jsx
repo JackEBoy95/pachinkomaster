@@ -267,6 +267,13 @@ export default function SettingsPanel({
 
         <HelpSection />
 
+        <div className={styles.divider} />
+
+        <div className={styles.pageLinks}>
+          <a href="/about" className={styles.pageLink}>About PachinkoMaster</a>
+          <a href="/privacy" className={styles.pageLink}>Privacy Policy</a>
+        </div>
+
       </div>
     </div>
   )

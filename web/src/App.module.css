@@ -471,6 +471,37 @@
   box-shadow: 0 0 12px rgba(245, 200, 66, 0.2);
 }
 
+/* ── Site footer ─────────────────────────────── */
+.siteFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 16px;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-panel);
+  font-size: 11px;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+}
+
+.footerLinks {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.footerLinks a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.footerLinks a:hover { color: var(--accent-gold); }
+.footerLinks span    { color: var(--border-color); }
+
 /* ── Mobile nav bar ─────────────────────────── */
 .mobileNav {
   display: none; /* desktop: hidden */
@@ -622,6 +653,9 @@
   .mobileNavBtn:hover    { color: var(--text-primary); }
   .mobileNavActive       { color: var(--accent-gold) !important; background: rgba(245,200,66,0.07); }
   .mobileNavBtn span     { font-size: 18px; line-height: 1; }
+
+  /* Footer hidden on mobile — links live in Settings panel instead */
+  .siteFooter { display: none; }
 }
 
 /* ══════════════════════════════════════════════════════════

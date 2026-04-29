@@ -448,6 +448,16 @@ export default function App() {
           onClose={() => setShowTemplates(false)}
         />
       )}
+
+      {/* ── Site footer (desktop only) ───────────── */}
+      <footer className={styles.siteFooter}>
+        <span>A free physics-based random decision maker — drop balls, settle debates, run tournaments.</span>
+        <nav className={styles.footerLinks}>
+          <a href="/about">About</a>
+          <span>·</span>
+          <a href="/privacy">Privacy Policy</a>
+        </nav>
+      </footer>
     </div>
   )
 }

@@ -348,3 +348,29 @@
   border-radius: 6px;
   text-align: center;
 }
+
+/* ── Page links (About / Privacy) ────────────── */
+.pageLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 4px;
+}
+
+.pageLink {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-panel-alt);
+  letter-spacing: 0.03em;
+  transition: color 0.15s, border-color 0.15s;
+}
+.pageLink:hover {
+  color: var(--accent-gold);
+  border-color: rgba(245,200,66,0.4);
+}
