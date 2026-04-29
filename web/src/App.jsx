@@ -160,12 +160,14 @@ export default function App() {
     }
   }, [dismissResult])
 
-  // Tournament-specific ad: after round 6, round 12, and at the very end
+  // Tournament-specific ad: at the very end (all platforms) + after rounds 6/12 (mobile only)
   const handleDismissTournamentRound = useCallback(() => {
     const roundNum   = tournament?.roundResult?.roundNumber
     const isComplete = tournament?.roundResult?.isComplete
     dismissTournamentRound()
-    if (isComplete || roundNum === 6 || roundNum === 12) {
+    const isMobile = window.innerWidth <= 640
+    const midRoundAd = isMobile && (roundNum === 6 || roundNum === 12)
+    if (isComplete || midRoundAd) {
       setShowAd(true)
     }
   }, [tournament, dismissTournamentRound])

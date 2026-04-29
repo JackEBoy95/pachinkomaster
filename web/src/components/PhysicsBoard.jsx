@@ -674,11 +674,11 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
 
     const minMs = speedRef.current === 'fast' ? 10 : speedRef.current === 'slow' ? 50 : 20
 
-    // On narrow boards (mobile) cap how many balls are in the physics world at
-    // once — physics is O(n²) so 100 simultaneous balls kills frame rate.
+    // Cap concurrent bodies in the physics world — Matter.js collision detection
+    // is O(n²) so 50+ simultaneous balls tanks frame rate on both mobile and desktop.
     // inFlightRef still counts the full total; spawnQueueRef drains as balls land.
     const isMobile = W < 600
-    const concurrentLimit = isMobile ? 20 : allDrops.length
+    const concurrentLimit = isMobile ? 20 : Math.min(allDrops.length, 35)
 
     if (concurrentLimit >= allDrops.length) {
       // Desktop / small drop: stagger everything normally
