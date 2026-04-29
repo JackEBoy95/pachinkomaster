@@ -51,7 +51,7 @@ export default function TournamentOverlay({ roundResult, onNext, onCancel }) {
     return (
       <div className={styles.backdrop}>
         <canvas ref={confettiRef} className={styles.confetti} />
-        <ChampionCard champion={roundResult.champion} onNext={onNext} />
+        <FinaleCard roundResult={roundResult} onNext={onNext} />
       </div>
     )
   }
@@ -62,6 +62,8 @@ export default function TournamentOverlay({ roundResult, onNext, onCancel }) {
     </div>
   )
 }
+
+// ── Round card (mid-tournament) ───────────────────────────────────────────────
 
 function RoundCard({ roundResult, onNext, onCancel }) {
   const { roundNumber, eliminated, surviving } = roundResult
@@ -90,17 +92,13 @@ function RoundCard({ roundResult, onNext, onCancel }) {
 
   return (
     <div className={styles.card} onClick={e => e.stopPropagation()}>
-      {/* Always-visible close / next-round button — positioned absolute so it
-          never scrolls out of view even on small screens */}
       <button className={styles.closeBtn} onClick={onNext} title="Next round">✕</button>
 
-      {/* Header */}
       <div className={styles.header}>
         <span className={styles.roundLabel}>ROUND {roundNumber}</span>
         <span className={styles.roundSub}>COMPLETE</span>
       </div>
 
-      {/* Tab toggle */}
       <div className={styles.tabs}>
         <button
           className={`${styles.tabBtn} ${isElim ? styles.tabActive : ''} ${styles.tabElim}`}
@@ -116,11 +114,10 @@ function RoundCard({ roundResult, onNext, onCancel }) {
         </button>
       </div>
 
-      {/* Fixed-height player list — always 10 rows */}
       <div className={styles.playerList}>
         {padded.map((item, i) =>
           item ? (
-            <PlayerRow
+            <RoundRow
               key={item.player.id}
               player={item.player}
               score={item.score}
@@ -133,7 +130,6 @@ function RoundCard({ roundResult, onNext, onCancel }) {
         )}
       </div>
 
-      {/* Pagination */}
       <div className={styles.pager}>
         <button
           className={styles.pageBtn}
@@ -150,7 +146,6 @@ function RoundCard({ roundResult, onNext, onCancel }) {
         >›</button>
       </div>
 
-      {/* Actions */}
       <div className={styles.actions}>
         <button className={`btn-primary ${styles.nextBtn}`} onClick={onNext}>
           NEXT ROUND →
@@ -163,38 +158,158 @@ function RoundCard({ roundResult, onNext, onCancel }) {
   )
 }
 
-function ChampionCard({ champion, onNext }) {
-  const [shared, setShared] = useState(false)
-  if (!champion) return null
+// ── Finale card (tournament complete) ────────────────────────────────────────
 
+const FINALE_PAGE = 6
+
+function FinaleCard({ roundResult, onNext }) {
+  const { survivorEntry, pointsEntry, cleanSweep, finalLeaderboard, roundNumber } = roundResult
+  const [page, setPage] = useState(0)
+  const [shared, setShared] = useState(false)
+
+  const pageCount = Math.ceil((finalLeaderboard?.length ?? 0) / FINALE_PAGE)
+  const pageRows  = (finalLeaderboard ?? []).slice(page * FINALE_PAGE, (page + 1) * FINALE_PAGE)
+
+  // ── CSV export ───────────────────────────────────────────────────────────
+  function handleExportCSV() {
+    const rows = [
+      ['Rank', 'Player', 'Total Points', 'Elimination Round'],
+      ...(finalLeaderboard ?? []).map((entry, i) => [
+        i + 1,
+        entry.player.name,
+        entry.totalPoints,
+        entry.eliminationRound == null ? 'Survived' : `Round ${entry.eliminationRound}`,
+      ]),
+    ]
+    const csv = rows
+      .map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\r\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url  = URL.createObjectURL(blob)
+    const a    = document.createElement('a')
+    a.href     = url
+    a.download = 'pachinkomaster-tournament.csv'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  // ── Share ────────────────────────────────────────────────────────────────
   async function handleShare() {
-    const text = `🏆 Tournament champion: ${champion.name}! Decided by PachinkoMaster.`
+    let text
+    if (cleanSweep && survivorEntry) {
+      text = `⚡ ${survivorEntry.player.name} swept the tournament — Last Standing & Points Champion! Decided by PachinkoMaster.`
+    } else {
+      const parts = []
+      if (survivorEntry) parts.push(`🛡️ Last Standing: ${survivorEntry.player.name}`)
+      if (pointsEntry)   parts.push(`🎯 Points Champion: ${pointsEntry.player.name} (${pointsEntry.totalPoints}pts)`)
+      text = parts.join(' · ') + ' | PachinkoMaster'
+    }
     const ok = await shareText(text)
     if (shareSucceeded(ok)) { setShared(true); setTimeout(() => setShared(false), 2000) }
   }
 
   return (
-    <div className={`${styles.card} ${styles.championCard}`} onClick={e => e.stopPropagation()}>
+    <div className={`${styles.card} ${styles.finaleCard}`} onClick={e => e.stopPropagation()}>
       <button className={styles.closeBtn} onClick={onNext} title="Close">✕</button>
-      <div className={styles.crownRow}>
-        <span className={styles.crown}>🏆</span>
+
+      {/* Header */}
+      <div className={styles.finaleHeader}>
+        <span className={styles.finaleTitle}>🏆 TOURNAMENT COMPLETE</span>
+        <span className={styles.finaleSub}>{roundNumber} ROUND{roundNumber !== 1 ? 'S' : ''}</span>
       </div>
-      <div className={styles.championLabel}>CHAMPION</div>
-      <Ball color={champion.color} size={80} />
-      <div className={styles.championName} style={{ color: champion.color }}>
-        {champion.name}
+
+      {/* Winner display */}
+      {cleanSweep && survivorEntry ? (
+        // ⚡ One player took both titles
+        <div className={styles.cleanSweep}>
+          <div className={styles.cleanSweepBadge}>⚡ CLEAN SWEEP ⚡</div>
+          <Ball color={survivorEntry.player.color} size={64} />
+          <div className={styles.cleanSweepName} style={{ color: survivorEntry.player.color }}>
+            {survivorEntry.player.name}
+          </div>
+          <div className={styles.cleanSweepPts}>{survivorEntry.totalPoints} pts</div>
+          <div className={styles.cleanSweepTags}>
+            <span className={styles.winTag}>🛡️ Last Standing</span>
+            <span className={styles.winTag}>🎯 Points Champion</span>
+          </div>
+        </div>
+      ) : (
+        // Separate winners
+        <div className={styles.dualWinners}>
+          {survivorEntry ? (
+            <div className={styles.winnerPanel}>
+              <div className={styles.winnerIcon}>🛡️</div>
+              <div className={styles.winnerLabel}>LAST STANDING</div>
+              <Ball color={survivorEntry.player.color} size={40} />
+              <div className={styles.winnerName} style={{ color: survivorEntry.player.color }}>
+                {survivorEntry.player.name}
+              </div>
+              <div className={styles.winnerPts}>{survivorEntry.totalPoints} pts</div>
+            </div>
+          ) : null}
+          {pointsEntry ? (
+            <div className={styles.winnerPanel}>
+              <div className={styles.winnerIcon}>🎯</div>
+              <div className={styles.winnerLabel}>POINTS CHAMP</div>
+              <Ball color={pointsEntry.player.color} size={40} />
+              <div className={styles.winnerName} style={{ color: pointsEntry.player.color }}>
+                {pointsEntry.player.name}
+              </div>
+              <div className={styles.winnerPts}>{pointsEntry.totalPoints} pts</div>
+            </div>
+          ) : null}
+        </div>
+      )}
+
+      {/* Final leaderboard */}
+      {finalLeaderboard && finalLeaderboard.length > 0 && (
+        <>
+          <div className={styles.leaderboardHeader}>
+            <span className={styles.leaderboardTitle}>Final Standings</span>
+          </div>
+          <div className={`${styles.playerList} ${styles.finaleList}`}>
+            {pageRows.map((entry, i) => (
+              <FinaleRow
+                key={entry.player.id}
+                entry={entry}
+                rank={page * FINALE_PAGE + i + 1}
+                isSurvivor={entry.eliminationRound == null}
+                isPointsChamp={!cleanSweep && pointsEntry?.player.id === entry.player.id}
+                isCleanSweep={cleanSweep && survivorEntry?.player.id === entry.player.id}
+              />
+            ))}
+          </div>
+          {pageCount > 1 && (
+            <div className={styles.pager}>
+              <button className={styles.pageBtn} onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}>‹</button>
+              <span className={styles.pageInfo}>{page + 1} / {pageCount}</span>
+              <button className={styles.pageBtn} onClick={() => setPage(p => Math.min(pageCount - 1, p + 1))} disabled={page >= pageCount - 1}>›</button>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Actions */}
+      <div className={styles.actions}>
+        <button className={`btn-secondary ${styles.exportBtn}`} onClick={handleExportCSV} title="Download results as CSV">
+          📥 Export
+        </button>
+        <button className={`btn-secondary ${styles.shareChampBtn}`} onClick={handleShare}>
+          {shared ? '✓ Copied!' : '🔗 Share'}
+        </button>
+        <button className={`btn-primary ${styles.nextBtn}`} onClick={onNext}>
+          🎉 Finish
+        </button>
       </div>
-      <button className={`btn-secondary ${styles.shareChampBtn}`} onClick={handleShare}>
-        {shared ? '✓ Copied!' : '🔗 Share result'}
-      </button>
-      <button className={`btn-primary ${styles.nextBtn}`} onClick={onNext}>
-        🎉 FINISH
-      </button>
     </div>
   )
 }
 
-const PlayerRow = memo(function PlayerRow({ player, score, elim, rank }) {
+// ── Row components ────────────────────────────────────────────────────────────
+
+const RoundRow = memo(function RoundRow({ player, score, elim, rank }) {
   return (
     <div className={`${styles.playerRow} ${elim ? styles.elimRow : ''}`}>
       {rank != null
@@ -206,6 +321,28 @@ const PlayerRow = memo(function PlayerRow({ player, score, elim, rank }) {
       </span>
       <span className={styles.playerScore} style={{ color: elim ? '#FF4FA3' : player.color }}>
         {score}pts
+      </span>
+    </div>
+  )
+})
+
+const FinaleRow = memo(function FinaleRow({ entry, rank, isSurvivor, isPointsChamp, isCleanSweep }) {
+  const badge = isCleanSweep ? '⚡' : isSurvivor ? '🛡️' : isPointsChamp ? '🎯' : null
+  return (
+    <div className={`${styles.playerRow} ${styles.finaleRow}`}>
+      <span className={styles.rankNum} style={{ color: entry.player.color }}>#{rank}</span>
+      <Ball color={entry.player.color} size={14} />
+      <span className={styles.playerName} style={{ color: entry.player.color }}>
+        {entry.player.name}
+      </span>
+      {badge && <span className={styles.winBadge} title={
+        isCleanSweep ? 'Clean Sweep' : isSurvivor ? 'Last Standing' : 'Points Champion'
+      }>{badge}</span>}
+      <span className={`${styles.elimInfo} ${isSurvivor ? styles.survivedTag : ''}`}>
+        {isSurvivor ? 'Survived' : `Rd ${entry.eliminationRound}`}
+      </span>
+      <span className={styles.playerScore} style={{ color: entry.player.color }}>
+        {entry.totalPoints}pts
       </span>
     </div>
   )

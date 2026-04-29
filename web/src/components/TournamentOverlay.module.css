@@ -258,58 +258,212 @@
   white-space: nowrap;
 }
 
-/* ── Champion card ────────────────────────────── */
-.championCard {
-  align-items: center;
-  padding: 32px 28px;
-  gap: 16px;
+/* ── Finale card ──────────────────────────────── */
+.finaleCard {
+  width: 460px;
+  max-height: 92dvh;
+  overflow-y: auto;
+}
+
+.finaleHeader {
+  padding: 14px 20px 12px;
   text-align: center;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
-.shareChampBtn {
-  font-size: 13px;
-  padding: 10px 20px;
-  width: 100%;
-}
-
-.crownRow {
-  font-size: 48px;
-  line-height: 1;
-  animation: bounce 0.8s ease infinite alternate;
-}
-
-.crown {
-  display: inline-block;
-  filter: drop-shadow(0 0 20px #F5C842);
-}
-
-.championLabel {
+.finaleTitle {
   font-family: var(--font-display);
-  font-size: 13px;
+  font-size: 18px;
+  color: var(--accent-gold);
+  letter-spacing: 0.08em;
+  display: block;
+  text-shadow: 0 0 16px var(--peg-glow);
+}
+
+.finaleSub {
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.3em;
   color: var(--text-secondary);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
-.championName {
+/* ── Clean sweep ──────────────────────────────── */
+.cleanSweep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.cleanSweepBadge {
   font-family: var(--font-display);
-  font-size: 32px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #F5C842;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 24px #F5C842;
+  animation: glow 1.2s ease-in-out infinite alternate;
+}
+
+.cleanSweepName {
+  font-family: var(--font-display);
+  font-size: 28px;
   font-weight: 700;
   letter-spacing: 0.05em;
-  text-shadow: 0 0 24px currentColor;
+  text-shadow: 0 0 20px currentColor;
+}
+
+.cleanSweepPts {
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+}
+
+.cleanSweepTags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.winTag {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 4px 12px;
+  letter-spacing: 0.04em;
+}
+
+/* ── Dual winners ─────────────────────────────── */
+.dualWinners {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.winnerPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 12px;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.winnerIcon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.winnerLabel {
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.winnerName {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 12px currentColor;
+  word-break: break-word;
+}
+
+.winnerPts {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* ── Final leaderboard ────────────────────────── */
+.leaderboardHeader {
+  padding: 10px 16px 4px;
+  flex-shrink: 0;
+}
+
+.leaderboardTitle {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.finaleList {
+  padding: 4px 16px 8px;
+}
+
+.finaleRow {
+  height: auto;
+  min-height: 36px;
+  gap: 7px;
+  padding: 5px 10px;
+}
+
+.winBadge {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.elimInfo {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.survivedTag {
+  color: #39FF14;
+}
+
+/* ── Export + share buttons ───────────────────── */
+.exportBtn {
+  font-size: 12px;
+  padding: 10px 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.shareChampBtn {
+  font-size: 12px;
+  padding: 10px 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ── Mobile ──────────────────────────────────── */
 @media (max-width: 640px) {
   .card {
-    /* Cap height so the card never taller than the viewport */
     max-height: 88dvh;
     width: calc(100% - 24px);
     max-width: calc(100% - 24px);
-    /* Flex column so playerList can grow/shrink within the cap */
     display: flex;
     flex-direction: column;
+  }
+
+  .finaleCard {
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
   }
 
   /* Player list fills available space and scrolls rather than overflowing */
@@ -332,19 +486,25 @@
 
   /* Slightly smaller header text */
   .roundLabel { font-size: 16px; }
-  .header { padding: 10px 44px 8px; } /* side padding makes room for abs close btn */
+  .header { padding: 10px 44px 8px; }
 
   /* Compact actions */
   .actions { padding: 8px 12px 12px; }
   .nextBtn { font-size: 13px; padding: 9px 14px; }
   .cancelBtn { font-size: 11px; padding: 9px 10px; }
+  .exportBtn { font-size: 11px; padding: 9px 10px; }
+  .shareChampBtn { font-size: 11px; padding: 9px 10px; }
 
   /* Compact tabs */
   .tabBtn { padding: 8px 8px; font-size: 11px; }
 
-  /* Champion card padding */
-  .championCard { padding: 28px 20px 20px; }
-  .championName { font-size: 26px; }
+  /* Clean sweep on mobile */
+  .cleanSweepName { font-size: 22px; }
+  .cleanSweepBadge { font-size: 14px; }
+
+  /* Stack dual winner panels on small screens */
+  .dualWinners { grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; }
+  .winnerName { font-size: 14px; }
 }
 
 /* ── Animations ──────────────────────────────── */
@@ -361,4 +521,9 @@
 @keyframes bounce {
   from { transform: translateY(0); }
   to   { transform: translateY(-8px); }
+}
+
+@keyframes glow {
+  from { text-shadow: 0 0 12px #F5C842; }
+  to   { text-shadow: 0 0 32px #F5C842, 0 0 60px rgba(245,200,66,0.4); }
 }
