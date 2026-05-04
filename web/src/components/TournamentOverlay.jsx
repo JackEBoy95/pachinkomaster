@@ -12,17 +12,24 @@ export default function TournamentOverlay({ roundResult, onNext, onCancel }) {
     const canvas = confettiRef.current
     const ctx = canvas.getContext('2d')
     const isDesktop = window.innerWidth > 900
-    canvas.width  = window.innerWidth
-    canvas.height = window.innerHeight
+    // Render at half resolution on desktop — clearRect over a huge canvas is the
+    // main bottleneck. We CSS-scale it back up so it still fills the viewport.
+    const scale = isDesktop ? 0.5 : 1
+    canvas.width  = Math.round(window.innerWidth  * scale)
+    canvas.height = Math.round(window.innerHeight * scale)
+    if (isDesktop) {
+      canvas.style.width  = window.innerWidth  + 'px'
+      canvas.style.height = window.innerHeight + 'px'
+    }
 
     const COLORS = ['#F5C842', '#FF4FA3', '#00E5FF', '#39FF14', '#BF5FFF', '#FF6B00', '#fff']
-    const particleCount = isDesktop ? 28 : 60
-    const alphaDecay    = isDesktop ? 0.10 : 0.06  // faster fade on desktop = shorter animation
+    const particleCount = isDesktop ? 35 : 60
+    const alphaDecay    = isDesktop ? 0.08 : 0.06
     const particles = Array.from({ length: particleCount }, () => ({
       x: Math.random() * canvas.width, y: -10,
-      vx: (Math.random() - 0.5) * 5, vy: Math.random() * 5 + 4,
+      vx: (Math.random() - 0.5) * 5 * scale, vy: (Math.random() * 5 + 4) * scale,
       rot: Math.random() * 360, rotV: (Math.random() - 0.5) * 9,
-      w: Math.random() * 10 + 5, h: Math.random() * 5 + 3,
+      w: (Math.random() * 10 + 5) * scale, h: (Math.random() * 5 + 3) * scale,
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
       alpha: 1,
     }))

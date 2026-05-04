@@ -313,11 +313,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     let animId
     const draw = () => {
       animId = requestAnimationFrame(draw)
-      // Only tick physics when balls are actually in flight — saves significant
-      // CPU on desktop where clearRect on a large canvas is expensive each frame
-      if (inFlightRef.current > 0) {
-        Matter.Runner.tick(runner, engine, 1000 / 60)
-      }
+      Matter.Runner.tick(runner, engine, 1000 / 60)
       const ctx = canvas.getContext('2d')
       // Reset to DPR-scaled identity each frame so CSS-pixel coordinates from
       // Matter.js map cleanly to physical pixels. setTransform replaces the
