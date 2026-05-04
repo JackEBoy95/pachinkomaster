@@ -1,0 +1,15 @@
+{
+  "name": "PachinkoMaster",
+  "short_name": "PachinkoMaster",
+  "description": "A free physics-based random decision maker",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0d1a",
+  "theme_color": "#0d0d1a",
+  "icons": [
+    { "src": "/favicon-32.png",       "sizes": "32x32",   "type": "image/png" },
+    { "src": "/favicon-96.png",       "sizes": "96x96",   "type": "image/png" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

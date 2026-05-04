@@ -313,7 +313,11 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     let animId
     const draw = () => {
       animId = requestAnimationFrame(draw)
-      Matter.Runner.tick(runner, engine, 1000 / 60)
+      // Only tick physics when balls are actually in flight — saves significant
+      // CPU on desktop where clearRect on a large canvas is expensive each frame
+      if (inFlightRef.current > 0) {
+        Matter.Runner.tick(runner, engine, 1000 / 60)
+      }
       const ctx = canvas.getContext('2d')
       // Reset to DPR-scaled identity each frame so CSS-pixel coordinates from
       // Matter.js map cleanly to physical pixels. setTransform replaces the
@@ -678,7 +682,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     // is O(n²) so 50+ simultaneous balls tanks frame rate on both mobile and desktop.
     // inFlightRef still counts the full total; spawnQueueRef drains as balls land.
     const isMobile = W < 600
-    const concurrentLimit = isMobile ? 20 : Math.min(allDrops.length, 35)
+    const concurrentLimit = isMobile ? 20 : Math.min(allDrops.length, 25)
 
     if (concurrentLimit >= allDrops.length) {
       // Desktop / small drop: stagger everything normally

@@ -23,8 +23,8 @@ export default function App() {
   const [leftTab, setLeftTab]       = useState('prizes')    // 'prizes' | 'players' | 'settings'
   const [mobileTab, setMobileTab]   = useState('board')     // 'board' | 'config' | 'scores'
   const [ballSize, setBallSize]     = useState(20)    // ball radius px
-  const [pegDensity, setPegDensity] = useState(14)    // columns of pegs
-  const [bounciness, setBounciness] = useState(0.5)   // restitution 0.1–0.9
+  const [pegDensity, setPegDensity] = useState(() => window.innerWidth <= 640 ? 12 : 14)
+  const [bounciness, setBounciness] = useState(() => window.innerWidth <= 640 ? 0.6 : 0.5)
   const [ballCount, setBallCount]   = useState(1)     // balls per drop
   const [tournamentConfig, setTournamentConfig] = useState({ eliminationPerRound: 0, maxRounds: 0 })
   const [showTemplates, setShowTemplates] = useState(false)
@@ -426,11 +426,13 @@ export default function App() {
         ><span>📊</span>Scores</button>
       </nav>
 
-      <AdBanner />
+      {/* AdBanner — re-enable once AdSense account is fully approved */}
+      {/* <AdBanner /> */}
 
       {!isTournamentActive && <ResultOverlay result={result} onDismiss={handleDismissResult} />}
 
-      <AdInterstitial show={showAd} onClose={() => setShowAd(false)} />
+      {/* AdInterstitial — re-enable once AdSense account is fully approved */}
+      {/* <AdInterstitial show={showAd} onClose={() => setShowAd(false)} /> */}
 
       <TournamentOverlay
         roundResult={tournament?.roundResult ?? null}

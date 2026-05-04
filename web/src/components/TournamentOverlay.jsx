@@ -11,11 +11,14 @@ export default function TournamentOverlay({ roundResult, onNext, onCancel }) {
     if (!roundResult?.isComplete || !confettiRef.current) return
     const canvas = confettiRef.current
     const ctx = canvas.getContext('2d')
-    canvas.width = window.innerWidth
+    const isDesktop = window.innerWidth > 900
+    canvas.width  = window.innerWidth
     canvas.height = window.innerHeight
 
     const COLORS = ['#F5C842', '#FF4FA3', '#00E5FF', '#39FF14', '#BF5FFF', '#FF6B00', '#fff']
-    const particles = Array.from({ length: 60 }, () => ({
+    const particleCount = isDesktop ? 28 : 60
+    const alphaDecay    = isDesktop ? 0.10 : 0.06  // faster fade on desktop = shorter animation
+    const particles = Array.from({ length: particleCount }, () => ({
       x: Math.random() * canvas.width, y: -10,
       vx: (Math.random() - 0.5) * 5, vy: Math.random() * 5 + 4,
       rot: Math.random() * 360, rotV: (Math.random() - 0.5) * 9,
@@ -30,7 +33,7 @@ export default function TournamentOverlay({ roundResult, onNext, onCancel }) {
       let allGone = true
       particles.forEach(p => {
         p.x += p.vx; p.y += p.vy; p.rot += p.rotV
-        if (p.y > canvas.height * 0.7) p.alpha -= 0.06
+        if (p.y > canvas.height * 0.7) p.alpha -= alphaDecay
         if (p.alpha > 0) allGone = false
         ctx.save()
         ctx.globalAlpha = Math.max(0, p.alpha)
