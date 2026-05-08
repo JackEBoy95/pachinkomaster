@@ -23,6 +23,14 @@ function buildNamePlayers(names, startId = 2000) {
   }))
 }
 
+// Build players from { name, emoji } list — emoji is a Twemoji codepoint string
+function buildEmojiPlayers(entries, startId = 4000) {
+  return entries.map(({ name, emoji }, i) => ({
+    id: startId + i, name, color: colorFor(i), score: 0,
+    ballSkin: emoji ? `emoji:${emoji}` : '',
+  }))
+}
+
 // Build players from { name, flagCode } list
 function buildFlaggedNamePlayers(entries, startId = 3000) {
   return entries.map(({ name, flagCode }, i) => ({
@@ -172,21 +180,27 @@ export const FAST_FOOD_TEMPLATE = {
 }
 
 // ── Baby Names ────────────────────────────────────────────────────────────────
+// Six baby skin-tone variants cycle across all names
+const BABY_EMOJIS = ['1F476','1F476-1F3FB','1F476-1F3FC','1F476-1F3FD','1F476-1F3FE','1F476-1F3FF']
+const BABY_NAME_LIST = [
+  // Boys
+  'Oliver', 'Noah', 'Liam', 'William', 'Elijah', 'James', 'Aiden', 'Lucas',
+  'Mason', 'Ethan', 'Logan', 'Sebastian', 'Mateo', 'Henry', 'Owen',
+  'Carter', 'Wyatt', 'Leo', 'Jack', 'Benjamin', 'Isaac', 'Alexander',
+  'Michael', 'Dylan', 'Charlie', 'Daniel', 'Theodore', 'Finn', 'Archie', 'Freddie',
+  // Girls
+  'Olivia', 'Emma', 'Charlotte', 'Amelia', 'Ava', 'Sophia', 'Isabella',
+  'Mia', 'Evelyn', 'Harper', 'Luna', 'Camila', 'Ella', 'Elizabeth',
+  'Eleanor', 'Sofia', 'Scarlett', 'Emily', 'Chloe', 'Penelope',
+  'Riley', 'Zoey', 'Nora', 'Lily', 'Grace', 'Isla', 'Freya', 'Rosie', 'Poppy', 'Daisy',
+]
 export const BABY_NAMES_TEMPLATE = {
   id: 'prebuilt_baby_names', name: '👶 Baby Names', createdAt: 0,
   prizes: DEFAULT_PRIZES,
-  players: buildNamePlayers([
-    // Boys
-    'Oliver', 'Noah', 'Liam', 'William', 'Elijah', 'James', 'Aiden', 'Lucas',
-    'Mason', 'Ethan', 'Logan', 'Sebastian', 'Mateo', 'Henry', 'Owen',
-    'Carter', 'Wyatt', 'Leo', 'Jack', 'Benjamin', 'Isaac', 'Alexander',
-    'Michael', 'Dylan', 'Charlie', 'Daniel', 'Theodore', 'Finn', 'Archie', 'Freddie',
-    // Girls
-    'Olivia', 'Emma', 'Charlotte', 'Amelia', 'Ava', 'Sophia', 'Isabella',
-    'Mia', 'Evelyn', 'Harper', 'Luna', 'Camila', 'Ella', 'Elizabeth',
-    'Eleanor', 'Sofia', 'Scarlett', 'Emily', 'Chloe', 'Penelope',
-    'Riley', 'Zoey', 'Nora', 'Lily', 'Grace', 'Isla', 'Freya', 'Rosie', 'Poppy', 'Daisy',
-  ]),
+  players: buildEmojiPlayers(
+    BABY_NAME_LIST.map((name, i) => ({ name, emoji: BABY_EMOJIS[i % BABY_EMOJIS.length] })),
+    5000
+  ),
   settings: DEFAULT_SETTINGS,
 }
 
@@ -267,12 +281,180 @@ export const PERIODIC_TABLE_TEMPLATE = {
   settings: DEFAULT_SETTINGS,
 }
 
+// ── Animals ───────────────────────────────────────────────────────────────────
+export const ANIMALS_TEMPLATE = {
+  id: 'prebuilt_animals', name: '🐾 Animals', createdAt: 0,
+  prizes: DEFAULT_PRIZES,
+  players: buildEmojiPlayers([
+    { name: 'Dog',        emoji: '1F436' },
+    { name: 'Cat',        emoji: '1F431' },
+    { name: 'Rabbit',     emoji: '1F430' },
+    { name: 'Hamster',    emoji: '1F439' },
+    { name: 'Fox',        emoji: '1F98A' },
+    { name: 'Bear',       emoji: '1F43B' },
+    { name: 'Panda',      emoji: '1F43C' },
+    { name: 'Koala',      emoji: '1F428' },
+    { name: 'Tiger',      emoji: '1F42F' },
+    { name: 'Lion',       emoji: '1F981' },
+    { name: 'Cow',        emoji: '1F42E' },
+    { name: 'Pig',        emoji: '1F437' },
+    { name: 'Frog',       emoji: '1F438' },
+    { name: 'Monkey',     emoji: '1F435' },
+    { name: 'Penguin',    emoji: '1F427' },
+    { name: 'Owl',        emoji: '1F989' },
+    { name: 'Eagle',      emoji: '1F985' },
+    { name: 'Duck',       emoji: '1F986' },
+    { name: 'Wolf',       emoji: '1F43A' },
+    { name: 'Horse',      emoji: '1F434' },
+    { name: 'Unicorn',    emoji: '1F984' },
+    { name: 'Elephant',   emoji: '1F418' },
+    { name: 'Gorilla',    emoji: '1F98D' },
+    { name: 'Giraffe',    emoji: '1F992' },
+    { name: 'Zebra',      emoji: '1F993' },
+    { name: 'Crocodile',  emoji: '1F40A' },
+    { name: 'Snake',      emoji: '1F40D' },
+    { name: 'Turtle',     emoji: '1F422' },
+    { name: 'Shark',      emoji: '1F988' },
+    { name: 'Dolphin',    emoji: '1F42C' },
+    { name: 'Whale',      emoji: '1F40B' },
+    { name: 'Octopus',    emoji: '1F419' },
+    { name: 'Butterfly',  emoji: '1F98B' },
+    { name: 'Bee',        emoji: '1F41D' },
+    { name: 'T-Rex',      emoji: '1F996' },
+    { name: 'Dinosaur',   emoji: '1F995' },
+  ]),
+  settings: DEFAULT_SETTINGS,
+}
+
+// ── Sports Balls ─────────────────────────────────────────────────────────────
+export const BALLS_TEMPLATE = {
+  id: 'prebuilt_balls', name: '🏀 Sports Balls', createdAt: 0,
+  prizes: DEFAULT_PRIZES,
+  players: buildEmojiPlayers([
+    { name: 'Soccer',      emoji: '26BD' },
+    { name: 'Basketball',  emoji: '1F3C0' },
+    { name: 'American Football', emoji: '1F3C8' },
+    { name: 'Baseball',    emoji: '26BE' },
+    { name: 'Softball',    emoji: '1F94E' },
+    { name: 'Tennis',      emoji: '1F3BE' },
+    { name: 'Volleyball',  emoji: '1F3D0' },
+    { name: 'Rugby',       emoji: '1F3C9' },
+    { name: '8 Ball',      emoji: '1F3B1' },
+    { name: 'Ping Pong',   emoji: '1F3D3' },
+    { name: 'Badminton',   emoji: '1F3F8' },
+    { name: 'Cricket',     emoji: '1F3CF' },
+    { name: 'Hockey',      emoji: '1F3D1' },
+    { name: 'Ice Hockey',  emoji: '1F3D2' },
+    { name: 'Lacrosse',    emoji: '1F94D' },
+    { name: 'Bowling',     emoji: '1F3B3' },
+    { name: 'Bullseye',    emoji: '1F3AF' },
+    { name: 'Golf',        emoji: '26F3' },
+    { name: 'Frisbee',     emoji: '1F94F' },
+    { name: 'Yo-Yo',       emoji: '1FA80' },
+  ]),
+  settings: DEFAULT_SETTINGS,
+}
+
+// ── Smileys ───────────────────────────────────────────────────────────────────
+export const SMILEYS_TEMPLATE = {
+  id: 'prebuilt_smileys', name: '😀 Smileys', createdAt: 0,
+  prizes: DEFAULT_PRIZES,
+  players: buildEmojiPlayers([
+    { name: 'Grinning',          emoji: '1F600' },
+    { name: 'Big Smile',         emoji: '1F601' },
+    { name: 'Tears of Joy',      emoji: '1F602' },
+    { name: 'ROFL',              emoji: '1F923' },
+    { name: 'Smiling Eyes',      emoji: '1F60A' },
+    { name: 'Heart Eyes',        emoji: '1F60D' },
+    { name: 'Smiling Hearts',    emoji: '1F970' },
+    { name: 'Sunglasses',        emoji: '1F60E' },
+    { name: 'Star Struck',       emoji: '1F929' },
+    { name: 'Party',             emoji: '1F973' },
+    { name: 'Wink',              emoji: '1F609' },
+    { name: 'Smirk',             emoji: '1F60F' },
+    { name: 'Thinking',          emoji: '1F914' },
+    { name: 'Shushing',          emoji: '1F92B' },
+    { name: 'Hand Over Mouth',   emoji: '1F92D' },
+    { name: 'Flushed',           emoji: '1F633' },
+    { name: 'Screaming',         emoji: '1F631' },
+    { name: 'Mind Blown',        emoji: '1F92F' },
+    { name: 'Pleading',          emoji: '1F97A' },
+    { name: 'Crying',            emoji: '1F62D' },
+    { name: 'Angry',             emoji: '1F621' },
+    { name: 'Steaming',          emoji: '1F624' },
+    { name: 'Dizzy',             emoji: '1F635' },
+    { name: 'Woozy',             emoji: '1F974' },
+    { name: 'Sleeping',          emoji: '1F634' },
+    { name: 'Devil',             emoji: '1F608' },
+    { name: 'Skull',             emoji: '1F480' },
+    { name: 'Ghost',             emoji: '1F47B' },
+    { name: 'Alien',             emoji: '1F47D' },
+    { name: 'Robot',             emoji: '1F916' },
+    { name: 'Clown',             emoji: '1F921' },
+    { name: 'Jack-O-Lantern',    emoji: '1F383' },
+    { name: 'Poop',              emoji: '1F4A9' },
+    { name: 'Nauseated',         emoji: '1F922' },
+    { name: 'Sneezing',          emoji: '1F927' },
+    { name: 'Cowboy',            emoji: '1F920' },
+  ]),
+  settings: DEFAULT_SETTINGS,
+}
+
+// ── Food ─────────────────────────────────────────────────────────────────────
+export const FOOD_TEMPLATE = {
+  id: 'prebuilt_food', name: '🍕 Food', createdAt: 0,
+  prizes: DEFAULT_PRIZES,
+  players: buildEmojiPlayers([
+    { name: 'Pizza',           emoji: '1F355' },
+    { name: 'Burger',          emoji: '1F354' },
+    { name: 'Fries',           emoji: '1F35F' },
+    { name: 'Hot Dog',         emoji: '1F32D' },
+    { name: 'Taco',            emoji: '1F32E' },
+    { name: 'Burrito',         emoji: '1F32F' },
+    { name: 'Sushi',           emoji: '1F363' },
+    { name: 'Ramen',           emoji: '1F35C' },
+    { name: 'Spaghetti',       emoji: '1F35D' },
+    { name: 'Curry',           emoji: '1F35B' },
+    { name: 'Sandwich',        emoji: '1F96A' },
+    { name: 'Salad',           emoji: '1F957' },
+    { name: 'Popcorn',         emoji: '1F37F' },
+    { name: 'Pancakes',        emoji: '1F95E' },
+    { name: 'Waffle',          emoji: '1F9C7' },
+    { name: 'Bacon',           emoji: '1F953' },
+    { name: 'Egg',             emoji: '1F95A' },
+    { name: 'Poultry Leg',     emoji: '1F357' },
+    { name: 'Birthday Cake',   emoji: '1F382' },
+    { name: 'Shortcake',       emoji: '1F370' },
+    { name: 'Doughnut',        emoji: '1F369' },
+    { name: 'Ice Cream',       emoji: '1F366' },
+    { name: 'Lollipop',        emoji: '1F36D' },
+    { name: 'Chocolate',       emoji: '1F36B' },
+    { name: 'Candy',           emoji: '1F36C' },
+    { name: 'Bento Box',       emoji: '1F371' },
+    { name: 'Pot of Food',     emoji: '1F372' },
+    { name: 'Cheese',          emoji: '1F9C0' },
+    { name: 'Bread',           emoji: '1F35E' },
+    { name: 'Croissant',       emoji: '1F950' },
+    { name: 'Avocado',         emoji: '1F951' },
+    { name: 'Strawberry',      emoji: '1F353' },
+    { name: 'Watermelon',      emoji: '1F349' },
+    { name: 'Grapes',          emoji: '1F347' },
+    { name: 'Peach',           emoji: '1F351' },
+    { name: 'Bubble Tea',      emoji: '1F9CB' },
+  ]),
+  settings: DEFAULT_SETTINGS,
+}
+
 // ── All prebuilt templates (order = display order in modal) ───────────────────
 export const PREBUILT_TEMPLATES = [
   WORLD_COUNTRIES_TEMPLATE,
   PREMIER_LEAGUE_TEMPLATE,
   NFL_TEMPLATE,
   F1_TEMPLATE,
+  ANIMALS_TEMPLATE,
+  BALLS_TEMPLATE,
+  SMILEYS_TEMPLATE,
+  FOOD_TEMPLATE,
   MARVEL_DISNEY_TEMPLATE,
   FAST_FOOD_TEMPLATE,
   BABY_NAMES_TEMPLATE,
