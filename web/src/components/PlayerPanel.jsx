@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react'
 import styles from './PlayerPanel.module.css'
 import { FLAGS } from '../flagData/flagData.js'
 const CDN = 'https://hatscripts.github.io/circle-flags/flags'
+const TWEMOJI_CDN = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg'
+const twemojiUrl = cp => `${TWEMOJI_CDN}/${cp.toLowerCase()}.svg`
 
 const EMOJI_PAGE_SIZE = 80
 
@@ -548,7 +550,7 @@ function PlayerRow({ player, isActive, onSelect, onUpdate, onRemove, canRemove }
           <img src={`/skins/${currentImg.file}`} className={styles.imgOnBall} alt="" onError={e => { e.currentTarget.style.display = 'none' }} />
         )}
         {!currentFlag && !currentImg && currentEmoji && (
-          <img src={`/emojis/${currentEmoji}.svg`} className={styles.imgOnBall} alt="" />
+          <img src={twemojiUrl(currentEmoji)} className={styles.imgOnBall} alt="" />
         )}
       </div>
 
@@ -589,7 +591,7 @@ function PlayerRow({ player, isActive, onSelect, onUpdate, onRemove, canRemove }
             : currentImg
               ? <img src={`/skins/${currentImg.file}`} style={{ width: 14, height: 14, objectFit: 'contain' }} alt="" onError={e => { e.currentTarget.style.display = 'none' }} />
               : currentEmoji
-                ? <img src={`/emojis/${currentEmoji}.svg`} style={{ width: 16, height: 16, objectFit: 'contain' }} alt="" />
+                ? <img src={twemojiUrl(currentEmoji)} style={{ width: 16, height: 16, objectFit: 'contain' }} alt="" />
                 : '🎱'
           }
         </button>
@@ -700,7 +702,7 @@ function PlayerRow({ player, isActive, onSelect, onUpdate, onRemove, canRemove }
                         onClick={() => { onUpdate(player.id, 'ballSkin', id); setShowSkins(false) }}
                         title={codepoint}
                       >
-                        {char || <img src={`/emojis/${codepoint}.svg`} style={{ width: 18, height: 18 }} alt="" />}
+                        {char || <img src={twemojiUrl(codepoint)} style={{ width: 18, height: 18 }} alt="" />}
                       </button>
                     )
                   })}

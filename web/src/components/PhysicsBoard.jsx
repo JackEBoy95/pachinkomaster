@@ -1,6 +1,12 @@
 import { useEffect, useRef, useCallback, useState, forwardRef, useImperativeHandle } from 'react'
 import Matter from 'matter-js'
 
+// Twemoji CDN — emoji ball skins
+const TWEMOJI_CDN = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg'
+function twemojiUrl(codepoint) {
+  return `${TWEMOJI_CDN}/${codepoint.toLowerCase()}.svg`
+}
+
 // Module-level image cache so each skin loads only once across renders
 const imgCache = new Map()
 // Pre-rasterized circular bitmaps — avoids per-frame SVG rasterization + clip
@@ -461,7 +467,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
               }
             } else if (b.ballSkin?.startsWith('emoji:')) {
               const cp = b.ballSkin.replace('emoji:', '')
-              const img = getCachedImage(`/emojis/${cp}.svg`)
+              const img = getCachedImage(twemojiUrl(cp))
               if (img._ready) {
                 ctx.save()
                 ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.clip()
@@ -643,7 +649,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       if (p.ballSkin.startsWith('cflag:')) {
         getCachedImage(`https://hatscripts.github.io/circle-flags/flags/${p.ballSkin.replace('cflag:', '')}.svg`)
       } else if (p.ballSkin.startsWith('emoji:')) {
-        getCachedImage(`/emojis/${p.ballSkin.replace('emoji:', '')}.svg`)
+        getCachedImage(twemojiUrl(p.ballSkin.replace('emoji:', '')))
       }
     })
 
