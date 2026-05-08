@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback, useState, forwardRef, useImperativeHand
 import Matter from 'matter-js'
 
 // Twemoji CDN — emoji ball skins
-const TWEMOJI_CDN = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg'
+const TWEMOJI_CDN = 'https://twemoji.maxcdn.com/v/latest/svg'
 function twemojiUrl(codepoint) {
   return `${TWEMOJI_CDN}/${codepoint.toLowerCase()}.svg`
 }

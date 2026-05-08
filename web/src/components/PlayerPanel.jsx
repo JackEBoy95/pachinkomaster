@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import styles from './PlayerPanel.module.css'
 import { FLAGS } from '../flagData/flagData.js'
 const CDN = 'https://hatscripts.github.io/circle-flags/flags'
-const TWEMOJI_CDN = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg'
+const TWEMOJI_CDN = 'https://twemoji.maxcdn.com/v/latest/svg'
 const twemojiUrl = cp => `${TWEMOJI_CDN}/${cp.toLowerCase()}.svg`
 
 const EMOJI_PAGE_SIZE = 80
