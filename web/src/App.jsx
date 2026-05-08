@@ -294,7 +294,7 @@ export default function App() {
               onPegHit={playPegHit}
               skin={skin}
               locked={isTournamentActive}
-              overlayShown={!!tournament?.roundResult}
+              overlayShown={!!tournament?.roundResult || !!result}
             />
           </div>
 
