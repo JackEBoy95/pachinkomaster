@@ -165,12 +165,17 @@ export default function App() {
     const roundNum   = tournament?.roundResult?.roundNumber
     const isComplete = tournament?.roundResult?.isComplete
     dismissTournamentRound()
+    // useGameState.onBallLanded sets `result` on every drop, including tournament
+    // rounds. ResultOverlay is hidden during tournaments so `result` never gets
+    // dismissed — which kept overlayShown=true and froze the physics loop for
+    // the next round. Clear it here whenever a tournament round card is dismissed.
+    dismissResult()
     const isMobile = window.innerWidth <= 640
     const midRoundAd = isMobile && (roundNum === 6 || roundNum === 12)
     if (isComplete || midRoundAd) {
       setShowAd(true)
     }
-  }, [tournament, dismissTournamentRound])
+  }, [tournament, dismissTournamentRound, dismissResult])
 
   const clampBallCount = (v) => Math.max(1, Math.min(maxBallCount, Number(v) || 1))
 
