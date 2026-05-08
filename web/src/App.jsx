@@ -23,7 +23,7 @@ export default function App() {
   const [leftTab, setLeftTab]       = useState('prizes')    // 'prizes' | 'players' | 'settings'
   const [mobileTab, setMobileTab]   = useState('board')     // 'board' | 'config' | 'scores'
   const [ballSize, setBallSize]     = useState(17)    // ball radius px
-  const [pegDensity, setPegDensity] = useState(() => window.innerWidth <= 640 ? 12 : 11)
+  const [pegDensity, setPegDensity] = useState(() => window.innerWidth <= 640 ? 12 : 12)
   const [bounciness, setBounciness] = useState(() => window.innerWidth <= 640 ? 0.6 : 0.5)
   const [ballCount, setBallCount]   = useState(1)     // balls per drop
   const [tournamentConfig, setTournamentConfig] = useState({ eliminationPerRound: 0, maxRounds: 0 })
