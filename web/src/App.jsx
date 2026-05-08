@@ -22,8 +22,8 @@ export default function App() {
   const [speed, setSpeed]           = useState('normal')
   const [leftTab, setLeftTab]       = useState('prizes')    // 'prizes' | 'players' | 'settings'
   const [mobileTab, setMobileTab]   = useState('board')     // 'board' | 'config' | 'scores'
-  const [ballSize, setBallSize]     = useState(20)    // ball radius px
-  const [pegDensity, setPegDensity] = useState(() => window.innerWidth <= 640 ? 12 : 14)
+  const [ballSize, setBallSize]     = useState(17)    // ball radius px
+  const [pegDensity, setPegDensity] = useState(() => window.innerWidth <= 640 ? 12 : 11)
   const [bounciness, setBounciness] = useState(() => window.innerWidth <= 640 ? 0.6 : 0.5)
   const [ballCount, setBallCount]   = useState(1)     // balls per drop
   const [tournamentConfig, setTournamentConfig] = useState({ eliminationPerRound: 0, maxRounds: 0 })
@@ -294,6 +294,7 @@ export default function App() {
               onPegHit={playPegHit}
               skin={skin}
               locked={isTournamentActive}
+              overlayShown={!!tournament?.roundResult}
             />
           </div>
 

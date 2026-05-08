@@ -85,7 +85,7 @@ function rescueBall(ball, W) {
 }
 
 const PhysicsBoard = forwardRef(function PhysicsBoard(
-  { prizes, activePlayer, onBallLanded, speed, ballSize, pegDensity, bounciness, onPegHit, skin, locked },
+  { prizes, activePlayer, onBallLanded, speed, ballSize, pegDensity, bounciness, onPegHit, skin, locked, overlayShown },
   ref
 ) {
   const containerRef     = useRef(null)
@@ -111,6 +111,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const spawnQueueRef    = useRef([])
   const isTouchRef       = useRef(false)  // true once any touch event fires — suppresses synthetic mouse aim
   const physicsWorldWRef = useRef(0)      // W used to build the current physics engine (walls, pegs)
+  const overlayShownRef  = useRef(overlayShown)
   const [dropping, setDropping]   = useState(false)
   const [resizeKey, setResizeKey] = useState(0)  // increments → triggers engine rebuild on resize
 
@@ -126,6 +127,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   useEffect(() => { ballSizeRef.current     = ballSize     }, [ballSize])
   useEffect(() => { bouncinessRef.current   = bounciness   }, [bounciness])
   useEffect(() => { onPegHitRef.current     = onPegHit     }, [onPegHit])
+  useEffect(() => { overlayShownRef.current = overlayShown }, [overlayShown])
 
   // ── Peg grid ──────────────────────────────────────────────────────────────
   // Even rows: `cols` pegs spanning right up to the walls
@@ -188,7 +190,10 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     // Scale canvas to physical pixels for crisp rendering on retina / high-DPR
     // mobile screens (iPhone dpr=2–3). Without this every canvas pixel is a blurry
     // 2–3px block, making the ball visually larger than its physics circle.
-    const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    // Cap DPR to 1 on large desktop monitors — a 1920px board at DPR=2 creates a
+    // 3840×1800 canvas that must be cleared and redrawn at 60fps, which is the
+    // primary cause of slowness on full-screen desktop. Mobile retina stays at 2.
+    const dpr = W > 1000 ? 1 : Math.min(window.devicePixelRatio || 1, 2)
     canvas.width  = W * dpr
     canvas.height = H * dpr
 
@@ -319,6 +324,10 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     let animId
     const draw = () => {
       animId = requestAnimationFrame(draw)
+      // Pause physics + canvas when result overlay is visible — the overlay
+      // covers the board entirely so there's nothing to render, and this
+      // eliminates the main source of GPU load that made the confetti slow.
+      if (overlayShownRef.current) return
       Matter.Runner.tick(runner, engine, 1000 / 60)
       const ctx = canvas.getContext('2d')
       // Reset to DPR-scaled identity each frame so CSS-pixel coordinates from
