@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to Play PachinkoMaster — Complete Guide to Every Mode</title>
+  <meta name="description" content="A complete guide to PachinkoMaster. Learn how to set up prizes, add players, run tournaments, use ball skins, share boards, and get the most out of every feature." />
+  <link rel="canonical" href="https://www.pachinkomaster.com/how-to-play" />
+  <meta name="theme-color" content="#0d0d1a" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <!-- AdSense verification -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4069101395475946" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d0d1a;
+      color: #e8e0f0;
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      min-height: 100dvh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(245,200,66,0.07) 2px, transparent 2px);
+      background-size: 38px 38px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #F5C842;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      opacity: 0.8;
+      transition: opacity 0.15s;
+    }
+    .back:hover { opacity: 1; }
+
+    .nav-links { display: flex; gap: 16px; margin-left: auto; }
+    .nav-links a {
+      color: #b0a8c0;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+    }
+    .nav-links a:hover { opacity: 1; color: #F5C842; text-decoration: none; }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #F5C842;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .lead {
+      font-size: 1.1rem;
+      color: #d0c8e0;
+      margin-bottom: 36px;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #00e5ff;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 44px 0 14px;
+      padding-top: 4px;
+      border-top: 1px solid rgba(0,229,255,0.12);
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #F5C842;
+      margin: 22px 0 8px;
+      letter-spacing: 0.03em;
+    }
+
+    p { color: #b0a8c0; margin-bottom: 14px; }
+
+    .toc {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(245,200,66,0.15);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 36px;
+    }
+    .toc-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #6a6a8a;
+      margin-bottom: 10px;
+    }
+    .toc ol { padding-left: 18px; }
+    .toc li { margin-bottom: 4px; }
+    .toc a { color: #b0a8c0; font-size: 14px; }
+    .toc a:hover { color: #F5C842; }
+
+    .tip {
+      background: rgba(0,229,255,0.06);
+      border-left: 3px solid #00e5ff;
+      border-radius: 0 6px 6px 0;
+      padding: 12px 16px;
+      margin: 16px 0;
+      font-size: 14px;
+      color: #b0a8c0;
+    }
+    .tip strong { color: #00e5ff; }
+
+    .warn {
+      background: rgba(245,200,66,0.06);
+      border-left: 3px solid #F5C842;
+      border-radius: 0 6px 6px 0;
+      padding: 12px 16px;
+      margin: 16px 0;
+      font-size: 14px;
+      color: #b0a8c0;
+    }
+    .warn strong { color: #F5C842; }
+
+    .steps { list-style: none; margin: 16px 0 24px; counter-reset: step; }
+    .steps li {
+      counter-increment: step;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(0,229,255,0.08);
+      border-radius: 8px;
+    }
+    .steps li::before {
+      content: counter(step);
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      background: #00e5ff;
+      color: #0d0d1a;
+      font-weight: 700;
+      font-size: 14px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .steps li p { margin: 0; font-size: 15px; }
+    .steps li strong { color: #e8e0f0; }
+
+    .setting-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 10px;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.05);
+      font-size: 15px;
+    }
+    .setting-name {
+      color: #e8e0f0;
+      font-weight: 700;
+      min-width: 140px;
+      flex-shrink: 0;
+    }
+    .setting-desc { color: #b0a8c0; }
+
+    a { color: #F5C842; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .cta {
+      display: inline-block;
+      margin-top: 32px;
+      padding: 12px 32px;
+      background: #FF4FA3;
+      color: #fff;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 0 20px rgba(255,79,163,0.4);
+      transition: box-shadow 0.15s, transform 0.15s;
+    }
+    .cta:hover {
+      box-shadow: 0 0 32px rgba(255,79,163,0.6);
+      transform: translateY(-1px);
+      text-decoration: none;
+    }
+
+    .divider { border: none; border-top: 1px solid rgba(245,200,66,0.15); margin: 40px 0; }
+
+    .footer-links {
+      font-size: 13px;
+      color: #6a6a8a;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .footer-links a { color: #6a6a8a; }
+    .footer-links a:hover { color: #F5C842; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a class="back" href="/">← PachinkoMaster</a>
+      <div class="nav-links">
+        <a href="/about">About</a>
+        <a href="/blog/">Blog</a>
+        <a href="/privacy">Privacy</a>
+      </div>
+    </nav>
+
+    <h1>How to Play PachinkoMaster</h1>
+    <p class="lead">Everything you need to know — from your first ball drop to running a full multi-round tournament with 50 players.</p>
+
+    <div class="toc">
+      <div class="toc-title">Contents</div>
+      <ol>
+        <li><a href="#basics">The basics: your first drop</a></li>
+        <li><a href="#prizes">Setting up prizes</a></li>
+        <li><a href="#players">Multi-player mode</a></li>
+        <li><a href="#tournament">Tournament mode</a></li>
+        <li><a href="#skins">Ball skins &amp; themes</a></li>
+        <li><a href="#settings">Board settings explained</a></li>
+        <li><a href="#games">Game presets</a></li>
+        <li><a href="#share">Sharing &amp; exporting</a></li>
+        <li><a href="#tips">Tips &amp; tricks</a></li>
+      </ol>
+    </div>
+
+    <!-- ── BASICS ── -->
+    <h2 id="basics">1. The Basics: Your First Drop</h2>
+    <p>When you first open PachinkoMaster, you'll see a physics board filled with pegs and prize slots along the bottom. Each slot is labelled with one of your prizes. The big coloured button at the bottom drops a ball from a random position at the top of the board.</p>
+    <p>The ball bounces through the pegs and lands in a slot — that's your result. It sounds simple because it is. The randomness comes from the physics: tiny differences in the drop position cascade into completely different paths through the board, making every drop unpredictable.</p>
+
+    <ol class="steps">
+      <li><p>Open <a href="/">pachinkomaster.com</a> in any browser on desktop or mobile.</p></li>
+      <li><p>The board is pre-loaded with a default set of prizes. Hit the <strong>Drop Ball</strong> button to see it in action.</p></li>
+      <li><p>The ball bounces through the pegs and lands in a slot. The winning prize lights up.</p></li>
+      <li><p>Edit the prizes to match your own options (see the next section).</p></li>
+    </ol>
+
+    <div class="tip"><strong>Tip:</strong> You can click anywhere along the top of the board to drop a ball from a specific position, or use the Drop button to get a randomised starting point.</div>
+
+    <!-- ── PRIZES ── -->
+    <h2 id="prizes">2. Setting Up Prizes</h2>
+    <p>Open the <strong>Prizes</strong> panel by clicking the Prizes tab on the right-hand side. Here you can add, edit, reorder, and remove prize slots.</p>
+
+    <h3>Adding prizes</h3>
+    <p>Click <strong>Add Prize</strong> and type a label. Each label becomes one slot at the bottom of the board. You can have as many prizes as the board width allows — the slots resize automatically to fit.</p>
+
+    <h3>Point values</h3>
+    <p>Each prize can have a numeric point value. This is used in multi-player and tournament mode to rank players after each round. Set higher points for harder-to-land slots and lower points (even zero or negative) for easier ones to create a skill-based scoring curve.</p>
+
+    <h3>Prize images</h3>
+    <p>Upload an image for any prize slot — it displays inside the slot as a thumbnail. Useful for photo prizes, team logos, product images, or just making the board more visual and engaging.</p>
+
+    <div class="tip"><strong>Tip:</strong> If you want some outcomes to be much rarer than others, give them a narrow width by reducing the prize's relative size, or place them at the edges of the board where balls are less likely to travel.</div>
+
+    <!-- ── PLAYERS ── -->
+    <h2 id="players">3. Multi-Player Mode</h2>
+    <p>Switch to <strong>Players</strong> mode when more than one person is playing. Open the Players panel and add each participant by name. Each player is assigned a unique colour — their ball takes that colour when dropped, so you can track exactly where each person's ball lands in a round with many balls falling at once.</p>
+
+    <h3>Running a multi-player round</h3>
+    <ol class="steps">
+      <li><p>Open the Players panel and add all participants.</p></li>
+      <li><p>Click <strong>Drop All</strong> to release all players' balls simultaneously from randomised positions.</p></li>
+      <li><p>Watch each coloured ball navigate the pegs and land in a slot.</p></li>
+      <li><p>The results panel shows each player's score for the round alongside a running total.</p></li>
+    </ol>
+
+    <h3>Keeping score</h3>
+    <p>Scores accumulate automatically across multiple rounds. Run as many rounds as you like — the leaderboard updates after each one. At the end of your session you can see who accumulated the most points overall.</p>
+
+    <div class="tip"><strong>Tip:</strong> For a quick one-off decision (like who goes first or who pays), just add the players and use single drops rather than full Drop All rounds.</div>
+
+    <!-- ── TOURNAMENT ── -->
+    <h2 id="tournament">4. Tournament Mode</h2>
+    <p>Tournament Mode turns PachinkoMaster into a full elimination bracket. Enable it from the Tournament toggle in the Players panel. Set your elimination parameters and then run rounds — the weakest-scoring players are cut each round until the group whittles down to a winner.</p>
+
+    <h3>How elimination works</h3>
+    <p>After each round, the players with the lowest scores are eliminated. The number eliminated per round is configurable — you might cut the bottom third each round for a fast tournament, or just cut one player at a time for maximum drama. Eliminated players are shown on the round-end screen alongside the players who are advancing.</p>
+
+    <h3>The two win conditions</h3>
+    <p>PachinkoMaster tracks two parallel competitions throughout any tournament:</p>
+    <ul style="margin: 8px 0 16px 20px; color: #b0a8c0;">
+      <li style="margin-bottom: 6px;"><strong style="color:#e8e0f0;">🛡️ Last Standing</strong> — the player who survives to the final round without being eliminated. This rewards consistency: you need to stay out of the bottom cut every single round.</li>
+      <li style="margin-bottom: 6px;"><strong style="color:#e8e0f0;">🎯 Points Champion</strong> — the player with the highest cumulative total across all rounds they participated in, including eliminated players. This rewards big scores even if you were knocked out early.</li>
+      <li><strong style="color:#e8e0f0;">⚡ Clean Sweep</strong> — if the same player wins both titles, they're awarded a Clean Sweep.</li>
+    </ul>
+
+    <h3>Exporting results</h3>
+    <p>After a tournament, the finale screen shows the full final leaderboard sorted by total points. Hit <strong>Export CSV</strong> to download a spreadsheet with every player's final rank, total points, and the round they were eliminated — ready to share or paste into any scoring tool.</p>
+
+    <div class="warn"><strong>Note:</strong> Tournament state is held in memory during your session. If you refresh the page during a tournament, the session will reset. Make sure to export the results before closing.</div>
+
+    <!-- ── SKINS ── -->
+    <h2 id="skins">5. Ball Skins &amp; Themes</h2>
+
+    <h3>Ball skins</h3>
+    <p>Each player's ball can be given a custom skin. Open the Players panel, click a player's ball, and choose from:</p>
+    <ul style="margin: 8px 0 16px 20px; color: #b0a8c0;">
+      <li style="margin-bottom: 4px;"><strong style="color:#e8e0f0;">Solid colour</strong> — the default; pick any colour from the palette.</li>
+      <li style="margin-bottom: 4px;"><strong style="color:#e8e0f0;">National flags</strong> — circular flag icons for over 250 countries. Great for sports tournaments and world cup draws.</li>
+      <li style="margin-bottom: 4px;"><strong style="color:#e8e0f0;">Emoji</strong> — any emoji as the ball face, for a more playful look.</li>
+    </ul>
+
+    <h3>Board themes</h3>
+    <p>Open the Settings panel and scroll to Themes. There are 14 visual themes available — from the default Neon to Vintage, Gold, Halloween, Space, Christmas, and a range of national flag themes that style the entire board in a country's colours.</p>
+
+    <!-- ── SETTINGS ── -->
+    <h2 id="settings">6. Board Settings Explained</h2>
+    <p>The Settings panel gives you direct control over how the physics board behaves. Here's what each setting does:</p>
+
+    <div class="setting-row"><span class="setting-name">Ball Size</span><span class="setting-desc">The diameter of each ball. Larger balls are easier to see and tend to have more consistent paths; smaller balls bounce more erratically and fit more in at once.</span></div>
+    <div class="setting-row"><span class="setting-name">Peg Density</span><span class="setting-desc">How many rows of pegs appear on the board. More pegs means more bounces and a less predictable result. Fewer pegs leads to straighter, faster drops.</span></div>
+    <div class="setting-row"><span class="setting-name">Bounciness</span><span class="setting-desc">Controls the restitution (elasticity) of ball-peg collisions. Higher bounciness means balls deflect further from each peg, creating wilder, more chaotic paths. Lower bounciness means balls roll more smoothly toward the nearest slot.</span></div>
+    <div class="setting-row"><span class="setting-name">Drop Speed</span><span class="setting-desc">How quickly the balls fall. A slower speed is more dramatic and easier to follow; a faster speed is better for running many rounds quickly.</span></div>
+    <div class="setting-row"><span class="setting-name">Gravity</span><span class="setting-desc">The downward acceleration applied to each ball. Higher gravity means balls fall faster and spend less time bouncing side to side. Lower gravity gives balls more time in the air and more lateral movement.</span></div>
+
+    <div class="tip"><strong>Tip:</strong> For the most random-feeling results, use high peg density, medium bounciness, and a small ball size. For a more theatrical drop, use fewer pegs, large balls, and slow drop speed.</div>
+
+    <!-- ── GAMES ── -->
+    <h2 id="games">7. Game Presets</h2>
+    <p>Don't want to set everything up from scratch? The <strong>Games</strong> panel contains preset configurations for common use cases. Select a preset and the board instantly loads with the right prizes, settings, and player setup for that scenario.</p>
+    <p>Available presets include dinner pickers, chore wheels, team draft setups, sports tournament draws, and more. You can load a preset and then customise it — change the prize names, add your own players, and adjust the settings to taste. Your changes are saved automatically.</p>
+
+    <!-- ── SHARE ── -->
+    <h2 id="share">8. Sharing &amp; Exporting</h2>
+
+    <h3>Sharing a board</h3>
+    <p>Click the <strong>Share</strong> button to copy a URL to your clipboard. This URL encodes your entire board configuration — prizes, players, settings, and theme. Anyone who opens the link will see exactly the same board in their browser. Useful for sending a setup to a friend, embedding in a message, or using the same board on a different device.</p>
+
+    <h3>Exporting tournament results</h3>
+    <p>After a tournament finishes, hit <strong>Export CSV</strong> on the finale screen. The downloaded file contains each player's final rank, total points, and the round they were eliminated. Open it in Excel, Google Sheets, or Numbers.</p>
+
+    <!-- ── TIPS ── -->
+    <h2 id="tips">9. Tips &amp; Tricks</h2>
+
+    <h3>Make rare outcomes possible</h3>
+    <p>Add a "wild card" or jackpot prize with a very high point value but a narrow slot width. Players will occasionally land on it, spiking their score unexpectedly and keeping everyone engaged.</p>
+
+    <h3>Use custom images for drama</h3>
+    <p>For a team raffle or prize draw, upload the actual product image or a headshot of each person into the prize slot. It makes the result much more visual and exciting for an audience watching live.</p>
+
+    <h3>Run a fast elimination</h3>
+    <p>For a quick tournament with a large group (say, 30+ people), set the elimination cut to 30–40% per round. This reduces a 32-player group to a winner in just 4 or 5 rounds.</p>
+
+    <h3>Screenshare it</h3>
+    <p>PachinkoMaster works great on a big screen. For office events, classrooms, or online calls, open the board in full screen and share your screen — the physics are much more exciting to watch when everyone can see the balls bouncing in real time.</p>
+
+    <h3>Board width matters</h3>
+    <p>On a wide monitor, the board has more columns and balls have more room to spread. On mobile, the board is narrower so results are more likely to cluster toward the centre. If you need perfectly even distribution, use a desktop browser with the window maximised.</p>
+
+    <a class="cta" href="/">Start Playing →</a>
+
+    <hr class="divider" />
+    <div class="footer-links">
+      <a href="/">PachinkoMaster</a> &nbsp;·&nbsp;
+      <a href="/about">About</a> &nbsp;·&nbsp;
+      <a href="/blog/">Blog</a> &nbsp;·&nbsp;
+      <a href="/privacy">Privacy Policy</a>
+    </div>
+  </div>
+</body>
+</html>

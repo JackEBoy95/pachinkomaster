@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to Run a Fair Office Tournament in 10 Minutes | PachinkoMaster</title>
+  <meta name="description" content="A complete step-by-step guide to setting up a competitive office tournament using PachinkoMaster — adding players, configuring elimination rounds, and exporting results." />
+  <link rel="canonical" href="https://www.pachinkomaster.com/blog/how-to-run-a-fair-office-tournament/" />
+  <meta name="theme-color" content="#0d0d1a" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <!-- AdSense verification -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4069101395475946" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d0d1a; color: #e8e0f0;
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-size: 16px; line-height: 1.7; min-height: 100dvh;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(245,200,66,0.07) 2px, transparent 2px);
+      background-size: 38px 38px; pointer-events: none; z-index: 0;
+    }
+    .wrap { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
+    nav { display: flex; align-items: center; gap: 20px; margin-bottom: 40px; flex-wrap: wrap; }
+    .back {
+      display: inline-flex; align-items: center; gap: 6px; color: #F5C842;
+      text-decoration: none; font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; opacity: 0.8; transition: opacity 0.15s;
+    }
+    .back:hover { opacity: 1; }
+    .nav-links { display: flex; gap: 16px; margin-left: auto; }
+    .nav-links a {
+      color: #b0a8c0; text-decoration: none; font-size: 13px; font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.7; transition: opacity 0.15s;
+    }
+    .nav-links a:hover { opacity: 1; color: #F5C842; text-decoration: none; }
+    .tag { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #FF4FA3; margin-bottom: 10px; }
+    h1 { font-size: 2.2rem; font-weight: 700; color: #F5C842; letter-spacing: 0.03em; margin-bottom: 12px; line-height: 1.25; }
+    .meta { font-size: 13px; color: #6a6a8a; margin-bottom: 28px; }
+    h2 { font-size: 1.15rem; font-weight: 700; color: #00e5ff; letter-spacing: 0.04em; margin: 36px 0 12px; }
+    h3 { font-size: 1rem; font-weight: 700; color: #F5C842; margin: 20px 0 8px; }
+    p { color: #b0a8c0; margin-bottom: 14px; }
+    .lead { font-size: 1.05rem; color: #d0c8e0; margin-bottom: 24px; }
+    ul, ol { margin: 10px 0 18px 22px; color: #b0a8c0; }
+    li { margin-bottom: 6px; }
+    .steps { list-style: none; margin: 16px 0 24px; counter-reset: step; padding: 0; }
+    .steps li {
+      counter-increment: step;
+      display: flex; gap: 16px; align-items: flex-start;
+      margin-bottom: 12px; padding: 14px 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(0,229,255,0.08); border-radius: 8px;
+    }
+    .steps li::before {
+      content: counter(step); flex-shrink: 0;
+      width: 28px; height: 28px; background: #00e5ff; color: #0d0d1a;
+      font-weight: 700; font-size: 14px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .steps li div { font-size: 15px; color: #b0a8c0; }
+    .steps li strong { color: #e8e0f0; display: block; margin-bottom: 2px; }
+    .tip {
+      background: rgba(0,229,255,0.06); border-left: 3px solid #00e5ff;
+      border-radius: 0 6px 6px 0; padding: 12px 16px; margin: 16px 0;
+      font-size: 14px; color: #b0a8c0;
+    }
+    .tip strong { color: #00e5ff; }
+    .config-table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 14px; }
+    .config-table th { text-align: left; color: #6a6a8a; font-weight: 700; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .config-table td { padding: 10px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #b0a8c0; vertical-align: top; }
+    .config-table td:first-child { color: #e8e0f0; font-weight: 600; }
+    a { color: #F5C842; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .cta {
+      display: inline-block; margin-top: 32px; padding: 12px 28px; background: #FF4FA3; color: #fff;
+      font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; border-radius: 8px; text-decoration: none;
+      box-shadow: 0 0 18px rgba(255,79,163,0.35); transition: box-shadow 0.15s, transform 0.15s;
+    }
+    .cta:hover { box-shadow: 0 0 28px rgba(255,79,163,0.55); transform: translateY(-1px); text-decoration: none; }
+    .related { margin-top: 40px; }
+    .related-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #6a6a8a; margin-bottom: 14px; }
+    .related-links { display: flex; flex-direction: column; gap: 8px; }
+    .related-link { color: #b0a8c0; font-size: 14px; }
+    .related-link:hover { color: #F5C842; }
+    .divider { border: none; border-top: 1px solid rgba(245,200,66,0.15); margin: 40px 0; }
+    .footer-links { font-size: 13px; color: #6a6a8a; display: flex; flex-wrap: wrap; gap: 8px; }
+    .footer-links a { color: #6a6a8a; }
+    .footer-links a:hover { color: #F5C842; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a class="back" href="/blog/">← Blog</a>
+      <div class="nav-links">
+        <a href="/about">About</a>
+        <a href="/how-to-play">How to Play</a>
+        <a href="/">Play Now</a>
+      </div>
+    </nav>
+
+    <div class="tag">Guide</div>
+    <h1>How to Run a Fair and Fun Office Tournament in Under 10 Minutes</h1>
+    <div class="meta">May 2026 &nbsp;·&nbsp; 6 min read</div>
+
+    <p class="lead">Office tournaments are great team-building exercises, but they often come with baggage: someone organises the bracket, someone disputes the draw, someone claims the results were manipulated. PachinkoMaster's tournament mode removes all of that by letting physics do the deciding — transparently, in front of everyone.</p>
+
+    <p>This guide walks you through the entire setup from scratch, including how to configure the elimination rounds for your group size, what prize scoring setup works best, and how to wrap up with an exported leaderboard to send round the office.</p>
+
+    <h2>Before You Start</h2>
+    <p>You'll need two things: a list of participants and a decision about what you're competing for. The prizes can be anything — tasks, challenges, trivia categories, fun forfeits, or just points for bragging rights. The tournament runs the same way regardless.</p>
+    <p>Recommended group size: 6 to 64 players. Fewer than 6 and the tournament is over before it starts. More than 64 and each round takes a while to resolve, though PachinkoMaster can handle it.</p>
+
+    <h2>Step 1: Set Up Your Prize Slots</h2>
+    <p>Open PachinkoMaster and go to the <strong>Prizes</strong> panel. Delete the default prizes and add your own — these are the outcomes players are competing to land on. For a points-based tournament you want a range of values:</p>
+
+    <table class="config-table">
+      <thead><tr><th>Prize</th><th>Suggested Points</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>🏆 Jackpot</td><td>100</td><td>Rare, narrow slot — keeps things exciting</td></tr>
+        <tr><td>⭐ Great</td><td>50</td><td>2–3 of these across the board</td></tr>
+        <tr><td>✅ Good</td><td>25</td><td>The most common landing zone</td></tr>
+        <tr><td>🔄 Average</td><td>10</td><td>Plenty of these to fill the board</td></tr>
+        <tr><td>💀 Bust</td><td>0</td><td>1–2 slots — adds jeopardy</td></tr>
+      </tbody>
+    </table>
+
+    <p>The exact values are up to you — this is just a starting structure. The key is having a meaningful spread so that round outcomes actually differentiate players.</p>
+
+    <div class="tip"><strong>Tip:</strong> For a themed office tournament, name the prizes after your company's products, inside jokes, or team names. It makes the results much more shareable on Slack.</div>
+
+    <h2>Step 2: Add All Players</h2>
+    <p>Switch to the <strong>Players</strong> panel and add every participant. Each person gets a colour — you can customise them individually if you want specific colours for specific people (company colours, team colours, etc.).</p>
+
+    <ol class="steps">
+      <li><div><strong>Click "Add Player"</strong> for each participant. Type their name.</div></li>
+      <li><div><strong>Assign colours.</strong> The default palette gives everyone a distinct colour automatically. Click any colour swatch to override it.</div></li>
+      <li><div><strong>Enable Tournament Mode</strong> using the toggle at the top of the Players panel.</div></li>
+    </ol>
+
+    <h2>Step 3: Configure the Tournament</h2>
+    <p>With Tournament Mode enabled, set how many players are eliminated per round. A good rule of thumb:</p>
+
+    <table class="config-table">
+      <thead><tr><th>Group Size</th><th>Eliminate Per Round</th><th>Expected Rounds</th></tr></thead>
+      <tbody>
+        <tr><td>6–10 players</td><td>1 per round</td><td>5–9 rounds</td></tr>
+        <tr><td>11–20 players</td><td>2–3 per round</td><td>5–8 rounds</td></tr>
+        <tr><td>21–40 players</td><td>4–6 per round</td><td>5–7 rounds</td></tr>
+        <tr><td>41–64 players</td><td>10–15 per round</td><td>4–5 rounds</td></tr>
+      </tbody>
+    </table>
+
+    <p>If you want a quicker session, eliminate more per round. If you want drama and longevity — people sticking around hoping to survive one more round — eliminate fewer.</p>
+
+    <h2>Step 4: Run the Tournament</h2>
+    <p>This is the fun part. Put PachinkoMaster up on a shared screen if you're in the same room, or screen-share it on a video call.</p>
+
+    <ol class="steps">
+      <li><div><strong>Click "Drop All"</strong> to release all players' balls simultaneously. Everyone watches their coloured ball bounce through the pegs.</div></li>
+      <li><div><strong>The round-end screen</strong> shows who is advancing and who is eliminated. Take a moment here — let it land before moving on. The drama of seeing names on the eliminated list is half the fun.</div></li>
+      <li><div><strong>Click "Next Round"</strong> to continue. Eliminated players are removed automatically; surviving players carry their cumulative scores forward.</div></li>
+      <li><div><strong>Repeat</strong> until the tournament reaches its conclusion.</div></li>
+    </ol>
+
+    <div class="tip"><strong>Tip:</strong> For big groups on a video call, mute everyone just before the drop and then unmute — the chaotic noise of 30 people reacting to their ball's landing is genuinely one of the best parts.</div>
+
+    <h2>Step 5: Wrap Up and Share the Results</h2>
+    <p>When the tournament completes, the finale screen shows:</p>
+    <ul>
+      <li><strong>🛡️ Last Standing</strong> — the player who survived every elimination round</li>
+      <li><strong>🎯 Points Champion</strong> — the player with the highest cumulative score across all rounds</li>
+      <li><strong>⚡ Clean Sweep</strong> — if both titles go to the same player</li>
+      <li>The full final leaderboard with every participant ranked by total points</li>
+    </ul>
+
+    <p>Hit <strong>Export CSV</strong> to download the complete results as a spreadsheet. Open it in Excel or Google Sheets and paste it straight into your company chat, tournament thread, or wherever you're tracking results.</p>
+
+    <h3>What to do with the results</h3>
+    <p>Beyond bragging rights, you can use the CSV to track recurring tournaments over time, build a seasonal leaderboard, or feed results into a larger event scoring system. The export includes each player's name, total points, and the round they were eliminated — enough data to do whatever you want with it downstream.</p>
+
+    <h2>Common Questions</h2>
+
+    <h3>What if two players tie on points for the elimination cut?</h3>
+    <p>The current round's score is used as a tiebreaker. If there's still a tie after that, both players advance (the more generous interpretation). You can also run an extra single-round tiebreaker manually if it matters.</p>
+
+    <h3>Can I pause the tournament?</h3>
+    <p>The tournament state is held in memory during your session — so don't refresh the page in the middle of a tournament. If you need to pause, take a screenshot of the current standings and note the round number, then rebuild the state manually when you resume.</p>
+
+    <h3>Can I run the same tournament setup again next week?</h3>
+    <p>Yes. Use the Share button to copy a URL with your exact board configuration saved. That URL loads the same prizes, settings, and player list. Bookmark it as your "tournament template" and open it each session.</p>
+
+    <a class="cta" href="/">Set Up Your Tournament →</a>
+
+    <div class="related">
+      <div class="related-title">More from the blog</div>
+      <div class="related-links">
+        <a class="related-link" href="/blog/tournament-scoring-strategy-guide/">Tournament Scoring: Last Standing vs Points Champion Explained →</a>
+        <a class="related-link" href="/blog/5-creative-uses-for-a-random-decision-maker/">5 Creative Uses for a Random Decision Maker →</a>
+        <a class="related-link" href="/blog/random-decision-making-in-the-classroom/">Why Random Decision Making Belongs in Every Classroom →</a>
+      </div>
+    </div>
+
+    <hr class="divider" />
+    <div class="footer-links">
+      <a href="/">PachinkoMaster</a> &nbsp;·&nbsp;
+      <a href="/blog/">Blog</a> &nbsp;·&nbsp;
+      <a href="/about">About</a> &nbsp;·&nbsp;
+      <a href="/privacy">Privacy Policy</a>
+    </div>
+  </div>
+</body>
+</html>

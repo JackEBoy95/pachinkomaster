@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PachinkoMaster Tournament Scoring: Last Standing vs Points Champion | PachinkoMaster</title>
+  <meta name="description" content="Understanding PachinkoMaster's dual win conditions and how to design your prize layout to make tournaments more competitive, dramatic, and rewarding for all players." />
+  <link rel="canonical" href="https://www.pachinkomaster.com/blog/tournament-scoring-strategy-guide/" />
+  <meta name="theme-color" content="#0d0d1a" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <!-- AdSense verification -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4069101395475946" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d0d1a; color: #e8e0f0;
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-size: 16px; line-height: 1.7; min-height: 100dvh;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(245,200,66,0.07) 2px, transparent 2px);
+      background-size: 38px 38px; pointer-events: none; z-index: 0;
+    }
+    .wrap { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
+    nav { display: flex; align-items: center; gap: 20px; margin-bottom: 40px; flex-wrap: wrap; }
+    .back {
+      display: inline-flex; align-items: center; gap: 6px; color: #F5C842;
+      text-decoration: none; font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; opacity: 0.8; transition: opacity 0.15s;
+    }
+    .back:hover { opacity: 1; }
+    .nav-links { display: flex; gap: 16px; margin-left: auto; }
+    .nav-links a {
+      color: #b0a8c0; text-decoration: none; font-size: 13px; font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.7; transition: opacity 0.15s;
+    }
+    .nav-links a:hover { opacity: 1; color: #F5C842; text-decoration: none; }
+    .tag { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #FF4FA3; margin-bottom: 10px; }
+    h1 { font-size: 2.2rem; font-weight: 700; color: #F5C842; letter-spacing: 0.03em; margin-bottom: 12px; line-height: 1.25; }
+    .meta { font-size: 13px; color: #6a6a8a; margin-bottom: 28px; }
+    h2 { font-size: 1.15rem; font-weight: 700; color: #00e5ff; letter-spacing: 0.04em; margin: 36px 0 12px; }
+    h3 { font-size: 1rem; font-weight: 700; color: #F5C842; margin: 20px 0 8px; }
+    p { color: #b0a8c0; margin-bottom: 14px; }
+    .lead { font-size: 1.05rem; color: #d0c8e0; margin-bottom: 24px; }
+    ul, ol { margin: 10px 0 18px 22px; color: #b0a8c0; }
+    li { margin-bottom: 8px; }
+    .win-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0 28px; }
+    @media (max-width: 480px) { .win-cards { grid-template-columns: 1fr; } }
+    .win-card {
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px; padding: 18px 20px;
+    }
+    .win-card.survivor { border: 1px solid rgba(0,229,255,0.2); }
+    .win-card.points { border: 1px solid rgba(57,255,20,0.2); }
+    .win-card.sweep { border: 1px solid rgba(245,200,66,0.2); grid-column: 1 / -1; }
+    .win-icon { font-size: 1.6rem; margin-bottom: 6px; }
+    .win-name { font-weight: 700; color: #e8e0f0; font-size: 1rem; margin-bottom: 6px; }
+    .win-card p { font-size: 14px; margin: 0; }
+    .scenario {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px; padding: 16px 18px; margin: 14px 0;
+    }
+    .scenario-title { font-weight: 700; color: #e8e0f0; margin-bottom: 6px; font-size: 15px; }
+    .scenario p { font-size: 14px; margin: 0; }
+    .tip {
+      background: rgba(0,229,255,0.06); border-left: 3px solid #00e5ff;
+      border-radius: 0 6px 6px 0; padding: 12px 16px; margin: 16px 0;
+      font-size: 14px; color: #b0a8c0;
+    }
+    .tip strong { color: #00e5ff; }
+    a { color: #F5C842; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .cta {
+      display: inline-block; margin-top: 32px; padding: 12px 28px; background: #FF4FA3; color: #fff;
+      font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; border-radius: 8px; text-decoration: none;
+      box-shadow: 0 0 18px rgba(255,79,163,0.35); transition: box-shadow 0.15s, transform 0.15s;
+    }
+    .cta:hover { box-shadow: 0 0 28px rgba(255,79,163,0.55); transform: translateY(-1px); text-decoration: none; }
+    .related { margin-top: 40px; }
+    .related-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #6a6a8a; margin-bottom: 14px; }
+    .related-links { display: flex; flex-direction: column; gap: 8px; }
+    .related-link { color: #b0a8c0; font-size: 14px; }
+    .related-link:hover { color: #F5C842; }
+    .divider { border: none; border-top: 1px solid rgba(245,200,66,0.15); margin: 40px 0; }
+    .footer-links { font-size: 13px; color: #6a6a8a; display: flex; flex-wrap: wrap; gap: 8px; }
+    .footer-links a { color: #6a6a8a; }
+    .footer-links a:hover { color: #F5C842; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a class="back" href="/blog/">← Blog</a>
+      <div class="nav-links">
+        <a href="/about">About</a>
+        <a href="/how-to-play">How to Play</a>
+        <a href="/">Play Now</a>
+      </div>
+    </nav>
+
+    <div class="tag">Strategy</div>
+    <h1>Tournament Scoring: Last Standing vs Points Champion Explained</h1>
+    <div class="meta">May 2026 &nbsp;·&nbsp; 5 min read</div>
+
+    <p class="lead">PachinkoMaster tournaments have two ways to win. Understanding the difference — and how your prize layout affects which one matters more — is the key to designing tournaments that stay exciting all the way to the final round.</p>
+
+    <h2>The Two Win Conditions</h2>
+
+    <div class="win-cards">
+      <div class="win-card survivor">
+        <div class="win-icon">🛡️</div>
+        <div class="win-name">Last Standing</div>
+        <p>Awarded to the player who was never eliminated. They survived every round's cut-off, regardless of their individual round scores.</p>
+      </div>
+      <div class="win-card points">
+        <div class="win-icon">🎯</div>
+        <div class="win-name">Points Champion</div>
+        <p>Awarded to the player with the highest cumulative total across all rounds they competed in — including eliminated players.</p>
+      </div>
+      <div class="win-card sweep">
+        <div class="win-icon">⚡</div>
+        <div class="win-name">Clean Sweep</div>
+        <p>If the same player wins both titles — they survived to the end <em>and</em> accumulated the most total points — they are awarded a Clean Sweep. Both titles go to one player.</p>
+      </div>
+    </div>
+
+    <p>These two conditions can be won by different people, which is what makes the tournament interesting. A player knocked out in round two might still be the Points Champion if they landed exceptional scores while they were competing. Meanwhile, a cautious consistent player who never landed anything spectacular but always stayed above the cut-off will win Last Standing.</p>
+
+    <h2>Why Two Win Conditions Make Tournaments Better</h2>
+    <p>The problem with a pure survival tournament is that once eliminated, players have no reason to stay invested. If the only goal is to not be the worst, players who fall behind early effectively drop out of the narrative.</p>
+    <p>Adding a Points Champion title changes this. A player who gets eliminated in round three can still win the tournament overall — they just need to have scored more points across their three rounds than anyone else managed in their full run. That possibility keeps eliminated players watching, keeps them engaged in the score tracking, and makes the announcement of the final leaderboard actually dramatic.</p>
+    <p>It also creates more interesting dynamics between players who are still competing. Someone in last place but with high cumulative points has a claim to the overall title even if they survive just one more round. Someone in first place on points but vulnerable in survival terms has to protect both positions simultaneously.</p>
+
+    <h2>How Prize Layout Affects the Balance</h2>
+    <p>The design of your prize slots determines how much variance there is between rounds — and variance is what decides whether Last Standing or Points Champion is the more meaningful title.</p>
+
+    <h3>High-variance board (favours Points Champion upsets)</h3>
+    <p>A board with a few massive jackpots (e.g., 200pt slots) and mostly low-value slots (e.g., 5–10pts) creates a situation where a single lucky landing can massively outweigh consistent performance. If someone lands the jackpot twice in their first three rounds before being eliminated, they'll likely be the Points Champion even if a survivor goes on to play five more rounds landing mid-value slots.</p>
+    <p>Use this design when you want the tournament to feel like a lottery — dramatic, high-stakes, outcome is uncertain right until the end.</p>
+
+    <h3>Low-variance board (favours Last Standing)</h3>
+    <p>A board where all slots have similar point values (e.g., 20–40pts) means cumulative scores will be primarily determined by how many rounds you participate in. Survivors will almost always accumulate more total points just by virtue of competing in more rounds. The Points Champion title becomes very hard for an eliminated player to claim.</p>
+    <p>Use this design when you want the tournament to emphasise consistency — staying in the game is what matters most.</p>
+
+    <h3>The recommended balanced layout</h3>
+    <p>For a tournament that keeps both titles genuinely contested all the way through, use a prize spread something like this:</p>
+    <ul>
+      <li>1 jackpot slot: 5× the average slot value (wide enough to land on occasionally)</li>
+      <li>2–3 high slots: 2–3× the average</li>
+      <li>The majority of slots: average value</li>
+      <li>1–2 bust slots: zero points</li>
+    </ul>
+    <p>This creates enough variance that an early-eliminated player can legitimately challenge for Points Champion, but not so much variance that survival becomes irrelevant.</p>
+
+    <h2>Real Tournament Scenarios</h2>
+
+    <div class="scenario">
+      <div class="scenario-title">Scenario A: The Lucky Early Exit</div>
+      <p>Sarah lands on the jackpot in round 1 (150pts) and a high slot in round 2 (60pts), then gets eliminated in round 3. Her total: 230pts. The tournament runs for 8 more rounds, but no survivor manages to accumulate more than 200pts in total. Sarah wins Points Champion despite being out since round 3 — and everyone who stayed in has to watch her take the title.</p>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-title">Scenario B: The Grinder</div>
+      <p>Marcus consistently lands average slots every round — never spectacular, never terrible. He survives all 11 rounds without ever threatening the top of the leaderboard. He wins Last Standing. The Points Champion is someone who was eliminated in round 6 after two very good early rounds. Both players can legitimately claim to have won.</p>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-title">Scenario C: The Clean Sweep</div>
+      <p>Emma lands consistently above average in every round, survives to the end, and her cumulative total beats every eliminated player. She wins both titles. The ⚡ Clean Sweep is the rarest outcome and the most convincing win — she dominated on both dimensions the tournament tracks.</p>
+    </div>
+
+    <div class="tip"><strong>Tip:</strong> For maximum drama in a large group, announce the Points Champion separately from Last Standing before revealing if it's a Clean Sweep. Build up to the ⚡ reveal as the finale moment.</div>
+
+    <h2>Frequently Asked Questions</h2>
+
+    <h3>Do eliminated players' scores count toward the leaderboard?</h3>
+    <p>Yes. The final leaderboard ranks all players by their total cumulative points, regardless of when they were eliminated. An eliminated player can appear anywhere on the leaderboard — including at the top as Points Champion.</p>
+
+    <h3>What happens if there's a points tie?</h3>
+    <p>The player who survived more rounds is ranked higher. If they were eliminated in the same round, the round score from the final round they competed in is used as a tiebreaker.</p>
+
+    <h3>Is there a way to make the Points Champion title harder to win for eliminated players?</h3>
+    <p>Yes — use the low-variance board design described above. When all slots have similar values, the extra rounds a survivor competes in will almost always put their total ahead of any early elimination. If you want survival to be the only meaningful win condition, flatten the prize values so there are no jackpots.</p>
+
+    <h3>Can I run a tournament where there's only one winner?</h3>
+    <p>Yes — just use a low-variance board and a small group. In a 4-player tournament with flat prize values and 1 elimination per round, the last player standing will almost certainly also be the Points Champion, producing a Clean Sweep most of the time.</p>
+
+    <a class="cta" href="/">Run a Tournament →</a>
+
+    <div class="related">
+      <div class="related-title">More from the blog</div>
+      <div class="related-links">
+        <a class="related-link" href="/blog/how-to-run-a-fair-office-tournament/">How to Run a Fair and Fun Office Tournament →</a>
+        <a class="related-link" href="/blog/5-creative-uses-for-a-random-decision-maker/">5 Creative Uses for a Random Decision Maker →</a>
+        <a class="related-link" href="/blog/random-decision-making-in-the-classroom/">Why Random Decision Making Belongs in Every Classroom →</a>
+      </div>
+    </div>
+
+    <hr class="divider" />
+    <div class="footer-links">
+      <a href="/">PachinkoMaster</a> &nbsp;·&nbsp;
+      <a href="/blog/">Blog</a> &nbsp;·&nbsp;
+      <a href="/about">About</a> &nbsp;·&nbsp;
+      <a href="/privacy">Privacy Policy</a>
+    </div>
+  </div>
+</body>
+</html>
