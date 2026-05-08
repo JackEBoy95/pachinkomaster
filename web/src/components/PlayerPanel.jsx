@@ -7,7 +7,19 @@ const twemojiUrl = cp => `${TWEMOJI_CDN}/${cp.toLowerCase()}.svg`
 
 const EMOJI_PAGE_SIZE = 80
 
-// Lazy-loaded on first emoji tab open — avoids ~40KB in the initial bundle
+const EMOJI_GROUPS = [
+  { key: 'all',               label: 'All',       icon: '✨' },
+  { key: 'Smileys & Emotion', label: 'Smileys',   icon: '😀' },
+  { key: 'People & Body',     label: 'People',    icon: '🧑' },
+  { key: 'Animals & Nature',  label: 'Animals',   icon: '🐾' },
+  { key: 'Food & Drink',      label: 'Food',      icon: '🍔' },
+  { key: 'Travel & Places',   label: 'Travel',    icon: '✈️' },
+  { key: 'Activities',        label: 'Activities',icon: '⚽' },
+  { key: 'Objects',           label: 'Objects',   icon: '💡' },
+  { key: 'Symbols',           label: 'Symbols',   icon: '🔣' },
+]
+
+// Lazy-loaded on first emoji tab open — avoids loading ~200KB in the initial bundle
 let _ballSkinsCache = null
 async function loadBallSkins() {
   if (!_ballSkinsCache) {
@@ -507,22 +519,36 @@ export default function PlayerPanel({ players, activePlayerId, onSelect, onAdd, 
 function PlayerRow({ player, isActive, onSelect, onUpdate, onRemove, canRemove }) {
   const [showSkins, setShowSkins] = useState(false)
   const [skinTab, setSkinTab]     = useState('flags')
-  const [flagSearch, setFlagSearch] = useState('')
-  const [emojiPage, setEmojiPage]   = useState(0)
-  const [ballSkins, setBallSkins]   = useState(_ballSkinsCache)
+  const [flagSearch, setFlagSearch]   = useState('')
+  const [emojiSearch, setEmojiSearch] = useState('')
+  const [emojiGroup, setEmojiGroup]   = useState('all')
+  const [emojiPage, setEmojiPage]     = useState(0)
+  const [ballSkins, setBallSkins]     = useState(_ballSkinsCache)
 
   const currentFlag  = ALL_CIRCLE_FLAGS.find(s => s.id === player.ballSkin) || null
   const currentImg   = ALL_IMAGE_SKINS.find(s => s.id === player.ballSkin) || null
   const currentEmoji = player.ballSkin?.startsWith('emoji:') ? player.ballSkin.replace('emoji:', '') : null
-
-  const emojiPageCount = ballSkins ? Math.ceil(ballSkins.length / EMOJI_PAGE_SIZE) : 1
-  const emojiRows = ballSkins ? ballSkins.slice(emojiPage * EMOJI_PAGE_SIZE, (emojiPage + 1) * EMOJI_PAGE_SIZE) : []
 
   const flagSearchResults = useMemo(() => {
     const q = flagSearch.trim().toLowerCase()
     if (!q) return null
     return FLAGS.filter(f => f.name.toLowerCase().includes(q))
   }, [flagSearch])
+
+  // Emoji filtering: search takes priority, otherwise filter by group
+  const filteredEmojis = useMemo(() => {
+    if (!ballSkins) return []
+    const q = emojiSearch.trim().toLowerCase()
+    if (q) return ballSkins.filter(e => e.name?.toLowerCase().includes(q))
+    if (emojiGroup !== 'all') return ballSkins.filter(e => e.group === emojiGroup)
+    return ballSkins
+  }, [ballSkins, emojiSearch, emojiGroup])
+
+  const isFiltered     = emojiSearch.trim() || emojiGroup !== 'all'
+  const emojiPageCount = isFiltered ? 1 : Math.ceil(filteredEmojis.length / EMOJI_PAGE_SIZE)
+  const emojiRows      = isFiltered
+    ? filteredEmojis
+    : filteredEmojis.slice(emojiPage * EMOJI_PAGE_SIZE, (emojiPage + 1) * EMOJI_PAGE_SIZE)
 
   return (
     <div
@@ -683,16 +709,57 @@ function PlayerRow({ player, isActive, onSelect, onUpdate, onRemove, canRemove }
 
             {skinTab === 'emojis' && (
               <div className={styles.emojiSkinPanel}>
+
+                {/* Search */}
+                <div className={styles.flagSearchWrap}>
+                  <input
+                    className={styles.flagSearchInput}
+                    type="text"
+                    placeholder="Search emoji…"
+                    value={emojiSearch}
+                    onChange={e => { setEmojiSearch(e.target.value); setEmojiPage(0) }}
+                    onClick={e => e.stopPropagation()}
+                  />
+                  {emojiSearch && (
+                    <button className={styles.flagSearchClear} onClick={e => { e.stopPropagation(); setEmojiSearch('') }}>✕</button>
+                  )}
+                </div>
+
+                {/* Category pills */}
+                {!emojiSearch && (
+                  <div className={styles.emojiGroupRow}>
+                    {EMOJI_GROUPS.map(g => (
+                      <button
+                        key={g.key}
+                        className={`${styles.emojiGroupBtn} ${emojiGroup === g.key ? styles.emojiGroupActive : ''}`}
+                        onClick={() => { setEmojiGroup(g.key); setEmojiPage(0) }}
+                        title={g.key === 'all' ? 'All emoji' : g.key}
+                      >
+                        <span>{g.icon}</span>
+                        <span>{g.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Grid */}
                 <div className={styles.skinGrid}>
-                  {/* No-skin option */}
-                  <button
-                    className={`${styles.skinOption} ${!currentEmoji && !currentFlag && !currentImg ? styles.skinSelected : ''}`}
-                    onClick={() => { onUpdate(player.id, 'ballSkin', ''); setShowSkins(false) }}
-                    title="Solid colour"
-                  >
-                    <span style={{ fontSize: 9, color: 'var(--text-secondary)' }}>●</span>
-                  </button>
-                  {emojiRows.map(({ codepoint }) => {
+                  {/* No-skin option only on All / unfiltered view */}
+                  {!emojiSearch && emojiGroup === 'all' && emojiPage === 0 && (
+                    <button
+                      className={`${styles.skinOption} ${!currentEmoji && !currentFlag && !currentImg ? styles.skinSelected : ''}`}
+                      onClick={() => { onUpdate(player.id, 'ballSkin', ''); setShowSkins(false) }}
+                      title="Solid colour"
+                    >
+                      <span style={{ fontSize: 9, color: 'var(--text-secondary)' }}>●</span>
+                    </button>
+                  )}
+
+                  {emojiRows.length === 0 && (
+                    <div className={styles.flagSearchEmpty} style={{ gridColumn: '1/-1' }}>No emoji found</div>
+                  )}
+
+                  {emojiRows.map(({ codepoint, name }) => {
                     const id   = `emoji:${codepoint}`
                     const char = cpToChar(codepoint)
                     return (
@@ -700,26 +767,34 @@ function PlayerRow({ player, isActive, onSelect, onUpdate, onRemove, canRemove }
                         key={id}
                         className={`${styles.skinOption} ${styles.emojiSkinOption} ${player.ballSkin === id ? styles.skinSelected : ''}`}
                         onClick={() => { onUpdate(player.id, 'ballSkin', id); setShowSkins(false) }}
-                        title={codepoint}
+                        title={name || codepoint}
                       >
-                        {char || <img src={twemojiUrl(codepoint)} style={{ width: 18, height: 18 }} alt="" />}
+                        {char
+                          ? <span style={{ fontSize: 18, lineHeight: 1 }}>{char}</span>
+                          : <img src={twemojiUrl(codepoint)} style={{ width: 18, height: 18 }} alt={name} />
+                        }
                       </button>
                     )
                   })}
                 </div>
-                <div className={styles.emojiPager}>
-                  <button
-                    className={styles.emojiPageBtn}
-                    onClick={() => setEmojiPage(p => Math.max(0, p - 1))}
-                    disabled={emojiPage === 0}
-                  >‹</button>
-                  <span className={styles.emojiPageInfo}>{emojiPage + 1} / {emojiPageCount}</span>
-                  <button
-                    className={styles.emojiPageBtn}
-                    onClick={() => setEmojiPage(p => Math.min(emojiPageCount - 1, p + 1))}
-                    disabled={emojiPage >= emojiPageCount - 1}
-                  >›</button>
-                </div>
+
+                {/* Pagination — only shown for unfiltered All view */}
+                {!isFiltered && emojiPageCount > 1 && (
+                  <div className={styles.emojiPager}>
+                    <button
+                      className={styles.emojiPageBtn}
+                      onClick={() => setEmojiPage(p => Math.max(0, p - 1))}
+                      disabled={emojiPage === 0}
+                    >‹</button>
+                    <span className={styles.emojiPageInfo}>{emojiPage + 1} / {emojiPageCount}</span>
+                    <button
+                      className={styles.emojiPageBtn}
+                      onClick={() => setEmojiPage(p => Math.min(emojiPageCount - 1, p + 1))}
+                      disabled={emojiPage >= emojiPageCount - 1}
+                    >›</button>
+                  </div>
+                )}
+
               </div>
             )}
           </div>
