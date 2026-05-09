@@ -160,13 +160,13 @@ export default function SettingsPanel({
           </div>
           <input
             type="range"
-            min={7}
-            max={20}
+            min={5}
+            max={28}
             step={1}
             value={ballSize}
             onChange={e => setBallSize(Number(e.target.value))}
             className={styles.slider}
-            style={sliderStyle(ballSize, 7, 20)}
+            style={sliderStyle(ballSize, 5, 28)}
           />
           <div className={styles.ticks}>
             <span>Small</span>
@@ -183,12 +183,12 @@ export default function SettingsPanel({
           <input
             type="range"
             min={4}
-            max={14}
+            max={20}
             step={1}
             value={pegDensity}
             onChange={e => setPegDensity(Number(e.target.value))}
             className={styles.slider}
-            style={sliderStyle(pegDensity, 4, 14)}
+            style={sliderStyle(pegDensity, 4, 20)}
           />
           <div className={styles.ticks}>
             <span>Sparse</span>
