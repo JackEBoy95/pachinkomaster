@@ -99,9 +99,44 @@ export function QualifyingResultCard({ result, onNext }) {
   )
 }
 
+// ── CSV export ────────────────────────────────────────────────────────────────
+
+function exportResultsCSV(knockout) {
+  const rows = [['Stage', 'Round', 'Match', 'Player', 'Score', 'Result']]
+
+  // Qualifying
+  if (knockout?.qualifyingResult) {
+    const { advancers, eliminated } = knockout.qualifyingResult
+    advancers.forEach(({ player, score }, i) => {
+      rows.push(['Qualifying', '-', '-', player.name, score, `Advanced (Seed #${i + 1})`])
+    })
+    eliminated.forEach(({ player, score }) => {
+      rows.push(['Qualifying', '-', '-', player.name, score, 'Eliminated'])
+    })
+  }
+
+  // Bracket rounds
+  knockout?.bracket?.rounds?.forEach((round, ri) => {
+    round.matches.forEach((match, mi) => {
+      if (!match.winner) return
+      const p1Won = match.winner.id === match.p1?.id
+      rows.push([round.name, ri + 1, mi + 1, match.p1?.name ?? 'TBD', match.score1 ?? 0, p1Won ? 'Advanced' : 'Eliminated'])
+      rows.push([round.name, ri + 1, mi + 1, match.p2?.name ?? 'TBD', match.score2 ?? 0, p1Won ? 'Eliminated' : 'Advanced'])
+    })
+  })
+
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\r\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url  = URL.createObjectURL(blob)
+  const a    = document.createElement('a')
+  a.href = url; a.download = 'knockout-results.csv'
+  document.body.appendChild(a); a.click()
+  document.body.removeChild(a); URL.revokeObjectURL(url)
+}
+
 // ── Match result card ─────────────────────────────────────────────────────────
 
-export const MatchResultCard = memo(function MatchResultCard({ matchResult, roundName, matchNumber, totalMatches, onNext }) {
+export const MatchResultCard = memo(function MatchResultCard({ matchResult, roundName, matchNumber, totalMatches, knockout, onNext }) {
   if (!matchResult) return null
   const { match, winner, loser, score1, score2, isComplete } = matchResult
 
@@ -116,19 +151,9 @@ export const MatchResultCard = memo(function MatchResultCard({ matchResult, roun
         </div>
 
         <div className={styles.matchup}>
-          <PlayerResult
-            player={match.p1}
-            score={score1}
-            isWinner={match.p1?.id === winner?.id}
-            label="P1"
-          />
+          <PlayerResult player={match.p1} score={score1} isWinner={match.p1?.id === winner?.id} />
           <div className={styles.vsLabel}>VS</div>
-          <PlayerResult
-            player={match.p2}
-            score={score2}
-            isWinner={match.p2?.id === winner?.id}
-            label="P2"
-          />
+          <PlayerResult player={match.p2} score={score2} isWinner={match.p2?.id === winner?.id} />
         </div>
 
         {isComplete && (
@@ -140,6 +165,11 @@ export const MatchResultCard = memo(function MatchResultCard({ matchResult, roun
         )}
 
         <div className={styles.actions}>
+          {isComplete && (
+            <button className={`btn-secondary ${styles.exportBtn}`} onClick={() => exportResultsCSV(knockout)}>
+              📥 Export Results
+            </button>
+          )}
           <button className={`btn-primary ${styles.nextBtn}`} onClick={onNext}>
             {isComplete ? '🎉 Finish' : matchNumber < totalMatches ? 'NEXT MATCH →' : 'NEXT ROUND →'}
           </button>

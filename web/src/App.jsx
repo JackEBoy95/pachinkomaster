@@ -537,7 +537,8 @@ export default function App() {
           )}
           {rightTab === 'bracket' && isKnockoutActive
             ? <KnockoutBracket knockout={knockout} />
-            : <Leaderboard
+            : /* Leaderboard wrapped to fill remaining sidebar height */
+              <Leaderboard
                 players={deferredPlayers}
                 history={deferredHistory}
                 onClear={clearScores}
@@ -584,15 +585,27 @@ export default function App() {
           onNext={handleDismissKnockout}
         />
       )}
-      {isKnockoutActive && knockout?.bracket?.matchResult && (
-        <MatchResultCard
-          matchResult={knockout.bracket.matchResult}
-          roundName={knockout.bracket.rounds[knockout.bracket.currentRound]?.name ?? ''}
-          matchNumber={knockout.bracket.currentMatch + 1}
-          totalMatches={knockout.bracket.rounds[knockout.bracket.currentRound]?.matches.length ?? 1}
-          onNext={handleDismissKnockout}
-        />
-      )}
+      {isKnockoutActive && knockout?.bracket?.matchResult && (() => {
+        // The cursor may have advanced to next round after processMatch, so use
+        // the completed match's own id to find which round it belongs to.
+        const mr     = knockout.bracket.matchResult
+        const matchId = mr.match.id   // e.g. "r2m3"
+        const roundIdx = parseInt(matchId.replace(/^r/, ''), 10)
+        const matchIdx = parseInt(matchId.replace(/^r\d+m/, ''), 10)
+        const roundName   = knockout.bracket.rounds[roundIdx]?.name ?? ''
+        const matchNumber = matchIdx + 1
+        const totalMatches = knockout.bracket.rounds[roundIdx]?.matches.length ?? 1
+        return (
+          <MatchResultCard
+            matchResult={mr}
+            roundName={roundName}
+            matchNumber={matchNumber}
+            totalMatches={totalMatches}
+            knockout={knockout}
+            onNext={handleDismissKnockout}
+          />
+        )
+      })()}
 
       {showTemplates && (
         <TemplateModal
