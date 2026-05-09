@@ -4,6 +4,53 @@ import { shareText, shareSucceeded } from '../utils/share'
 
 const PAGE_SIZE = 10
 
+// ── Ball with skin (mirrors PlayerPanel preview) ──────────────────────────────
+
+const TWEMOJI_CDN = 'https://twemoji.maxcdn.com/v/latest/svg'
+const twemojiUrl  = cp => `${TWEMOJI_CDN}/${cp.toLowerCase()}.svg`
+
+function lighten(hex) {
+  try {
+    const n = parseInt(hex.replace('#', ''), 16)
+    const r = Math.min(255, ((n >> 16) & 0xff) + 60)
+    const g = Math.min(255, ((n >> 8)  & 0xff) + 60)
+    const b = Math.min(255, ( n        & 0xff) + 60)
+    return `rgb(${r},${g},${b})`
+  } catch { return hex }
+}
+
+function Ball({ color, size, ballSkin }) {
+  const skin = ballSkin ?? ''
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: '50%', flexShrink: 0,
+      background: `radial-gradient(circle at 35% 35%, ${lighten(color ?? '#888')}, ${color ?? '#888'})`,
+      opacity: 0.95,
+      position: 'relative',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+    }}>
+      {skin.startsWith('cflag:') ? (
+        <img
+          src={`https://hatscripts.github.io/circle-flags/flags/${skin.replace('cflag:', '')}.svg`}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+          alt=""
+        />
+      ) : skin.startsWith('emoji:') ? (
+        <img
+          src={twemojiUrl(skin.replace('emoji:', ''))}
+          style={{ width: '60%', height: '60%', objectFit: 'contain', position: 'absolute', pointerEvents: 'none' }}
+          alt=""
+        />
+      ) : skin && skin !== 'classic' ? (
+        <span style={{ fontSize: size * 0.5, lineHeight: 1, position: 'absolute', pointerEvents: 'none' }}>{skin}</span>
+      ) : null}
+    </div>
+  )
+}
+
 export default function TournamentOverlay({ roundResult, onNext, onCancel }) {
   const confettiRef = useRef(null)
 
@@ -235,7 +282,7 @@ function FinaleCard({ roundResult, onNext }) {
         // ⚡ One player took both titles
         <div className={styles.cleanSweep}>
           <div className={styles.cleanSweepBadge}>⚡ CLEAN SWEEP ⚡</div>
-          <Ball color={survivorEntry.player.color} size={64} />
+          <Ball color={survivorEntry.player.color} size={64} ballSkin={survivorEntry.player.ballSkin} />
           <div className={styles.cleanSweepName} style={{ color: survivorEntry.player.color }}>
             {survivorEntry.player.name}
           </div>
@@ -252,7 +299,7 @@ function FinaleCard({ roundResult, onNext }) {
             <div className={styles.winnerPanel}>
               <div className={styles.winnerIcon}>🛡️</div>
               <div className={styles.winnerLabel}>LAST STANDING</div>
-              <Ball color={survivorEntry.player.color} size={40} />
+              <Ball color={survivorEntry.player.color} size={40} ballSkin={survivorEntry.player.ballSkin} />
               <div className={styles.winnerName} style={{ color: survivorEntry.player.color }}>
                 {survivorEntry.player.name}
               </div>
@@ -263,7 +310,7 @@ function FinaleCard({ roundResult, onNext }) {
             <div className={styles.winnerPanel}>
               <div className={styles.winnerIcon}>🎯</div>
               <div className={styles.winnerLabel}>POINTS CHAMP</div>
-              <Ball color={pointsEntry.player.color} size={40} />
+              <Ball color={pointsEntry.player.color} size={40} ballSkin={pointsEntry.player.ballSkin} />
               <div className={styles.winnerName} style={{ color: pointsEntry.player.color }}>
                 {pointsEntry.player.name}
               </div>
@@ -324,7 +371,7 @@ const RoundRow = memo(function RoundRow({ player, score, elim, rank }) {
     <div className={`${styles.playerRow} ${elim ? styles.elimRow : ''}`}>
       {rank != null
         ? <span className={styles.rankNum} style={{ color: player.color }}>#{rank}</span>
-        : <Ball color={player.color} size={16} />
+        : <Ball color={player.color} size={16} ballSkin={player.ballSkin} />
       }
       <span className={styles.playerName} style={elim ? undefined : { color: player.color }}>
         {player.name}
@@ -341,7 +388,7 @@ const FinaleRow = memo(function FinaleRow({ entry, rank, isSurvivor, isPointsCha
   return (
     <div className={`${styles.playerRow} ${styles.finaleRow}`}>
       <span className={styles.rankNum} style={{ color: entry.player.color }}>#{rank}</span>
-      <Ball color={entry.player.color} size={14} />
+      <Ball color={entry.player.color} size={14} ballSkin={entry.player.ballSkin} />
       <span className={styles.playerName} style={{ color: entry.player.color }}>
         {entry.player.name}
       </span>
@@ -358,11 +405,4 @@ const FinaleRow = memo(function FinaleRow({ entry, rank, isSurvivor, isPointsCha
   )
 })
 
-function Ball({ color, size }) {
-  return (
-    <div style={{
-      width: size, height: size, borderRadius: '50%', flexShrink: 0,
-      background: color, opacity: 0.9,
-    }} />
-  )
-}
+// Ball component defined at top of file with skin support

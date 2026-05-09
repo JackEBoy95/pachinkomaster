@@ -261,7 +261,7 @@
 .finaleCard {
   width: 460px;
   max-height: 92dvh;
-  overflow-y: auto;
+  overflow: hidden; /* scroll is on .finaleList, not the card itself */
 }
 
 .finaleHeader {
@@ -408,6 +408,10 @@
 
 .finaleList {
   padding: 4px 16px 8px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  max-height: 280px; /* fixed height so header/actions stay visible */
 }
 
 .finaleRow {

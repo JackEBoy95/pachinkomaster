@@ -471,6 +471,65 @@
   box-shadow: 0 0 12px rgba(245, 200, 66, 0.2);
 }
 
+.knockoutBtn {
+  font-size: 12px;
+  padding: 10px 14px;
+  letter-spacing: 0.08em;
+  font-family: var(--font-display);
+  border-color: rgba(0, 229, 255, 0.35);
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+}
+.knockoutBtn:hover {
+  background: rgba(0, 229, 255, 0.08);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+}
+
+/* ── Knockout matchup pill ───────────────────── */
+.matchupPill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+}
+.matchupVs {
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ── Right sidebar tabs (bracket / scores) ───── */
+.rightTabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+.rightTab {
+  flex: 1;
+  padding: 8px 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: color 0.12s, background 0.12s;
+}
+.rightTab:hover { color: var(--text-primary); }
+.rightTabActive {
+  color: var(--accent-cyan);
+  background: var(--bg-panel-alt);
+  box-shadow: inset 0 -2px 0 var(--accent-cyan);
+}
+
 /* ── Site footer ─────────────────────────────── */
 .siteFooter {
   display: flex;
@@ -612,8 +671,8 @@
     background: var(--bg-panel);
   }
   .dropBtn   { font-size: 14px; padding: 9px 20px; min-width: 90px; }
-  .dropAllBtn, .showerBtn, .tournamentBtn { font-size: 11px; padding: 9px 10px; }
-  .tournamentBtn { order: -1; }
+  .dropAllBtn, .showerBtn, .tournamentBtn, .knockoutBtn { font-size: 11px; padding: 9px 10px; }
+  .tournamentBtn, .knockoutBtn { order: -1; }
   .activePill { font-size: 12px; padding: 5px 10px; }
   .countDisplay { min-width: 60px; }
 
@@ -728,7 +787,7 @@
     background: var(--bg-panel);
   }
   .dropBtn    { font-size: 12px; padding: 6px 14px; min-width: unset; }
-  .dropAllBtn, .showerBtn, .tournamentBtn { font-size: 10px; padding: 6px 8px; }
+  .dropAllBtn, .showerBtn, .tournamentBtn, .knockoutBtn { font-size: 10px; padding: 6px 8px; }
   .tournamentStatus { gap: 4px; }
   .tournamentBadge  { font-size: 10px; }
   .tournamentInfo   { font-size: 10px; }

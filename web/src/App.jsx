@@ -10,11 +10,14 @@ import TemplateModal from './components/TemplateModal'
 import AdBanner from './components/AdBanner'
 import AdInterstitial from './components/AdInterstitial'
 import TournamentOverlay from './components/TournamentOverlay'
+import KnockoutBracket from './components/KnockoutBracket'
+import { QualifyingResultCard, MatchResultCard } from './components/KnockoutOverlay'
 import { useGameState } from './hooks/useGameState'
 import { useSound } from './hooks/useSound'
 import { useTemplates } from './hooks/useTemplates'
 import { parseSharedTemplate } from './hooks/useTemplates'
 import { useTournament } from './hooks/useTournament'
+import { useKnockoutTournament } from './hooks/useKnockoutTournament'
 import styles from './App.module.css'
 
 export default function App() {
@@ -27,6 +30,8 @@ export default function App() {
   const [bounciness, setBounciness] = useState(() => window.innerWidth <= 640 ? 0.6 : 0.5)
   const [ballCount, setBallCount]   = useState(1)     // balls per drop
   const [tournamentConfig, setTournamentConfig] = useState({ eliminationPerRound: 0, maxRounds: 0 })
+  const [knockoutConfig, setKnockoutConfig]     = useState({ qualifyingBalls: 1, matchBalls: 50, knockoutRounds: 7 })
+  const [rightTab, setRightTab]                 = useState('scores')  // 'scores' | 'bracket'
   const [showTemplates, setShowTemplates] = useState(false)
   const [sharedTpl, setSharedTpl]         = useState(null) // pending shared import
   const [showAd, setShowAd]               = useState(false)
@@ -49,6 +54,12 @@ export default function App() {
     startTournament, processTournamentRound,
     dismissTournamentRound, cancelTournament,
   } = useTournament()
+
+  const {
+    knockout, isKnockoutActive,
+    startKnockout, processQualifying, dismissQualifying,
+    processMatch, dismissMatchResult, cancelKnockout,
+  } = useKnockoutTournament()
 
   const { playPegHit, playBallLand, playFanfare } = useSound()
 
@@ -84,6 +95,17 @@ export default function App() {
   const tournamentLandCtrRef  = useRef(0)  // incrementing counter
   const tournamentRef         = useRef(tournament)
   useEffect(() => { tournamentRef.current = tournament }, [tournament])
+
+  // Knockout match scores — same pattern as tournament
+  const knockoutScoresRef  = useRef({})
+  const knockoutRef        = useRef(knockout)
+  useEffect(() => { knockoutRef.current = knockout }, [knockout])
+
+  // Switch to bracket tab automatically when knockout starts
+  useEffect(() => {
+    if (isKnockoutActive) setRightTab('bracket')
+    else setRightTab('scores')
+  }, [isKnockoutActive])
 
   // Detect shared template in URL hash on first load
   useEffect(() => {
@@ -129,8 +151,23 @@ export default function App() {
       }
     }
 
+    // Knockout mode — track per-player scores for qualifying and match drops
+    if (knockoutRef.current && playerId != null) {
+      const pts = prizes[idx]?.points ?? 0
+      knockoutScoresRef.current[playerId] = (knockoutScoresRef.current[playerId] || 0) + pts
+      if (isLast) {
+        const snapshot = { ...knockoutScoresRef.current }
+        knockoutScoresRef.current = {}
+        if (knockoutRef.current.phase === 'qualifying') {
+          processQualifying(snapshot)
+        } else if (knockoutRef.current.phase === 'bracket') {
+          processMatch(snapshot)
+        }
+      }
+    }
+
     onBallLanded(idx, playerId, isLast)
-  }, [onBallLanded, playBallLand, prizes, processTournamentRound])
+  }, [onBallLanded, playBallLand, prizes, processTournamentRound, processQualifying, processMatch])
 
   const handleDrop = useCallback(() => {
     boardRef.current?.dropBalls(ballCount)
@@ -139,6 +176,29 @@ export default function App() {
   const handleDropAll = useCallback(() => {
     boardRef.current?.dropAllPlayers(players, ballCount)
   }, [players, ballCount])
+
+  const handleKnockoutDrop = useCallback(() => {
+    if (!knockout) return
+    if (knockout.phase === 'qualifying') {
+      boardRef.current?.dropAllPlayers(knockout.allPlayers, knockout.config.qualifyingBalls, 'funnel')
+    } else if (knockout.phase === 'bracket' && knockout.bracket) {
+      const { bracket } = knockout
+      const match = bracket.rounds[bracket.currentRound]?.matches[bracket.currentMatch]
+      if (match?.p1 && match?.p2) {
+        boardRef.current?.dropAllPlayers([match.p1, match.p2], knockout.config.matchBalls, 'funnel')
+      }
+    }
+  }, [knockout])
+
+  const handleDismissKnockout = useCallback(() => {
+    if (!knockout) return
+    dismissResult() // always clear useGameState result so overlayShown resets
+    if (knockout.qualifyingResult) {
+      dismissQualifying()
+    } else if (knockout.bracket?.matchResult) {
+      dismissMatchResult()
+    }
+  }, [knockout, dismissResult, dismissQualifying, dismissMatchResult])
 
   const handleTournamentDrop = useCallback(() => {
     if (!tournament) return
@@ -279,6 +339,7 @@ export default function App() {
                 pegDensity={pegDensity}         setPegDensity={setPegDensity}
                 bounciness={bounciness}         setBounciness={setBounciness}
                 tournamentConfig={tournamentConfig} setTournamentConfig={setTournamentConfig}
+                knockoutConfig={knockoutConfig}     setKnockoutConfig={setKnockoutConfig}
               />
             )}
           </div>
@@ -298,14 +359,60 @@ export default function App() {
               bounciness={bounciness}
               onPegHit={playPegHit}
               skin={skin}
-              locked={isTournamentActive}
-              overlayShown={!!tournament?.roundResult || !!result}
+              locked={isTournamentActive || isKnockoutActive}
+              overlayShown={
+                !!tournament?.roundResult ||
+                !!result ||
+                !!knockout?.qualifyingResult ||
+                !!knockout?.bracket?.matchResult
+              }
             />
           </div>
 
           {/* Drop controls */}
           <div className={styles.dropArea}>
-            {isTournamentActive ? (
+            {isKnockoutActive ? (
+              // ── Knockout mode ──────────────────────────────
+              <>
+                <div className={styles.tournamentStatus}>
+                  <span className={styles.tournamentBadge}>⚡ KNOCKOUT</span>
+                  <span className={styles.tournamentInfo}>
+                    {knockout.phase === 'qualifying'
+                      ? `Qualifying · ${knockout.allPlayers.length} players`
+                      : (() => {
+                          const br = knockout.bracket
+                          const roundName = br?.rounds[br.currentRound]?.name ?? ''
+                          const matchNum  = (br?.currentMatch ?? 0) + 1
+                          const total     = br?.rounds[br.currentRound]?.matches.length ?? 1
+                          return `${roundName} · Match ${matchNum}/${total}`
+                        })()
+                    }
+                  </span>
+                </div>
+                {knockout.phase === 'bracket' && knockout.bracket && (() => {
+                  const br    = knockout.bracket
+                  const match = br.rounds[br.currentRound]?.matches[br.currentMatch]
+                  return match?.p1 && match?.p2 ? (
+                    <div className={styles.matchupPill}>
+                      <span style={{ color: match.p1.color }}>{match.p1.name}</span>
+                      <span className={styles.matchupVs}>vs</span>
+                      <span style={{ color: match.p2.color }}>{match.p2.name}</span>
+                    </div>
+                  ) : null
+                })()}
+                <button
+                  className={`btn-primary ${styles.dropBtn}`}
+                  onClick={handleKnockoutDrop}
+                >
+                  {knockout.phase === 'qualifying' ? 'DROP QUALIFYING' : 'DROP MATCH'}
+                </button>
+                <button
+                  className={`btn-secondary ${styles.cancelTournamentBtn}`}
+                  onClick={cancelKnockout}
+                >✕ End</button>
+              </>
+            ) : isTournamentActive ? (
+              // ── Elimination tournament mode ────────────────
               <>
                 <div className={styles.tournamentStatus}>
                   <span className={styles.tournamentBadge}>🏆 TOURNAMENT</span>
@@ -400,6 +507,15 @@ export default function App() {
                     🏆 TOURNAMENT
                   </button>
                 )}
+                {players.length >= 2 && (
+                  <button
+                    className={`btn-secondary ${styles.knockoutBtn}`}
+                    onClick={() => startKnockout(players, knockoutConfig)}
+                    title="Start knockout bracket tournament"
+                  >
+                    ⚡ KNOCKOUT
+                  </button>
+                )}
               </>
             )}
           </div>
@@ -407,12 +523,27 @@ export default function App() {
 
         {/* Right sidebar */}
         <aside className={`${styles.sidebar} ${mobileTab === 'scores' ? styles.mobilePanelVisible : ''}`}>
-          <Leaderboard
-            players={deferredPlayers}
-            history={deferredHistory}
-            onClear={clearScores}
-            tournament={isTournamentActive ? tournament : null}
-          />
+          {isKnockoutActive && (
+            <div className={styles.rightTabs}>
+              <button
+                className={`${styles.rightTab} ${rightTab === 'scores' ? styles.rightTabActive : ''}`}
+                onClick={() => setRightTab('scores')}
+              >📊 Scores</button>
+              <button
+                className={`${styles.rightTab} ${rightTab === 'bracket' ? styles.rightTabActive : ''}`}
+                onClick={() => setRightTab('bracket')}
+              >📋 Bracket</button>
+            </div>
+          )}
+          {rightTab === 'bracket' && isKnockoutActive
+            ? <KnockoutBracket knockout={knockout} />
+            : <Leaderboard
+                players={deferredPlayers}
+                history={deferredHistory}
+                onClear={clearScores}
+                tournament={isTournamentActive ? tournament : null}
+              />
+          }
         </aside>
       </main>
 
@@ -435,7 +566,7 @@ export default function App() {
       {/* AdBanner — re-enable once AdSense account is fully approved */}
       {/* <AdBanner /> */}
 
-      {!isTournamentActive && <ResultOverlay result={result} onDismiss={handleDismissResult} />}
+      {!isTournamentActive && !isKnockoutActive && <ResultOverlay result={result} onDismiss={handleDismissResult} />}
 
       {/* AdInterstitial — re-enable once AdSense account is fully approved */}
       {/* <AdInterstitial show={showAd} onClose={() => setShowAd(false)} /> */}
@@ -445,6 +576,23 @@ export default function App() {
         onNext={handleDismissTournamentRound}
         onCancel={cancelTournament}
       />
+
+      {/* Knockout overlays */}
+      {isKnockoutActive && knockout?.qualifyingResult && (
+        <QualifyingResultCard
+          result={knockout.qualifyingResult}
+          onNext={handleDismissKnockout}
+        />
+      )}
+      {isKnockoutActive && knockout?.bracket?.matchResult && (
+        <MatchResultCard
+          matchResult={knockout.bracket.matchResult}
+          roundName={knockout.bracket.rounds[knockout.bracket.currentRound]?.name ?? ''}
+          matchNumber={knockout.bracket.currentMatch + 1}
+          totalMatches={knockout.bracket.rounds[knockout.bracket.currentRound]?.matches.length ?? 1}
+          onNext={handleDismissKnockout}
+        />
+      )}
 
       {showTemplates && (
         <TemplateModal

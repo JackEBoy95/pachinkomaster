@@ -144,6 +144,7 @@ export default function SettingsPanel({
   pegDensity, setPegDensity,
   bounciness, setBounciness,
   tournamentConfig, setTournamentConfig,
+  knockoutConfig, setKnockoutConfig,
 }) {
   return (
     <div className={`panel ${styles.panel}`}>
@@ -259,6 +260,66 @@ export default function SettingsPanel({
           />
           <div className={styles.ticks}>
             <span>∞</span>
+            <span>100</span>
+          </div>
+        </div>
+
+        <div className={styles.divider} />
+
+        {/* Knockout tournament */}
+        <div className={styles.group}>
+          <span className={styles.sectionTitle}>⚡ Knockout</span>
+
+          <div className={styles.labelRow}>
+            <span className={styles.label}>Knockout rounds</span>
+            <span className={styles.value}>
+              {knockoutConfig.knockoutRounds} ({Math.pow(2, knockoutConfig.knockoutRounds)} players bracket)
+            </span>
+          </div>
+          <input
+            type="range"
+            min={1} max={7} step={1}
+            value={knockoutConfig.knockoutRounds}
+            onChange={e => setKnockoutConfig(c => ({ ...c, knockoutRounds: Number(e.target.value) }))}
+            className={styles.slider}
+            style={sliderStyle(knockoutConfig.knockoutRounds, 1, 7)}
+          />
+          <div className={styles.ticks}>
+            <span>2 players</span>
+            <span>128 players</span>
+          </div>
+
+          <div className={styles.labelRow} style={{ marginTop: 10 }}>
+            <span className={styles.label}>Qualifying balls</span>
+            <span className={styles.value}>{knockoutConfig.qualifyingBalls}</span>
+          </div>
+          <input
+            type="range"
+            min={1} max={10} step={1}
+            value={knockoutConfig.qualifyingBalls}
+            onChange={e => setKnockoutConfig(c => ({ ...c, qualifyingBalls: Number(e.target.value) }))}
+            className={styles.slider}
+            style={sliderStyle(knockoutConfig.qualifyingBalls, 1, 10)}
+          />
+          <div className={styles.ticks}>
+            <span>1</span>
+            <span>10</span>
+          </div>
+
+          <div className={styles.labelRow} style={{ marginTop: 10 }}>
+            <span className={styles.label}>Balls per match</span>
+            <span className={styles.value}>{knockoutConfig.matchBalls}</span>
+          </div>
+          <input
+            type="range"
+            min={5} max={100} step={5}
+            value={knockoutConfig.matchBalls}
+            onChange={e => setKnockoutConfig(c => ({ ...c, matchBalls: Number(e.target.value) }))}
+            className={styles.slider}
+            style={sliderStyle(knockoutConfig.matchBalls, 5, 100)}
+          />
+          <div className={styles.ticks}>
+            <span>5</span>
             <span>100</span>
           </div>
         </div>
