@@ -205,7 +205,14 @@
 .sidebar {
   display: flex;
   flex-direction: column;
-  height: 100%;   /* needed so flex: 1 on panel children resolves correctly */
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Wraps the Leaderboard / KnockoutBracket so they get a finite flex height */
+.rightPanelWrap {
+  flex: 1;
   min-height: 0;
   overflow: hidden;
 }

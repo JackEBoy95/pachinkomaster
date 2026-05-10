@@ -535,16 +535,17 @@ export default function App() {
               >📋 Bracket</button>
             </div>
           )}
-          {rightTab === 'bracket' && isKnockoutActive
-            ? <KnockoutBracket knockout={knockout} />
-            : /* Leaderboard wrapped to fill remaining sidebar height */
-              <Leaderboard
-                players={deferredPlayers}
-                history={deferredHistory}
-                onClear={clearScores}
-                tournament={isTournamentActive ? tournament : null}
-              />
-          }
+          <div className={styles.rightPanelWrap}>
+            {rightTab === 'bracket' && isKnockoutActive
+              ? <KnockoutBracket knockout={knockout} />
+              : <Leaderboard
+                  players={deferredPlayers}
+                  history={deferredHistory}
+                  onClear={clearScores}
+                  tournament={isTournamentActive ? tournament : null}
+                />
+            }
+          </div>
         </aside>
       </main>
 

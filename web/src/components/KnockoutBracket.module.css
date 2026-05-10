@@ -2,8 +2,8 @@
 .panel {
   display: flex;
   flex-direction: column;
-  flex: 1;          /* fills remaining sidebar height after tabs */
-  min-height: 0;    /* allows flex child to shrink */
+  height: 100%;     /* fills the .rightPanelWrap container */
+  min-height: 0;
   overflow: hidden;
 }
 
