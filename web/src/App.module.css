@@ -195,6 +195,7 @@
 .main {
   display: grid;
   grid-template-columns: 260px 1fr 230px;
+  grid-template-rows: 1fr;        /* explicit row makes grid cell height definite */
   gap: 12px;
   padding: 12px;
   flex: 1;
@@ -210,8 +211,11 @@
   overflow: hidden;
 }
 
-/* Wraps the Leaderboard / KnockoutBracket so they get a finite flex height */
+/* Wraps the Leaderboard / KnockoutBracket — acts as the flex bridge between
+   the sidebar (grid item / flex column) and the panel content */
 .rightPanelWrap {
+  display: flex;
+  flex-direction: column;
   flex: 1;
   min-height: 0;
   overflow: hidden;

@@ -190,6 +190,17 @@ export default function App() {
     }
   }, [knockout])
 
+  // Called by PhysicsBoard when a resize/orientation change destroys the engine
+  // while balls are still in flight. Discard any partial scores for that drop
+  // so the round can be cleanly re-played.
+  const handleDropAborted = useCallback(() => {
+    knockoutScoresRef.current      = {}
+    tournamentScoresRef.current    = {}
+    tournamentLandSeqRef.current   = {}
+    tournamentLandCtrRef.current   = 0
+    dismissResult()
+  }, [dismissResult])
+
   const handleDismissKnockout = useCallback(() => {
     if (!knockout) return
     dismissResult() // always clear useGameState result so overlayShown resets
@@ -353,6 +364,7 @@ export default function App() {
               prizes={prizes}
               activePlayer={activePlayer}
               onBallLanded={handleBallLanded}
+              onDropAborted={handleDropAborted}
               speed={speed}
               ballSize={ballSize}
               pegDensity={pegDensity}

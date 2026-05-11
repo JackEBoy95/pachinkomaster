@@ -2,7 +2,7 @@
 .panel {
   display: flex;
   flex-direction: column;
-  height: 100%;     /* fills the .rightPanelWrap container */
+  flex: 1;          /* rightPanelWrap is now a flex container, so flex:1 works */
   min-height: 0;
   overflow: hidden;
 }

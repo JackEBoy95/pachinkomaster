@@ -85,7 +85,7 @@ function rescueBall(ball, W) {
 }
 
 const PhysicsBoard = forwardRef(function PhysicsBoard(
-  { prizes, activePlayer, onBallLanded, speed, ballSize, pegDensity, bounciness, onPegHit, skin, locked, overlayShown },
+  { prizes, activePlayer, onBallLanded, onDropAborted, speed, ballSize, pegDensity, bounciness, onPegHit, skin, locked, overlayShown },
   ref
 ) {
   const containerRef     = useRef(null)
@@ -120,14 +120,16 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const speedRef        = useRef(speed)
   const ballSizeRef     = useRef(ballSize)
   const bouncinessRef   = useRef(bounciness)
-  const onPegHitRef     = useRef(onPegHit)
-  useEffect(() => { prizesRef.current       = prizes       }, [prizes])
-  useEffect(() => { activePlayerRef.current = activePlayer }, [activePlayer])
-  useEffect(() => { speedRef.current        = speed        }, [speed])
-  useEffect(() => { ballSizeRef.current     = ballSize     }, [ballSize])
-  useEffect(() => { bouncinessRef.current   = bounciness   }, [bounciness])
-  useEffect(() => { onPegHitRef.current     = onPegHit     }, [onPegHit])
-  useEffect(() => { overlayShownRef.current = overlayShown }, [overlayShown])
+  const onPegHitRef       = useRef(onPegHit)
+  const onDropAbortedRef  = useRef(onDropAborted)
+  useEffect(() => { prizesRef.current         = prizes         }, [prizes])
+  useEffect(() => { activePlayerRef.current   = activePlayer   }, [activePlayer])
+  useEffect(() => { speedRef.current          = speed          }, [speed])
+  useEffect(() => { ballSizeRef.current       = ballSize       }, [ballSize])
+  useEffect(() => { bouncinessRef.current     = bounciness     }, [bounciness])
+  useEffect(() => { onPegHitRef.current       = onPegHit       }, [onPegHit])
+  useEffect(() => { onDropAbortedRef.current  = onDropAborted  }, [onDropAborted])
+  useEffect(() => { overlayShownRef.current   = overlayShown   }, [overlayShown])
 
   // ── Peg grid ──────────────────────────────────────────────────────────────
   // Even rows: `cols` pegs spanning right up to the walls
@@ -568,6 +570,11 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     return () => {
       cancelAnimationFrame(animId); ro.disconnect()
       Matter.Runner.stop(runner); Matter.Engine.clear(engine)
+      // If balls were mid-flight when the engine tore down (e.g. orientation
+      // change), notify the caller so it can discard partial round scores.
+      if (inFlightRef.current > 0) {
+        onDropAbortedRef.current?.()
+      }
       droppingRef.current = false; inFlightRef.current = 0; setDropping(false)
       stuckTimersRef.current.clear(); lastSpawnTimeRef.current = 0
       spawnQueueRef.current = []
