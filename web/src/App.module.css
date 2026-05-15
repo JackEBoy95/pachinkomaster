@@ -211,14 +211,14 @@
   overflow: hidden;
 }
 
-/* Wraps the Leaderboard / KnockoutBracket — acts as the flex bridge between
-   the sidebar (grid item / flex column) and the panel content */
+/* Wraps the Leaderboard / KnockoutBracket.
+   position:relative makes it the containing block so absolutely-positioned
+   panels inside always fill it exactly — no flex-height-chain needed. */
 .rightPanelWrap {
-  display: flex;
-  flex-direction: column;
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  position: relative;
 }
 
 /* ── Left sidebar tabs ──────────────────────── */

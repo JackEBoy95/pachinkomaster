@@ -57,9 +57,7 @@ export default function Leaderboard({ players, history, onClear, tournament }) {
     <div className={`panel ${styles.panel}`}>
       <div className="panel-header">
         <h3>Leaderboard</h3>
-        {history.length > 0 && (
-          <button className="btn-icon" onClick={onClear} title="Clear scores">↺</button>
-        )}
+        <button className="btn-icon" onClick={onClear} title="Clear scores">↺</button>
       </div>
 
       {unique.length > 8 && (

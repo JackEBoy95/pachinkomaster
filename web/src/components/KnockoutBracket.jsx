@@ -1,4 +1,4 @@
-import { memo, useState } from 'react'
+import { memo, useState, useEffect, useCallback } from 'react'
 import styles from './KnockoutBracket.module.css'
 
 const TWEMOJI_CDN = 'https://twemoji.maxcdn.com/v/latest/svg'
@@ -284,6 +284,28 @@ function BallDot({ player, size = 18 }) {
 
 const KnockoutBracket = memo(function KnockoutBracket({ knockout }) {
   const [showModal, setShowModal] = useState(false)
+  // Only the current (active) round is expanded by default; completed rounds collapse
+  const [expandedRounds, setExpandedRounds] = useState(() => new Set([0]))
+
+  const toggleRound = useCallback((ri) => {
+    setExpandedRounds(prev => {
+      const next = new Set(prev)
+      next.has(ri) ? next.delete(ri) : next.add(ri)
+      return next
+    })
+  }, [])
+
+  // Auto-expand the new active round and collapse the just-finished one
+  const currentRound = knockout?.bracket?.currentRound ?? 0
+  useEffect(() => {
+    setExpandedRounds(prev => {
+      const next = new Set(prev)
+      next.add(currentRound)
+      // Collapse all rounds before the current one
+      for (let i = 0; i < currentRound; i++) next.delete(i)
+      return next
+    })
+  }, [currentRound])
 
   if (!knockout) return (
     <div className={styles.empty}>No knockout tournament active.</div>
@@ -317,7 +339,7 @@ const KnockoutBracket = memo(function KnockoutBracket({ knockout }) {
 
   if (!bracket) return null
 
-  const { rounds, currentRound, currentMatch } = bracket
+  const { rounds, currentMatch } = bracket
 
   return (
     <div className={styles.panel}>
@@ -343,25 +365,33 @@ const KnockoutBracket = memo(function KnockoutBracket({ knockout }) {
       <div className={styles.rounds}>
         {rounds.map((round, ri) => {
           const isCurrentRound = ri === currentRound && !winner
+          const isExpanded = expandedRounds.has(ri)
+          const isDone = ri < currentRound || !!winner
           return (
             <div key={ri} className={`${styles.roundSection} ${isCurrentRound ? styles.roundSectionActive : ''}`}>
-              <div className={styles.roundLabel}>
+              <div className={styles.roundLabel} onClick={() => toggleRound(ri)}>
                 {round.name}
                 {isCurrentRound && <span className={styles.liveDot} />}
+                {isDone && !isCurrentRound && (
+                  <span className={styles.roundDoneTag}>✓</span>
+                )}
+                <span className={styles.roundChevron}>{isExpanded ? '▾' : '▸'}</span>
               </div>
-              <div className={styles.matches}>
-                {round.matches.map((match, mi) => {
-                  const isCurrent = ri === currentRound && mi === currentMatch && !winner
-                  return (
-                    <MatchRow
-                      key={match.id}
-                      match={match}
-                      isCurrent={isCurrent}
-                      matchNumber={mi + 1}
-                    />
-                  )
-                })}
-              </div>
+              {isExpanded && (
+                <div className={styles.matches}>
+                  {round.matches.map((match, mi) => {
+                    const isCurrent = ri === currentRound && mi === currentMatch && !winner
+                    return (
+                      <MatchRow
+                        key={match.id}
+                        match={match}
+                        isCurrent={isCurrent}
+                        matchNumber={mi + 1}
+                      />
+                    )
+                  })}
+                </div>
+              )}
             </div>
           )
         })}

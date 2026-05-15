@@ -543,12 +543,21 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       const newH = container.offsetHeight
       // Container is hidden (mobile tab switch) — ignore completely
       if (newW === 0 || newH === 0) return
-      canvas.width = newW * dpr; canvas.height = newH * dpr
-      // If dimensions changed meaningfully, schedule a full engine rebuild
+
+      // Large resize → schedule a full engine rebuild and return WITHOUT updating
+      // W, H, or the peg canvas. Keeping visual coords in sync with the physics
+      // world (walls, peg bodies) prevents the ball/collision mismatch where
+      // balls appear to bounce off air or fall through pegs during the window
+      // before the rebuild fires. Debounce reduced to 150 ms to minimise the gap.
       if (Math.abs(newW - W) > 30 || Math.abs(newH - H) > 30) {
         clearTimeout(resizeDebounceRef.current)
-        resizeDebounceRef.current = setTimeout(() => setResizeKey(k => k + 1), 350)
+        resizeDebounceRef.current = setTimeout(() => setResizeKey(k => k + 1), 150)
+        return
       }
+
+      // Small resize (< 30 px) — safe to update visual dimensions immediately
+      // since walls/pegs remain effectively valid for the tiny delta.
+      canvas.width = newW * dpr; canvas.height = newH * dpr
       W = newW; H = newH
       // Recompute peg layout for the new visual size so the peg canvas is
       // redrawn correctly. Ball size (effectiveBallSizeRef) is intentionally
