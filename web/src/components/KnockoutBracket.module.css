@@ -84,6 +84,7 @@
   padding: 4px 6px;
   border-radius: 5px;
   background: var(--bg-panel-alt);
+  flex-shrink: 0; /* same fix as roundSection — preserve height so playerGrid scrolls */
 }
 
 .chipName {
@@ -112,6 +113,7 @@
   border-radius: 8px;
   border: 1px solid var(--border-color);
   overflow: hidden;
+  flex-shrink: 0; /* must not shrink — needs natural height to overflow .rounds and trigger scroll */
 }
 
 .roundSectionActive {
