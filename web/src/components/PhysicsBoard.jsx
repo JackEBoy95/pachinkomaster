@@ -508,31 +508,43 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         }
 
         const prizeImg = getPrizeImage(prize)
+        const hasLabel = prize.label && prize.label.trim().length > 0
+
         if (prizeImg?._ready) {
           // Image slot: thumbnail on left, label+pts on right
           const imgSize = SLOT_H - 10
-          const imgX = sx + 4
-          const imgY = H - SLOT_H + 5
+          const imgX = sx + 4, imgY = H - SLOT_H + 5
           ctx.save()
-          ctx.beginPath()
-          ctx.roundRect(imgX, imgY, imgSize, imgSize, 3)
-          ctx.clip()
+          ctx.beginPath(); ctx.roundRect(imgX, imgY, imgSize, imgSize, 3); ctx.clip()
           ctx.drawImage(prizeImg, imgX, imgY, imgSize, imgSize)
           ctx.restore()
           const textX = imgX + imgSize + 4
-          const textW = sW - imgSize - 10
-          ctx.fillStyle = prize.color; ctx.font = 'bold 10px Rajdhani, sans-serif'
+          ctx.fillStyle = prize.color; ctx.font = 'bold 12px Rajdhani, sans-serif'
           ctx.textAlign = 'left'; ctx.textBaseline = 'middle'
-          const label = prize.label.length > 8 ? prize.label.slice(0, 7) + '…' : prize.label
-          ctx.fillText(label, textX, H - SLOT_H + 16)
-          ctx.fillStyle = cssVars.textSec; ctx.font = '600 9px Rajdhani, sans-serif'
-          ctx.fillText(`${prize.points}pts`, textX, H - SLOT_H + 30)
-        } else {
-          ctx.fillStyle = prize.color; ctx.font = 'bold 11px Rajdhani, sans-serif'
+          const imgLabel = prize.label.length > 8 ? prize.label.slice(0, 7) + '…' : prize.label
+          ctx.fillText(imgLabel, textX, H - SLOT_H + 17)
+          ctx.fillStyle = cssVars.textSec; ctx.font = '600 11px Rajdhani, sans-serif'
+          ctx.fillText(`${prize.points}pts`, textX, H - SLOT_H + 32)
+        } else if (!hasLabel) {
+          // Points only — large centred number, smaller 'pts' suffix below
+          const numSz = Math.max(16, Math.min(24, Math.round(sW * 0.28)))
+          const ptsSz = Math.max(10, Math.min(13, Math.round(numSz * 0.55)))
           ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-          ctx.fillText(prize.label.length > 10 ? prize.label.slice(0, 9) + '…' : prize.label, mx, H - SLOT_H + 18)
-          ctx.fillStyle = cssVars.textSec; ctx.font = '600 10px Rajdhani, sans-serif'
-          ctx.fillText(`${prize.points}pts`, mx, H - SLOT_H + 34)
+          ctx.fillStyle = prize.color; ctx.font = `bold ${numSz}px Rajdhani, sans-serif`
+          ctx.fillText(`${prize.points}`, mx, H - SLOT_H + 22)
+          ctx.fillStyle = cssVars.textSec; ctx.font = `600 ${ptsSz}px Rajdhani, sans-serif`
+          ctx.fillText('pts', mx, H - SLOT_H + 22 + numSz * 0.62)
+        } else {
+          // Label + points — scale to slot width so many-prize boards still fit
+          const labelSz = Math.max(11, Math.min(16, Math.round(sW * 0.18)))
+          const ptsSz   = Math.max(10, Math.min(14, Math.round(sW * 0.15)))
+          const maxC    = Math.max(3, Math.floor(sW / (labelSz * 0.62)))
+          const trunc   = prize.label.length > maxC ? prize.label.slice(0, maxC - 1) + '…' : prize.label
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+          ctx.fillStyle = prize.color; ctx.font = `bold ${labelSz}px Rajdhani, sans-serif`
+          ctx.fillText(trunc, mx, H - SLOT_H + 19)
+          ctx.fillStyle = cssVars.textSec; ctx.font = `600 ${ptsSz}px Rajdhani, sans-serif`
+          ctx.fillText(`${prize.points}pts`, mx, H - SLOT_H + 19 + labelSz + 5)
         }
       })
     }
