@@ -73,7 +73,11 @@ export function useKnockoutTournament() {
   /** Initialise — sets up the qualifying phase. */
   const startKnockout = useCallback((players, config = {}) => {
     const knockoutRounds = config.knockoutRounds ?? 7
-    const bracketSize   = Math.pow(2, knockoutRounds) // 2, 4, 8, …, 128
+    const rawSize  = Math.pow(2, knockoutRounds) // 2, 4, 8, …, 128
+    // Snap to the largest power-of-2 that fits the actual player count so the
+    // UI shows the real bracket size from the start, not an unachievable target.
+    const maxFit      = Math.min(rawSize, players.length)
+    const bracketSize = Math.pow(2, Math.floor(Math.log2(Math.max(2, maxFit))))
     setKnockout({
       phase: 'qualifying',
       config: {
@@ -100,13 +104,20 @@ export function useKnockoutTournament() {
         .map(p => ({ player: p, score: scores[p.id] ?? 0 }))
         .sort((a, b) => b.score - a.score)
 
+      // Bracket must be a power of 2 and can't exceed the number of players.
+      // Snap down to the largest valid power of 2 that fits — e.g. if bracketSize
+      // is 128 but only 50 players entered, use 32 (not 50) so every player in
+      // the bracket always has an opponent.
+      const maxFit = Math.min(bracketSize, allPlayers.length)
+      const actualSize = Math.pow(2, Math.floor(Math.log2(Math.max(2, maxFit))))
+
       return {
         ...prev,
         qualifyingResult: {
           scores,
-          advancers:   sorted.slice(0, bracketSize),
-          eliminated:  sorted.slice(bracketSize),
-          bracketSize,
+          advancers:   sorted.slice(0, actualSize),
+          eliminated:  sorted.slice(actualSize),
+          bracketSize: actualSize,
         },
       }
     })
