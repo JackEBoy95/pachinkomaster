@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to Run Your Own Pachinko World Cup (Up to 128 Countries, One Champion) | PachinkoMaster</title>
+  <meta name="description" content="A step-by-step guide to setting up a full 128-country knockout bracket tournament in PachinkoMaster — from adding players with flag ball skins to running qualifying rounds, reading the bracket, and exporting the full results." />
+  <link rel="canonical" href="https://www.pachinkomaster.com/blog/how-to-run-your-own-world-cup/" />
+  <meta name="theme-color" content="#0d0d1a" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <!-- AdSense verification -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4069101395475946" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d0d1a; color: #e8e0f0;
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-size: 16px; line-height: 1.7; min-height: 100dvh;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(245,200,66,0.07) 2px, transparent 2px);
+      background-size: 38px 38px; pointer-events: none; z-index: 0;
+    }
+    .wrap { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
+    nav { display: flex; align-items: center; gap: 20px; margin-bottom: 40px; flex-wrap: wrap; }
+    .back {
+      display: inline-flex; align-items: center; gap: 6px; color: #F5C842;
+      text-decoration: none; font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; opacity: 0.8; transition: opacity 0.15s;
+    }
+    .back:hover { opacity: 1; }
+    .nav-links { display: flex; gap: 16px; margin-left: auto; }
+    .nav-links a {
+      color: #b0a8c0; text-decoration: none; font-size: 13px; font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.7; transition: opacity 0.15s;
+    }
+    .nav-links a:hover { opacity: 1; color: #F5C842; text-decoration: none; }
+    .tag { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #FF4FA3; margin-bottom: 10px; }
+    h1 { font-size: 2.2rem; font-weight: 700; color: #F5C842; letter-spacing: 0.03em; margin-bottom: 12px; line-height: 1.25; }
+    .meta { font-size: 13px; color: #6a6a8a; margin-bottom: 28px; }
+    h2 { font-size: 1.15rem; font-weight: 700; color: #00e5ff; letter-spacing: 0.04em; margin: 36px 0 12px; }
+    h3 { font-size: 1rem; font-weight: 700; color: #F5C842; margin: 20px 0 8px; }
+    p { color: #b0a8c0; margin-bottom: 14px; }
+    .lead { font-size: 1.05rem; color: #d0c8e0; margin-bottom: 24px; }
+    ul, ol { margin: 10px 0 18px 22px; color: #b0a8c0; }
+    li { margin-bottom: 6px; }
+    .steps { list-style: none; margin: 16px 0 24px; counter-reset: step; padding: 0; }
+    .steps li {
+      counter-increment: step;
+      display: flex; gap: 16px; align-items: flex-start;
+      margin-bottom: 12px; padding: 14px 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(0,229,255,0.08); border-radius: 8px;
+    }
+    .steps li::before {
+      content: counter(step); flex-shrink: 0;
+      width: 28px; height: 28px; background: #00e5ff; color: #0d0d1a;
+      font-weight: 700; font-size: 14px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .steps li div { font-size: 15px; color: #b0a8c0; }
+    .steps li strong { color: #e8e0f0; display: block; margin-bottom: 2px; }
+    .tip {
+      background: rgba(0,229,255,0.06); border-left: 3px solid #00e5ff;
+      border-radius: 0 6px 6px 0; padding: 12px 16px; margin: 16px 0;
+      font-size: 14px; color: #b0a8c0;
+    }
+    .tip strong { color: #00e5ff; }
+    .config-table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 14px; }
+    .config-table th { text-align: left; color: #6a6a8a; font-weight: 700; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .config-table td { padding: 10px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #b0a8c0; vertical-align: top; }
+    .config-table td:first-child { color: #e8e0f0; font-weight: 600; }
+    a { color: #F5C842; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .cta {
+      display: inline-block; margin-top: 32px; padding: 12px 28px; background: #FF4FA3; color: #fff;
+      font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; border-radius: 8px; text-decoration: none;
+      box-shadow: 0 0 18px rgba(255,79,163,0.35); transition: box-shadow 0.15s, transform 0.15s;
+    }
+    .cta:hover { box-shadow: 0 0 28px rgba(255,79,163,0.55); transform: translateY(-1px); text-decoration: none; }
+    .related { margin-top: 40px; }
+    .related-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #6a6a8a; margin-bottom: 14px; }
+    .related-links { display: flex; flex-direction: column; gap: 8px; }
+    .related-link { color: #b0a8c0; font-size: 14px; }
+    .related-link:hover { color: #F5C842; }
+    .divider { border: none; border-top: 1px solid rgba(245,200,66,0.15); margin: 40px 0; }
+    .footer-links { font-size: 13px; color: #6a6a8a; display: flex; flex-wrap: wrap; gap: 8px; }
+    .footer-links a { color: #6a6a8a; }
+    .footer-links a:hover { color: #F5C842; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a class="back" href="/blog/">← Blog</a>
+      <div class="nav-links">
+        <a href="/about">About</a>
+        <a href="/how-to-play">How to Play</a>
+        <a href="/">Play Now</a>
+      </div>
+    </nav>
+
+    <div class="tag">Guide</div>
+    <h1>How to Run Your Own Pachinko World Cup (Up to 128 Countries, One Champion)</h1>
+    <div class="meta">May 2026 &nbsp;·&nbsp; 5 min read</div>
+
+    <p class="lead">PachinkoMaster's knockout tournament mode lets you run a proper seeded bracket — a qualifying round to determine seeds, then head-to-head matches all the way to the final. Up to 200 players, bracket sizes from 2 to 128. Here is exactly how to set one up.</p>
+
+    <p>The knockout format is what separates a real World Cup from a random draw. Qualifying scores determine who gets the top seeds, which means the strongest nations meet in the later rounds — not the first. Every match is one-on-one. The higher score goes through. Physics determines the result. Anyone can win on any given drop, but the format rewards consistent quality. This guide walks you through every step.</p>
+
+    <h2>Why This Format Is More Interesting Than a Regular Tournament</h2>
+    <p>Standard elimination mode drops all players simultaneously each round and cuts the lowest scorers. Knockout mode is different: it pairs specific nations against each other, bracket-style. That changes the experience fundamentally.</p>
+    <ul>
+      <li>Head-to-head matchups create instant rivalries — you're watching two specific nations compete, not a field</li>
+      <li>The qualifying seeding means the best nations meet late, not early — genuinely good players aren't knocked out by each other in Round 1</li>
+      <li>Physics means any result is possible — but a 64-nation bracket produces meaningful upsets rather than pure noise</li>
+      <li>The bracket view makes it easy to follow the whole tournament at once, like a real World Cup draw</li>
+    </ul>
+    <p>If you want to see what actually happens when you run 30 of these with all 196 nations, the data tells a remarkable story — <a href="/blog/pachinko-world-cup-30-tournaments/">read the full analysis here</a>.</p>
+
+    <h2>Step-by-Step Setup</h2>
+
+    <ol class="steps">
+      <li>
+        <div>
+          <strong>Open PachinkoMaster and add your players</strong>
+          Go to the Players panel and add each nation or participant. For a real World Cup feel, use the country flag ball skins — type <strong>cflag:</strong> followed by the country code (e.g. <code>cflag:br</code> for Brazil, <code>cflag:de</code> for Germany) in the skin field. Each player gets a ball that displays their national flag as it drops through the pegs. You can add up to 200 players total.
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Set up your prize slots</strong>
+          Go to the Prizes panel and configure your point values. For a knockout tournament, recommend 10–20 prize slots with a spread of values: a high-value jackpot slot, several mid-tier slots, and a couple of low-value or zero slots to create jeopardy. The exact values matter less than having a meaningful spread — matches need to differentiate players, not just produce identical scores.
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Click the lightning bolt — choose Knockout settings</strong>
+          Hit the <strong>⚡ KNOCKOUT</strong> button. You'll be prompted to configure: bracket size (powers of 2, from 4 up to 128), qualifying balls per player, and balls per head-to-head match. See the tips section below for recommended settings by group size.
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Run the qualifying round</strong>
+          All players drop simultaneously in the qualifying round. The scores from this round determine bracket seedings — highest score gets seed #1, and so on down the bracket. The qualifying round is the only time all players compete at once; everything after is head-to-head.
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Dismiss the qualifying card to build the bracket</strong>
+          Once qualifying completes, a results card appears showing all qualifying scores and provisional seeds. Dismiss it to generate the bracket. Seedings are assigned automatically using the classic World Cup format: #1 seed vs lowest remaining seed, #2 vs second-lowest, and so on. This ensures the top qualifiers don't meet until the later rounds.
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Work through the bracket match by match</strong>
+          Each match drops balls for both competing players. The higher cumulative score advances; the lower is eliminated. You'll see the result immediately and can advance to the next match. The side panel tracks which nations are still in the bracket and which round you're in.
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Click "Full Bracket" for the World Cup–style view</strong>
+          At any point during the tournament, click the <strong>Full Bracket</strong> button (or the chart icon in the side panel) to see the full bracket laid out visually — all matches, all results, all remaining paths to the final. This is the view to put on a shared screen if you're watching with others.
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Export results as CSV when the champion is crowned</strong>
+          When the final completes and a champion is crowned, an Export button appears on the champion screen. This downloads a CSV with every match result, scores, and the full bracket progression. Use it to build a historical record, share results, or feed into a multi-tournament tracking spreadsheet.
+        </div>
+      </li>
+    </ol>
+
+    <h2>Tips: Settings by Group Size</h2>
+
+    <table class="config-table">
+      <thead>
+        <tr>
+          <th>Players</th>
+          <th>Bracket Size</th>
+          <th>Qualifying Balls</th>
+          <th>Balls Per Match</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>4–8 players</td><td>4 or 8</td><td>3–5</td><td>3</td></tr>
+        <tr><td>9–16 players</td><td>16</td><td>5</td><td>3–5</td></tr>
+        <tr><td>17–32 players</td><td>32</td><td>5–8</td><td>5</td></tr>
+        <tr><td>33–64 players</td><td>64</td><td>8–10</td><td>5</td></tr>
+        <tr><td>65–128 players</td><td>128</td><td>10</td><td>5–7</td></tr>
+        <tr><td>128–200 players</td><td>128</td><td>10–15 (qualifying cuts to top 128)</td><td>5</td></tr>
+      </tbody>
+    </table>
+
+    <div class="tip"><strong>Tip:</strong> For large groups (64+), use more qualifying balls — 10 or more — to give a more reliable seeding. With only 3 qualifying balls, top seedings can be determined by a single lucky drop. More balls produce more representative qualifying scores.</div>
+
+    <div class="tip"><strong>Tip:</strong> For a quick session, set balls per match to 3. For a longer, more dramatic tournament where lead changes are possible mid-match, use 5–7 balls. At 7 balls per match, comebacks happen regularly and matches feel like actual contests rather than single-drop decisions.</div>
+
+    <h2>Running a Full 196-Nation World Cup</h2>
+    <p>If you want to go all the way — all 196 nations — add them all to the player list, set your bracket to 128, and let qualifying determine which 128 nations make the bracket. The 68 lowest qualifiers are eliminated before the bracket even starts, which is its own compelling drama. Then work through 7 bracket rounds (128 → 64 → 32 → 16 → 8 → 4 → final) until a champion is crowned.</p>
+    <p>A full 196-nation World Cup takes a while to run manually, but the bracket view makes it easy to follow the story across rounds. Run it on a shared screen with friends and treat each round as its own event.</p>
+    <p>Curious what actually happens when you run 30 of these? <a href="/blog/pachinko-world-cup-30-tournaments/">We did exactly that and wrote up the data</a> — 26 different champions, remarkable regional patterns, and one country that reached 5 semi-finals without ever winning. The results are worth reading before you run your first edition.</p>
+
+    <a class="cta" href="/">Start Your World Cup →</a>
+
+    <div class="related">
+      <div class="related-title">More from the blog</div>
+      <div class="related-links">
+        <a class="related-link" href="/blog/pachinko-world-cup-30-tournaments/">We Ran 30 Pachinko World Cups. Here's Who Actually Rules the Board. →</a>
+        <a class="related-link" href="/blog/elimination-tournament-stats-196-nations/">52 Elimination Tournaments, 196 Nations — The Stats Are Surprising →</a>
+        <a class="related-link" href="/blog/how-to-run-a-fair-office-tournament/">How to Run a Fair Office Tournament in Under 10 Minutes →</a>
+      </div>
+    </div>
+
+    <hr class="divider" />
+    <div class="footer-links">
+      <a href="/">PachinkoMaster</a> &nbsp;·&nbsp;
+      <a href="/blog/">Blog</a> &nbsp;·&nbsp;
+      <a href="/about">About</a> &nbsp;·&nbsp;
+      <a href="/privacy">Privacy Policy</a>
+    </div>
+  </div>
+</body>
+</html>
