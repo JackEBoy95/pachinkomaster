@@ -578,30 +578,63 @@
   display: none; /* desktop: hidden */
 }
 
-/* ── Responsive ─────────────────────────────── */
-@media (max-width: 900px) {
-  .main {
-    grid-template-columns: 1fr;
-    overflow: auto;
-  }
-
-  .sidebar {
-    height: auto;
-  }
-
-  .boardWrapper {
-    height: 400px;
-    flex: none;
-  }
-
-  .tabContent {
-    height: 280px;
-    flex: none;
-  }
+/* ── Theatre mode ─────────────────────────────── */
+.boardWrapper {
+  position: relative;
 }
 
-/* ── Mobile layout (≤ 640px) ─────────────────── */
-@media (max-width: 640px) {
+.theatreBtn {
+  font-size: 12px;
+  padding: 10px 14px;
+  letter-spacing: 0.06em;
+  font-family: var(--font-display);
+  border: 1px solid var(--border-color);
+  background: var(--bg-panel-alt);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.theatreBtn:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: rgba(245, 200, 66, 0.08);
+}
+.theatreBtnActive {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: rgba(245, 200, 66, 0.12);
+  box-shadow: 0 0 10px rgba(245, 200, 66, 0.2);
+}
+
+.theatrePulse {
+  display: inline-block;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.theatreBadge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(245, 200, 66, 0.15);
+  border: 1px solid rgba(245, 200, 66, 0.35);
+  color: var(--accent-gold);
+  font-family: var(--font-display);
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  letter-spacing: 0.06em;
+  animation: pulse 1.4s ease-in-out infinite;
+  z-index: 10;
+}
+
+/* ── Responsive ─────────────────────────────── */
+
+/* ── Mobile layout (≤ 768px) ─────────────────── */
+@media (max-width: 768px) {
   /* --- Header --- */
   .header {
     padding: 8px 10px;

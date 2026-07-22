@@ -322,6 +322,15 @@ export default function SettingsPanel({
             <span>5</span>
             <span>100</span>
           </div>
+
+          <label className={styles.checkRow} style={{ marginTop: 12 }}>
+            <input
+              type="checkbox"
+              checked={knockoutConfig.customSeedOrder ?? false}
+              onChange={e => setKnockoutConfig(c => ({ ...c, customSeedOrder: e.target.checked }))}
+            />
+            <span>Custom seed order — rearrange seeds before bracket builds</span>
+          </label>
         </div>
 
         <div className={styles.divider} />

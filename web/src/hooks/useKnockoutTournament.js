@@ -123,11 +123,15 @@ export function useKnockoutTournament() {
     })
   }, [])
 
-  /** Dismiss the qualifying result card and build the bracket. */
-  const dismissQualifying = useCallback(() => {
+  /** Dismiss the qualifying result card and build the bracket.
+   *  @param {Array} [customSeeds] - Optional reordered player list. When omitted
+   *    the natural qualifying order (highest score first) is used. */
+  const dismissQualifying = useCallback((customSeeds) => {
     setKnockout(prev => {
       if (!prev?.qualifyingResult) return prev
-      const seeds   = prev.qualifyingResult.advancers.map(a => a.player)
+      const seeds   = customSeeds
+        ? customSeeds
+        : prev.qualifyingResult.advancers.map(a => a.player)
       const bracket = buildBracketFromSeeds(seeds)
       return { ...prev, phase: 'bracket', qualifyingResult: null, bracket }
     })

@@ -12,6 +12,7 @@ import AdInterstitial from './components/AdInterstitial'
 import TournamentOverlay from './components/TournamentOverlay'
 import KnockoutBracket from './components/KnockoutBracket'
 import { QualifyingResultCard, MatchResultCard } from './components/KnockoutOverlay'
+import SeedOrderModal from './components/SeedOrderModal'
 import { useGameState } from './hooks/useGameState'
 import { useSound } from './hooks/useSound'
 import { useTemplates } from './hooks/useTemplates'
@@ -26,8 +27,8 @@ export default function App() {
   const [leftTab, setLeftTab]       = useState('prizes')    // 'prizes' | 'players' | 'settings'
   const [mobileTab, setMobileTab]   = useState('board')     // 'board' | 'config' | 'scores'
   const [ballSize, setBallSize]     = useState(17)    // ball radius px
-  const [pegDensity, setPegDensity] = useState(() => window.innerWidth <= 640 ? 12 : 12)
-  const [bounciness, setBounciness] = useState(() => window.innerWidth <= 640 ? 0.6 : 0.5)
+  const [pegDensity, setPegDensity] = useState(() => window.innerWidth <= 768 ? 12 : 12)
+  const [bounciness, setBounciness] = useState(() => window.innerWidth <= 768 ? 0.6 : 0.5)
   const [ballCount, setBallCount]   = useState(1)     // balls per drop
   const [tournamentConfig, setTournamentConfig] = useState({ eliminationPerRound: 0, maxRounds: 0 })
   const [knockoutConfig, setKnockoutConfig]     = useState({ qualifyingBalls: 1, matchBalls: 50, knockoutRounds: 7 })
@@ -35,10 +36,15 @@ export default function App() {
   const [showTemplates, setShowTemplates] = useState(false)
   const [sharedTpl, setSharedTpl]         = useState(null) // pending shared import
   const [showAd, setShowAd]               = useState(false)
+  const [theatreMode, setTheatreMode]     = useState(false)
+  const [showSeedModal, setShowSeedModal] = useState(false)
+  const [customSeeds, setCustomSeeds]     = useState([])
   const dropCountRef      = useRef(0)
   // Randomise ad cadence: show after 3–7 drops (re-rolled each time ad fires)
   const nextAdThresholdRef = useRef(Math.floor(Math.random() * 5) + 3)
   const boardRef = useRef(null)
+  const theatreTimerRef   = useRef(null)
+  const theatreInFlightRef = useRef(false) // true while a theatre-initiated drop is in flight
 
   const {
     prizes, addPrize, updatePrize, removePrize,
@@ -134,6 +140,7 @@ export default function App() {
   // Wrap onBallLanded to play sound and track tournament scores
   const handleBallLanded = useCallback((idx, playerId, isLast) => {
     playBallLand()
+    if (isLast) theatreInFlightRef.current = false
 
     if (tournamentRef.current && playerId != null) {
       const pts = prizes[idx]?.points ?? 0
@@ -205,11 +212,16 @@ export default function App() {
     if (!knockout) return
     dismissResult() // always clear useGameState result so overlayShown resets
     if (knockout.qualifyingResult) {
-      dismissQualifying()
+      if (knockoutConfig.customSeedOrder && !theatreMode) {
+        setCustomSeeds(knockout.qualifyingResult.advancers.map(a => a.player))
+        setShowSeedModal(true)
+      } else {
+        dismissQualifying()
+      }
     } else if (knockout.bracket?.matchResult) {
       dismissMatchResult()
     }
-  }, [knockout, dismissResult, dismissQualifying, dismissMatchResult])
+  }, [knockout, knockoutConfig.customSeedOrder, theatreMode, dismissResult, dismissQualifying, dismissMatchResult])
 
   const handleTournamentDrop = useCallback(() => {
     if (!tournament) return
@@ -241,7 +253,7 @@ export default function App() {
     // dismissed — which kept overlayShown=true and froze the physics loop for
     // the next round. Clear it here whenever a tournament round card is dismissed.
     dismissResult()
-    const isMobile = window.innerWidth <= 640
+    const isMobile = window.innerWidth <= 768
     const midRoundAd = isMobile && (roundNum === 6 || roundNum === 12)
     if (isComplete || midRoundAd) {
       setShowAd(true)
@@ -249,6 +261,92 @@ export default function App() {
   }, [tournament, dismissTournamentRound, dismissResult])
 
   const clampBallCount = (v) => Math.max(1, Math.min(maxBallCount, Number(v) || 1))
+
+  // ── Theatre mode: Escape key exits ──────────────────────────────────────────
+  useEffect(() => {
+    if (!theatreMode) return
+    const handler = (e) => { if (e.key === 'Escape') setTheatreMode(false) }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [theatreMode])
+
+  // ── Theatre mode: auto-exit when tournament/knockout finishes ───────────────
+  useEffect(() => {
+    if (!theatreMode) return
+    const isComplete = knockout?.winner || tournament?.roundResult?.isComplete
+    if (!isComplete) return
+    const timer = setTimeout(() => setTheatreMode(false), 4000)
+    return () => clearTimeout(timer)
+  }, [theatreMode, knockout?.winner, tournament?.roundResult?.isComplete])
+
+  // ── Theatre mode: auto-advance loop ─────────────────────────────────────────
+  useEffect(() => {
+    if (!theatreMode) {
+      clearTimeout(theatreTimerRef.current)
+      theatreInFlightRef.current = false
+      return
+    }
+    clearTimeout(theatreTimerRef.current)
+
+    const hasOverlay =
+      !!tournament?.roundResult ||
+      !!result ||
+      !!knockout?.qualifyingResult ||
+      !!knockout?.bracket?.matchResult
+
+    if (hasOverlay) {
+      // auto-dismiss after 2.5 s
+      theatreTimerRef.current = setTimeout(() => {
+        if (tournament?.roundResult) {
+          handleDismissTournamentRound()
+        } else if (knockout?.qualifyingResult || knockout?.bracket?.matchResult) {
+          handleDismissKnockout()
+        } else if (result) {
+          handleDismissResult()
+        }
+      }, 2500)
+    } else if (!theatreInFlightRef.current) {
+      // auto-drop after 1.2 s
+      theatreTimerRef.current = setTimeout(() => {
+        if (theatreInFlightRef.current) return // guard against double-fire
+        theatreInFlightRef.current = true
+        if (isKnockoutActive && !knockout?.bracket?.matchResult && !knockout?.qualifyingResult) {
+          handleKnockoutDrop()
+        } else if (isTournamentActive && !tournament?.roundResult) {
+          handleTournamentDrop()
+        } else if (!isTournamentActive && !isKnockoutActive) {
+          if (players.length > 1) handleDropAll()
+          else handleDrop()
+        } else {
+          theatreInFlightRef.current = false // nothing to drop right now
+        }
+      }, 1200)
+    }
+
+    return () => clearTimeout(theatreTimerRef.current)
+  }, [
+    theatreMode,
+    tournament?.roundResult,
+    result,
+    knockout?.qualifyingResult,
+    knockout?.bracket?.matchResult,
+    isKnockoutActive,
+    isTournamentActive,
+    players.length,
+    handleDismissTournamentRound,
+    handleDismissKnockout,
+    handleDismissResult,
+    handleKnockoutDrop,
+    handleTournamentDrop,
+    handleDropAll,
+    handleDrop,
+  ])
+
+  // ── Seed modal confirm ───────────────────────────────────────────────────────
+  const handleSeedModalConfirm = useCallback((orderedSeeds) => {
+    dismissQualifying(orderedSeeds)
+    setShowSeedModal(false)
+  }, [dismissQualifying])
 
   return (
     <div className={styles.app}>
@@ -359,6 +457,9 @@ export default function App() {
         {/* Board */}
         <section className={`${styles.boardSection} ${mobileTab === 'board' ? styles.mobilePanelVisible : ''}`}>
           <div className={styles.boardWrapper}>
+            {theatreMode && (
+              <div className={styles.theatreBadge}>🎬 THEATRE</div>
+            )}
             <PhysicsBoard
               ref={boardRef}
               prizes={prizes}
@@ -530,6 +631,18 @@ export default function App() {
                 )}
               </>
             )}
+
+            {/* Theatre mode button */}
+            <button
+              className={`${styles.theatreBtn} ${theatreMode ? styles.theatreBtnActive : ''}`}
+              onClick={() => setTheatreMode(m => !m)}
+              title={theatreMode ? 'Exit Theatre Mode (Esc)' : 'Theatre Mode — auto-runs the tournament without interaction'}
+            >
+              {theatreMode
+                ? <><span className={styles.theatrePulse}>■</span> EXIT</>
+                : '▶ THEATRE'
+              }
+            </button>
           </div>
         </section>
 
@@ -592,7 +705,7 @@ export default function App() {
       />
 
       {/* Knockout overlays */}
-      {isKnockoutActive && knockout?.qualifyingResult && (
+      {isKnockoutActive && knockout?.qualifyingResult && !showSeedModal && (
         <QualifyingResultCard
           result={knockout.qualifyingResult}
           onNext={handleDismissKnockout}
@@ -619,6 +732,14 @@ export default function App() {
           />
         )
       })()}
+
+      {showSeedModal && (
+        <SeedOrderModal
+          seeds={customSeeds}
+          onConfirm={handleSeedModalConfirm}
+          onCancel={() => setShowSeedModal(false)}
+        />
+      )}
 
       {showTemplates && (
         <TemplateModal
