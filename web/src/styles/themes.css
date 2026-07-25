@@ -528,3 +528,23 @@
   --skin-name:        'South Korea';
   --bg-overlay-pattern: none;
 }
+
+/* ── Light Mode Override ─────────────────────── */
+/* Applied via data-mode="light" on <html>, overrides all dark theme variables. */
+[data-mode="light"] {
+  --bg-primary:       #f0f0f6;
+  --bg-panel:         #ffffff;
+  --bg-panel-alt:     #f4f4fb;
+  --bg-board:         #e8e8f4;
+  --border-color:     #d0d0e4;
+
+  --text-primary:     #111122;
+  --text-secondary:   #55556a;
+  --text-on-accent:   #ffffff;
+
+  --btn-secondary-bg:   #eaeaf4;
+  --btn-secondary-text: #111122;
+
+  --board-line:       rgba(180, 180, 210, 0.7);
+  --scanline-opacity: 0;
+}

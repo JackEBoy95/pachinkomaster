@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import styles from './SettingsPanel.module.css'
+import SkinSelector from './SkinSelector'
 
 const HELP_ITEMS = [
   {
@@ -145,6 +146,7 @@ export default function SettingsPanel({
   bounciness, setBounciness,
   tournamentConfig, setTournamentConfig,
   knockoutConfig, setKnockoutConfig,
+  skin, setSkin,
 }) {
   return (
     <div className={`panel ${styles.panel}`}>
@@ -152,6 +154,16 @@ export default function SettingsPanel({
         <h3>Board Settings</h3>
       </div>
       <div className={`panel-body ${styles.body}`}>
+
+        {/* Themes */}
+        <div className={styles.group}>
+          <span className={styles.sectionTitle}>🎨 Themes</span>
+          <div className={styles.themePicker}>
+            <SkinSelector currentSkin={skin} onChange={setSkin} />
+          </div>
+        </div>
+
+        <div className={styles.divider} />
 
         {/* Ball Size */}
         <div className={styles.group}>

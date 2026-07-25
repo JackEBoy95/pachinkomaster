@@ -37,6 +37,7 @@ export default function App() {
   const [sharedTpl, setSharedTpl]         = useState(null) // pending shared import
   const [showAd, setShowAd]               = useState(false)
   const [theatreMode, setTheatreMode]     = useState(false)
+  const [lightMode, setLightMode]         = useState(() => localStorage.getItem('lightMode') === 'true')
   const [showSeedModal, setShowSeedModal] = useState(false)
   const [customSeeds, setCustomSeeds]     = useState([])
   const dropCountRef      = useRef(0)
@@ -81,6 +82,12 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', skin)
   }, [skin])
+
+  // Apply light/dark mode
+  useEffect(() => {
+    document.documentElement.setAttribute('data-mode', lightMode ? 'light' : 'dark')
+    localStorage.setItem('lightMode', lightMode)
+  }, [lightMode])
 
   // Play fanfare on result — skip during tournament (handled per-round instead)
   useEffect(() => {
@@ -295,22 +302,25 @@ export default function App() {
       !!knockout?.bracket?.matchResult
 
     if (hasOverlay) {
-      // Capture completion state now (closure) so we can exit theatre immediately
-      // after the final dismiss — prevents a stray drop from firing after the end.
       const isEndOverlay =
         !!tournament?.roundResult?.isComplete ||
         !!knockout?.bracket?.matchResult?.isComplete
-      // auto-dismiss after 2.5 s
-      theatreTimerRef.current = setTimeout(() => {
-        if (tournament?.roundResult) {
-          handleDismissTournamentRound()
-        } else if (knockout?.qualifyingResult || knockout?.bracket?.matchResult) {
-          handleDismissKnockout()
-        } else if (result) {
-          handleDismissResult()
-        }
-        if (isEndOverlay) setTheatreMode(false)
-      }, 2500)
+      if (isEndOverlay) {
+        // Final result — stop theatre immediately and leave the card showing
+        // so the user can read it at their own pace.
+        setTheatreMode(false)
+      } else {
+        // Non-final overlay — auto-dismiss after 2.5 s and keep going
+        theatreTimerRef.current = setTimeout(() => {
+          if (tournament?.roundResult) {
+            handleDismissTournamentRound()
+          } else if (knockout?.qualifyingResult || knockout?.bracket?.matchResult) {
+            handleDismissKnockout()
+          } else if (result) {
+            handleDismissResult()
+          }
+        }, 2500)
+      }
     } else if (!theatreInFlightRef.current) {
       // auto-drop after 1.2 s
       theatreTimerRef.current = setTimeout(() => {
@@ -407,7 +417,14 @@ export default function App() {
             🎮 Games
           </button>
 
-          <SkinSelector currentSkin={skin} onChange={setSkin} />
+          <button
+            className={`${styles.modeToggle} ${lightMode ? styles.modeToggleLight : ''}`}
+            onClick={() => setLightMode(v => !v)}
+            title={lightMode ? 'Switch to dark mode' : 'Switch to light mode'}
+          >
+            <span>{lightMode ? '🌙' : '☀️'}</span>
+            <span className={styles.modeToggleLabel}>{lightMode ? 'Dark' : 'Light'}</span>
+          </button>
         </div>
       </header>
 
@@ -455,6 +472,7 @@ export default function App() {
                 bounciness={bounciness}         setBounciness={setBounciness}
                 tournamentConfig={tournamentConfig} setTournamentConfig={setTournamentConfig}
                 knockoutConfig={knockoutConfig}     setKnockoutConfig={setKnockoutConfig}
+                skin={skin}                     setSkin={setSkin}
               />
             )}
           </div>

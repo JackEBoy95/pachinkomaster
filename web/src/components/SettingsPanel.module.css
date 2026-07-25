@@ -102,6 +102,10 @@
   margin: 2px 0;
 }
 
+.themePicker {
+  margin-top: 6px;
+}
+
 /* ── Sound section ────────────────────────── */
 .sectionTitle {
   font-size: 13px;

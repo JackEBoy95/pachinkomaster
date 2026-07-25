@@ -145,6 +145,35 @@
   color: var(--accent-gold);
 }
 
+/* ── Light / dark mode toggle ─────────────────── */
+.modeToggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.04em;
+}
+.modeToggle:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+.modeToggleLight {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+.modeToggleLabel {
+  /* hidden on very small screens via breakpoints below */
+}
+
 /* ── Shared template import banner ───────────── */
 .importBanner {
   display: flex;
@@ -650,6 +679,8 @@
   .controls { gap: 6px; }
   .templateBtn span:last-child { display: none; } /* hide text, keep emoji */
   .templateBtn { padding: 6px 9px; }
+  .modeToggleLabel { display: none; } /* icon only on mobile */
+  .modeToggle { padding: 6px 9px; }
   .soundGroup { display: none; } /* hide sound on mobile */
 
   /* Full-screen height for mobile — dvh handles address bar */
@@ -778,6 +809,8 @@
   .controls   { gap: 6px; }
   .templateBtn span:last-child { display: none; }
   .templateBtn { padding: 4px 8px; }
+  .modeToggleLabel { display: none; }
+  .modeToggle { padding: 4px 8px; }
 
   /* Kill the mobile bottom nav — not needed when both panels are visible */
   .mobileNav  { display: none; }
