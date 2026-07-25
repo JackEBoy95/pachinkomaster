@@ -496,6 +496,7 @@ export default function App() {
               bounciness={bounciness}
               onPegHit={playPegHit}
               skin={skin}
+              lightMode={lightMode}
               locked={isTournamentActive || isKnockoutActive}
               overlayShown={
                 !!tournament?.roundResult ||

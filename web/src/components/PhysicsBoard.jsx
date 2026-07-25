@@ -85,7 +85,7 @@ function rescueBall(ball, W) {
 }
 
 const PhysicsBoard = forwardRef(function PhysicsBoard(
-  { prizes, activePlayer, onBallLanded, onDropAborted, speed, ballSize, pegDensity, bounciness, onPegHit, skin, locked, overlayShown },
+  { prizes, activePlayer, onBallLanded, onDropAborted, speed, ballSize, pegDensity, bounciness, onPegHit, skin, lightMode, locked, overlayShown },
   ref
 ) {
   const containerRef     = useRef(null)
@@ -167,6 +167,10 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   useEffect(() => {
     refreshStylesRef.current?.()
   }, [skin])
+
+  useEffect(() => {
+    refreshStylesRef.current?.()
+  }, [lightMode])
 
   // ── Engine setup ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -292,6 +296,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         slotDivider: getCSSVar('--slot-divider') || 'rgba(245,200,66,0.3)',
         textSec:     getCSSVar('--text-secondary') || '#6A6A8A',
         fxGlow:      getCSSVar('--fx-glow') === '1',
+        isLightMode: document.documentElement.getAttribute('data-mode') === 'light',
       }
     }
     refreshCSSVars()
@@ -486,7 +491,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
                 ctx.restore()
               }
             } else if (b.playerName) {
-              ctx.fillStyle = 'rgba(255,255,255,0.9)'
+              ctx.fillStyle = cssVars.isLightMode ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.9)'
               ctx.font = `bold ${Math.max(7, Math.round(r * 0.65))}px Rajdhani, sans-serif`
               ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
               ctx.fillText(b.playerName.slice(0, 4), x, y + 1)
