@@ -295,6 +295,11 @@ export default function App() {
       !!knockout?.bracket?.matchResult
 
     if (hasOverlay) {
+      // Capture completion state now (closure) so we can exit theatre immediately
+      // after the final dismiss — prevents a stray drop from firing after the end.
+      const isEndOverlay =
+        !!tournament?.roundResult?.isComplete ||
+        !!knockout?.bracket?.matchResult?.isComplete
       // auto-dismiss after 2.5 s
       theatreTimerRef.current = setTimeout(() => {
         if (tournament?.roundResult) {
@@ -304,6 +309,7 @@ export default function App() {
         } else if (result) {
           handleDismissResult()
         }
+        if (isEndOverlay) setTheatreMode(false)
       }, 2500)
     } else if (!theatreInFlightRef.current) {
       // auto-drop after 1.2 s
