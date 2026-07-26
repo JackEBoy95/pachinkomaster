@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useDeferredValue } from 'react'
+import { useState, useEffect, useLayoutEffect, useCallback, useRef, useDeferredValue } from 'react'
 import PhysicsBoard from './components/PhysicsBoard'
 import PrizePanel from './components/PrizePanel'
 import PlayerPanel from './components/PlayerPanel'
@@ -83,9 +83,13 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', skin)
   }, [skin])
 
-  // Apply light/dark mode
-  useEffect(() => {
+  // Set data-mode synchronously (useLayoutEffect fires before any useEffect in any
+  // child, so PhysicsBoard's CSS-var read always sees the correct attribute).
+  useLayoutEffect(() => {
     document.documentElement.setAttribute('data-mode', lightMode ? 'light' : 'dark')
+  }, [lightMode])
+
+  useEffect(() => {
     localStorage.setItem('lightMode', lightMode)
   }, [lightMode])
 
