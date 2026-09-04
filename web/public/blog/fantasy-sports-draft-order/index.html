@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to Do a Fair Fantasy Sports Draft Order Draw | PachinkoMaster</title>
+  <meta name="description" content="Stop arguing about draft order. Use a physics-based ball drop to determine your fantasy football, basketball or baseball draft order in a way everyone can watch and trust." />
+  <link rel="canonical" href="https://www.pachinkomaster.com/blog/fantasy-sports-draft-order/" />
+  <meta name="theme-color" content="#0d0d1a" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <!-- AdSense verification -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4069101395475946" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d0d1a; color: #e8e0f0;
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-size: 16px; line-height: 1.7; min-height: 100dvh;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(245,200,66,0.07) 2px, transparent 2px);
+      background-size: 38px 38px; pointer-events: none; z-index: 0;
+    }
+    .wrap { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
+    nav { display: flex; align-items: center; gap: 20px; margin-bottom: 40px; flex-wrap: wrap; }
+    .back {
+      display: inline-flex; align-items: center; gap: 6px; color: #F5C842;
+      text-decoration: none; font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; opacity: 0.8; transition: opacity 0.15s;
+    }
+    .back:hover { opacity: 1; }
+    .nav-links { display: flex; gap: 16px; margin-left: auto; }
+    .nav-links a {
+      color: #b0a8c0; text-decoration: none; font-size: 13px; font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.7; transition: opacity 0.15s;
+    }
+    .nav-links a:hover { opacity: 1; color: #F5C842; text-decoration: none; }
+    .tag { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #FF4FA3; margin-bottom: 10px; }
+    h1 { font-size: 2.2rem; font-weight: 700; color: #F5C842; letter-spacing: 0.03em; margin-bottom: 12px; line-height: 1.25; }
+    .meta { font-size: 13px; color: #6a6a8a; margin-bottom: 28px; }
+    h2 { font-size: 1.15rem; font-weight: 700; color: #00e5ff; letter-spacing: 0.04em; margin: 36px 0 12px; }
+    h3 { font-size: 1rem; font-weight: 700; color: #F5C842; margin: 20px 0 8px; }
+    p { color: #b0a8c0; margin-bottom: 14px; }
+    .lead { font-size: 1.05rem; color: #d0c8e0; margin-bottom: 24px; }
+    ul, ol { margin: 10px 0 18px 22px; color: #b0a8c0; }
+    li { margin-bottom: 6px; }
+    .steps { list-style: none; margin: 16px 0 24px; counter-reset: step; padding: 0; }
+    .steps li {
+      counter-increment: step;
+      display: flex; gap: 16px; align-items: flex-start;
+      margin-bottom: 12px; padding: 14px 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(0,229,255,0.08); border-radius: 8px;
+    }
+    .steps li::before {
+      content: counter(step); flex-shrink: 0;
+      width: 28px; height: 28px; background: #00e5ff; color: #0d0d1a;
+      font-weight: 700; font-size: 14px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .steps li div { font-size: 15px; color: #b0a8c0; }
+    .steps li strong { color: #e8e0f0; display: block; margin-bottom: 2px; }
+    .tip {
+      background: rgba(0,229,255,0.06); border-left: 3px solid #00e5ff;
+      border-radius: 0 6px 6px 0; padding: 12px 16px; margin: 16px 0;
+      font-size: 14px; color: #b0a8c0;
+    }
+    .tip strong { color: #00e5ff; }
+    .config-table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 14px; }
+    .config-table th { text-align: left; color: #6a6a8a; font-weight: 700; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .config-table td { padding: 10px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #b0a8c0; vertical-align: top; }
+    .config-table td:first-child { color: #e8e0f0; font-weight: 600; }
+    a { color: #F5C842; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .cta {
+      display: inline-block; margin-top: 32px; padding: 12px 28px; background: #FF4FA3; color: #fff;
+      font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; border-radius: 8px; text-decoration: none;
+      box-shadow: 0 0 18px rgba(255,79,163,0.35); transition: box-shadow 0.15s, transform 0.15s;
+    }
+    .cta:hover { box-shadow: 0 0 28px rgba(255,79,163,0.55); transform: translateY(-1px); text-decoration: none; }
+    .related { margin-top: 40px; }
+    .related-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #6a6a8a; margin-bottom: 14px; }
+    .related-links { display: flex; flex-direction: column; gap: 8px; }
+    .related-link { color: #b0a8c0; font-size: 14px; }
+    .related-link:hover { color: #F5C842; }
+    .divider { border: none; border-top: 1px solid rgba(245,200,66,0.15); margin: 40px 0; }
+    .footer-links { font-size: 13px; color: #6a6a8a; display: flex; flex-wrap: wrap; gap: 8px; }
+    .footer-links a { color: #6a6a8a; }
+    .footer-links a:hover { color: #F5C842; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a class="back" href="/blog/">← Blog</a>
+      <div class="nav-links">
+        <a href="/about">About</a>
+        <a href="/how-to-play">How to Play</a>
+        <a href="/">Play Now</a>
+      </div>
+    </nav>
+
+    <div class="tag">Fantasy Sports</div>
+    <h1>How to Do a Fair Fantasy Sports Draft Order Draw</h1>
+    <div class="meta">July 2026 &nbsp;·&nbsp; 6 min read</div>
+
+    <p class="lead">Draft order might be the most contested decision in any fantasy sports league. Pick first and you're taking the consensus number-one player. Pick last in a 12-team league and you're hoping everyone above you makes mistakes. That asymmetry means every manager cares — a lot — about how the order is decided. Here's how to do it in a way that ends the argument before it starts.</p>
+
+    <h2>Why Draft Order Matters More Than People Admit</h2>
+    <p>In fantasy football, the difference between picks 1 and 12 in the first round is often the difference between a consensus elite running back and a second-tier option at a different position. Over a full season, that gap compounds. Studies of fantasy football outcomes consistently show that first-round pick position correlates meaningfully with playoff rates and championship wins.</p>
+    <p>This is why any whiff of unfairness in how the order is decided generates resentment that lasts the whole season. If someone suspects they were handed pick 12 because the commissioner is friends with the person who got pick 1, they'll carry that all year. The only way to avoid it is transparency: everyone sees the draw happen.</p>
+
+    <h2>The Problem With Hat Draws and Google's "Random Number"</h2>
+    <p>The classic hat draw — fold names, pick from a hat — is fine for a room full of people who can all see the hat. But most leagues are remote now, or semi-remote, with some managers on a video call and others getting told the results after the fact. "We did a hat draw" over text doesn't carry the same credibility as everyone watching the same thing happen.</p>
+    <p>Typing "random number 1-12" into Google is even worse. The result is just a number on a webpage. There's no process to observe, no way to verify it wasn't just typed in, and if the number happens to favour someone, the conspiracy theories write themselves.</p>
+    <p>A physics ball drop solves all of this. Every manager can have the URL open on their own screen during a video call. They watch the same drop in real time. Nobody has to trust anyone — they saw it happen.</p>
+
+    <h2>Setup for a 10-Team League</h2>
+
+    <ol class="steps">
+      <li><div><strong>Add all 10 managers</strong> to the Players panel in PachinkoMaster. Use their league usernames or real names — whichever everyone in the league identifies with.</div></li>
+      <li><div><strong>Set up 10 prize slots</strong> numbered 1 through 10. Prize slot 1 is the first pick; prize slot 10 is the last. Make all slots the same width for equal probability.</div></li>
+      <li><div><strong>Share the URL</strong> with all managers before the drop. Everyone opens it on their own device.</div></li>
+      <li><div><strong>Get on a video call.</strong> Do the draft order draw as an event — 5 minutes of everyone together, watching the same thing, reacting in real time.</div></li>
+      <li><div><strong>Hit Drop All.</strong> All 10 balls fall simultaneously. The order in which they land gives you the draft order: first ball to land = pick 1, last ball = pick 10.</div></li>
+    </ol>
+
+    <div class="tip"><strong>Record the call.</strong> Screen-record the video call during the drop. If anyone disputes the results later (someone always does), you have video evidence of the exact process and outcome. Post it to the league chat immediately after.</div>
+
+    <h2>Using Knockout Bracket for Seeded Snake Draft</h2>
+    <p>Some leagues prefer a seeded snake draft — where last year's champion picks last, the wooden spoon picks first. For leagues with established standings, PachinkoMaster's Knockout Bracket mode can handle this elegantly.</p>
+    <p>Enter players in reverse-standings order (last year's last-place team first, champion last). The bracket mode seeds them accordingly and runs a qualifying round to determine the exact order within each tier. The resulting pick order reflects real competitive history while still having a random element within each tier.</p>
+
+    <h2>Multi-Sport Leagues and Multiple Draws</h2>
+    <p>If your group runs multiple leagues — fantasy football and fantasy basketball, for example — use the URL share feature to save the draw setup. The player list stays the same; you just rerun the drop for each league. The results will differ each time because physics.</p>
+    <p>Some groups prefer that the draft order in each sport is independent. Others want the worst performer last season to get first pick in every sport. PachinkoMaster handles both: independent drops for independent orders, or a single seeded draw if you want a consistent hierarchy across sports.</p>
+
+    <h2>Exporting the Results</h2>
+    <p>After the drop, export the CSV immediately. The file includes each manager's name and their pick position. Paste it into your league notes, group chat, or the platform you use to organise the actual draft. Having the results in a shared document — not just in memory — prevents any disagreement about what happened weeks later when the draft day actually arrives.</p>
+
+    <a class="cta" href="/">Run Your Draft Order Draw →</a>
+
+    <div class="related">
+      <div class="related-title">More from the blog</div>
+      <div class="related-links">
+        <a class="related-link" href="/blog/free-tournament-bracket-generator/">Free Online Tournament Bracket Generator →</a>
+        <a class="related-link" href="/blog/how-to-run-a-fair-office-tournament/">How to Run a Fair Office Tournament →</a>
+        <a class="related-link" href="/blog/random-decision-maker-psychology/">The Psychology of Random Decision Making →</a>
+      </div>
+    </div>
+
+    <hr class="divider" />
+    <div class="footer-links">
+      <a href="/">PachinkoMaster</a> &nbsp;·&nbsp;
+      <a href="/blog/">Blog</a> &nbsp;·&nbsp;
+      <a href="/about">About</a> &nbsp;·&nbsp;
+      <a href="/privacy">Privacy Policy</a>
+    </div>
+  </div>
+</body>
+</html>

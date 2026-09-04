@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Online Tournament Bracket Maker — Physics-Powered | PachinkoMaster</title>
+  <meta name="description" content="Create and run a complete seeded tournament bracket online for free. Qualifying rounds, head-to-head matches, automatic bracket progression — no account needed." />
+  <link rel="canonical" href="https://www.pachinkomaster.com/brackets/" />
+  <meta name="theme-color" content="#0d0d1a" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <!-- AdSense verification -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4069101395475946" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d0d1a; color: #e8e0f0;
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-size: 16px; line-height: 1.7; min-height: 100dvh;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(245,200,66,0.07) 2px, transparent 2px);
+      background-size: 38px 38px; pointer-events: none; z-index: 0;
+    }
+    .wrap { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
+    nav { display: flex; align-items: center; gap: 20px; margin-bottom: 48px; flex-wrap: wrap; }
+    .nav-logo {
+      display: inline-flex; align-items: center; gap: 6px; color: #F5C842;
+      text-decoration: none; font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; opacity: 0.8; transition: opacity 0.15s;
+    }
+    .nav-logo:hover { opacity: 1; }
+    .nav-links { display: flex; gap: 16px; margin-left: auto; }
+    .nav-links a {
+      color: #b0a8c0; text-decoration: none; font-size: 13px; font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.7; transition: opacity 0.15s;
+    }
+    .nav-links a:hover { opacity: 1; color: #F5C842; }
+    .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #FF4FA3; margin-bottom: 12px; }
+    h1 { font-size: 2.4rem; font-weight: 700; color: #F5C842; letter-spacing: 0.03em; margin-bottom: 16px; line-height: 1.2; }
+    .lead { font-size: 1.1rem; color: #d0c8e0; margin-bottom: 32px; line-height: 1.65; }
+    h2 { font-size: 1.15rem; font-weight: 700; color: #00e5ff; letter-spacing: 0.04em; margin: 40px 0 14px; }
+    h3 { font-size: 1rem; font-weight: 700; color: #F5C842; margin: 20px 0 8px; }
+    p { color: #b0a8c0; margin-bottom: 14px; }
+    ul, ol { margin: 10px 0 18px 22px; color: #b0a8c0; }
+    li { margin-bottom: 8px; }
+    .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0 32px; }
+    @media (max-width: 500px) { .modes { grid-template-columns: 1fr; } }
+    .mode-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(245,200,66,0.12);
+      border-radius: 10px; padding: 20px;
+    }
+    .mode-name { font-size: 1rem; font-weight: 700; color: #F5C842; margin-bottom: 8px; }
+    .mode-desc { font-size: 14px; color: #8a82a0; line-height: 1.55; }
+    .features { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 24px 0 32px; }
+    @media (max-width: 500px) { .features { grid-template-columns: 1fr; } }
+    .feature-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(0,229,255,0.1);
+      border-radius: 10px; padding: 16px 18px;
+    }
+    .feature-icon { font-size: 1.4rem; margin-bottom: 6px; }
+    .feature-title { font-size: 0.9rem; font-weight: 700; color: #e8e0f0; margin-bottom: 4px; }
+    .feature-desc { font-size: 13px; color: #8a82a0; line-height: 1.5; }
+    .steps { list-style: none; margin: 16px 0 24px; counter-reset: step; padding: 0; }
+    .steps li {
+      counter-increment: step;
+      display: flex; gap: 16px; align-items: flex-start;
+      margin-bottom: 12px; padding: 14px 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(0,229,255,0.08); border-radius: 8px;
+    }
+    .steps li::before {
+      content: counter(step); flex-shrink: 0;
+      width: 28px; height: 28px; background: #00e5ff; color: #0d0d1a;
+      font-weight: 700; font-size: 14px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .steps li div { font-size: 15px; color: #b0a8c0; }
+    .steps li strong { color: #e8e0f0; display: block; margin-bottom: 2px; }
+    .use-cases { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 24px; }
+    .use-case {
+      background: rgba(255,79,163,0.08); border: 1px solid rgba(255,79,163,0.2);
+      border-radius: 6px; padding: 6px 14px; font-size: 13px; font-weight: 700;
+      color: #FF4FA3; letter-spacing: 0.04em;
+    }
+    .cta-block { text-align: center; margin: 40px 0; }
+    .cta {
+      display: inline-block; padding: 14px 36px; background: #FF4FA3; color: #fff;
+      font-family: 'Rajdhani', sans-serif; font-size: 1.05rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; border-radius: 10px; text-decoration: none;
+      box-shadow: 0 0 24px rgba(255,79,163,0.4); transition: box-shadow 0.15s, transform 0.15s;
+    }
+    .cta:hover { box-shadow: 0 0 36px rgba(255,79,163,0.6); transform: translateY(-2px); text-decoration: none; }
+    .cta-sub { margin-top: 10px; font-size: 13px; color: #6a6a8a; }
+    a { color: #F5C842; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .divider { border: none; border-top: 1px solid rgba(245,200,66,0.15); margin: 40px 0; }
+    .footer-links { font-size: 13px; color: #6a6a8a; display: flex; flex-wrap: wrap; gap: 8px; }
+    .footer-links a { color: #6a6a8a; }
+    .footer-links a:hover { color: #F5C842; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a class="nav-logo" href="/">PachinkoMaster</a>
+      <div class="nav-links">
+        <a href="/blog/">Blog</a>
+        <a href="/about">About</a>
+        <a href="/">Play Now</a>
+      </div>
+    </nav>
+
+    <div class="eyebrow">Tournament Brackets</div>
+    <h1>Tournament Brackets Without the Spreadsheet</h1>
+    <p class="lead">PachinkoMaster generates and runs a complete seeded tournament bracket in your browser — qualifying rounds, head-to-head matches, full bracket view, automatic progression. Free, no account, no spreadsheet required. The matches are decided by physics, not by who's clicking the fastest.</p>
+
+    <div class="cta-block">
+      <a class="cta" href="/">Start Your Bracket Free →</a>
+      <div class="cta-sub">No sign-up &nbsp;·&nbsp; Works in any browser &nbsp;·&nbsp; Free forever</div>
+    </div>
+
+    <h2>Two Formats, One Tool</h2>
+    <div class="modes">
+      <div class="mode-card">
+        <div class="mode-name">Elimination Mode</div>
+        <div class="mode-desc">All players compete every round. The lowest scorers are cut. Survival + cumulative points determine the champion. Great for group competitions where everyone should play for multiple rounds.</div>
+      </div>
+      <div class="mode-card">
+        <div class="mode-name">Knockout Bracket</div>
+        <div class="mode-desc">Classic single-elimination with a seeded bracket tree. Head-to-head matches, automatic progression, full bracket view. Qualifying round handles odd player counts cleanly — no byes, no arguments.</div>
+      </div>
+    </div>
+
+    <h2>Key Features</h2>
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🌱</div>
+        <div class="feature-title">Power-of-2 Seeding</div>
+        <div class="feature-desc">Proper bracket seeding so the strongest competitors only meet in the later rounds.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎲</div>
+        <div class="feature-title">Custom Seed Order</div>
+        <div class="feature-desc">Set seeds manually based on prior rankings. Reflects real competitive history in the draw.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <div class="feature-title">Full Bracket View</div>
+        <div class="feature-desc">See the complete tournament tree at a glance. Share the URL so everyone can follow along.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📥</div>
+        <div class="feature-title">CSV Export</div>
+        <div class="feature-desc">Download the full results — every player, every round score, final standings — after the tournament.</div>
+      </div>
+    </div>
+
+    <h2>Use Cases</h2>
+    <div class="use-cases">
+      <span class="use-case">Office sports pools</span>
+      <span class="use-case">Classroom competitions</span>
+      <span class="use-case">Fantasy draft order</span>
+      <span class="use-case">Game nights</span>
+      <span class="use-case">Pub quiz knockouts</span>
+      <span class="use-case">Streamer events</span>
+      <span class="use-case">Family tournaments</span>
+      <span class="use-case">Company leagues</span>
+    </div>
+
+    <h2>How to Set Up Your Bracket</h2>
+    <ol class="steps">
+      <li><div><strong>Add your participants</strong> in the Players panel. Type names or paste a list.</div></li>
+      <li><div><strong>Choose Knockout Bracket mode</strong> from the Tournament toggle.</div></li>
+      <li><div><strong>Set seed order.</strong> Enter players in ranked order or let PachinkoMaster seed randomly.</div></li>
+      <li><div><strong>Run the qualifying round</strong> if your count isn't a power of 2. This handles itself automatically.</div></li>
+      <li><div><strong>Drop each match.</strong> Press "Drop All" — physics decides the winner. Click to advance.</div></li>
+      <li><div><strong>Export results</strong> when the tournament concludes.</div></li>
+    </ol>
+
+    <p>The whole process takes under five minutes to set up from scratch, and each match takes about 30 seconds to run. A 16-player bracket completes in 4 rounds — roughly 30 minutes of active play.</p>
+
+    <div class="cta-block">
+      <a class="cta" href="/">Build Your Bracket →</a>
+      <div class="cta-sub">Free, no account, instant setup</div>
+    </div>
+
+    <p>For a full guide to bracket setup and tournament formats, read <a href="/blog/free-tournament-bracket-generator/">Free Online Tournament Bracket Generator — No Account Required</a>.</p>
+
+    <hr class="divider" />
+    <div class="footer-links">
+      <a href="/">PachinkoMaster</a> &nbsp;·&nbsp;
+      <a href="/blog/">Blog</a> &nbsp;·&nbsp;
+      <a href="/about">About</a> &nbsp;·&nbsp;
+      <a href="/privacy">Privacy Policy</a>
+    </div>
+  </div>
+</body>
+</html>

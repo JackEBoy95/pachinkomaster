@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Random Name Picker & Classroom Tournament Tool for Teachers | PachinkoMaster</title>
+  <meta name="description" content="A free, engaging random name picker and tournament bracket maker for teachers. No sign-up, no app to install — works in any browser, on any device." />
+  <link rel="canonical" href="https://www.pachinkomaster.com/teachers/" />
+  <meta name="theme-color" content="#0d0d1a" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <!-- AdSense verification -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4069101395475946" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d0d1a; color: #e8e0f0;
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-size: 16px; line-height: 1.7; min-height: 100dvh;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(245,200,66,0.07) 2px, transparent 2px);
+      background-size: 38px 38px; pointer-events: none; z-index: 0;
+    }
+    .wrap { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
+    nav { display: flex; align-items: center; gap: 20px; margin-bottom: 48px; flex-wrap: wrap; }
+    .nav-logo {
+      display: inline-flex; align-items: center; gap: 6px; color: #F5C842;
+      text-decoration: none; font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; opacity: 0.8; transition: opacity 0.15s;
+    }
+    .nav-logo:hover { opacity: 1; }
+    .nav-links { display: flex; gap: 16px; margin-left: auto; }
+    .nav-links a {
+      color: #b0a8c0; text-decoration: none; font-size: 13px; font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.7; transition: opacity 0.15s;
+    }
+    .nav-links a:hover { opacity: 1; color: #F5C842; }
+    .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #FF4FA3; margin-bottom: 12px; }
+    h1 { font-size: 2.4rem; font-weight: 700; color: #F5C842; letter-spacing: 0.03em; margin-bottom: 16px; line-height: 1.2; }
+    .lead { font-size: 1.1rem; color: #d0c8e0; margin-bottom: 32px; line-height: 1.65; }
+    h2 { font-size: 1.15rem; font-weight: 700; color: #00e5ff; letter-spacing: 0.04em; margin: 40px 0 14px; }
+    h3 { font-size: 1rem; font-weight: 700; color: #F5C842; margin: 20px 0 8px; }
+    p { color: #b0a8c0; margin-bottom: 14px; }
+    ul, ol { margin: 10px 0 18px 22px; color: #b0a8c0; }
+    li { margin-bottom: 8px; }
+    .features { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0 32px; }
+    @media (max-width: 500px) { .features { grid-template-columns: 1fr; } }
+    .feature-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(0,229,255,0.1);
+      border-radius: 10px; padding: 18px 20px;
+    }
+    .feature-icon { font-size: 1.5rem; margin-bottom: 8px; }
+    .feature-title { font-size: 0.95rem; font-weight: 700; color: #e8e0f0; margin-bottom: 4px; }
+    .feature-desc { font-size: 13px; color: #8a82a0; line-height: 1.5; }
+    .steps { list-style: none; margin: 16px 0 24px; counter-reset: step; padding: 0; }
+    .steps li {
+      counter-increment: step;
+      display: flex; gap: 16px; align-items: flex-start;
+      margin-bottom: 12px; padding: 14px 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(0,229,255,0.08); border-radius: 8px;
+    }
+    .steps li::before {
+      content: counter(step); flex-shrink: 0;
+      width: 28px; height: 28px; background: #00e5ff; color: #0d0d1a;
+      font-weight: 700; font-size: 14px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .steps li div { font-size: 15px; color: #b0a8c0; }
+    .steps li strong { color: #e8e0f0; display: block; margin-bottom: 2px; }
+    .quotes { margin: 24px 0 32px; display: flex; flex-direction: column; gap: 14px; }
+    .quote {
+      background: rgba(245,200,66,0.05); border-left: 3px solid rgba(245,200,66,0.3);
+      border-radius: 0 8px 8px 0; padding: 14px 18px;
+    }
+    .quote-text { font-size: 15px; color: #d0c8e0; font-style: italic; margin-bottom: 6px; }
+    .quote-attr { font-size: 12px; color: #6a6a8a; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+    .cta-block { text-align: center; margin: 40px 0; }
+    .cta {
+      display: inline-block; padding: 14px 36px; background: #FF4FA3; color: #fff;
+      font-family: 'Rajdhani', sans-serif; font-size: 1.05rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; border-radius: 10px; text-decoration: none;
+      box-shadow: 0 0 24px rgba(255,79,163,0.4); transition: box-shadow 0.15s, transform 0.15s;
+    }
+    .cta:hover { box-shadow: 0 0 36px rgba(255,79,163,0.6); transform: translateY(-2px); text-decoration: none; }
+    .cta-sub { margin-top: 10px; font-size: 13px; color: #6a6a8a; }
+    a { color: #F5C842; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .divider { border: none; border-top: 1px solid rgba(245,200,66,0.15); margin: 40px 0; }
+    .footer-links { font-size: 13px; color: #6a6a8a; display: flex; flex-wrap: wrap; gap: 8px; }
+    .footer-links a { color: #6a6a8a; }
+    .footer-links a:hover { color: #F5C842; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a class="nav-logo" href="/">PachinkoMaster</a>
+      <div class="nav-links">
+        <a href="/blog/">Blog</a>
+        <a href="/about">About</a>
+        <a href="/">Play Now</a>
+      </div>
+    </nav>
+
+    <div class="eyebrow">For Teachers</div>
+    <h1>The Random Name Picker Your Students Will Actually Enjoy</h1>
+    <p class="lead">PachinkoMaster is a free, physics-based classroom tool that picks student names, runs quiz tournaments, and manages elimination brackets — all in the browser, with no account and no app to install. Students watch their ball drop live. They trust it because they can see it happen.</p>
+
+    <div class="cta-block">
+      <a class="cta" href="/">Open PachinkoMaster Free →</a>
+      <div class="cta-sub">No sign-up &nbsp;·&nbsp; Works on any device &nbsp;·&nbsp; Free forever</div>
+    </div>
+
+    <h2>Why It Works in Classrooms</h2>
+    <p>Most random name pickers produce a result instantly and play a short animation to cover the gap. Students figure this out quickly — the outcome is predetermined, the spin is just theatre. Once they know that, the tool loses its credibility.</p>
+    <p>PachinkoMaster uses real physics simulation. Each ball follows a genuinely unpredictable path through a board of pegs, and nobody knows where it will land until it does. Students watch their coloured ball bouncing in real time. That visible randomness builds trust in a way no spinner can match — because there's nothing to doubt. They saw it happen.</p>
+    <p>The secondary benefit is engagement. Five seconds of watching a ball ricochet through a board keeps an entire class focused in a way that a button click never will.</p>
+
+    <h2>Key Features</h2>
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Random Name Picker</div>
+        <div class="feature-desc">Drop one ball or all balls at once. Pick one student or set a participation queue for the whole lesson.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏆</div>
+        <div class="feature-title">Elimination Tournaments</div>
+        <div class="feature-desc">Run knockout quiz tournaments across multiple lessons. Scores accumulate; the bracket advances automatically.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔢</div>
+        <div class="feature-title">Fair Seeding</div>
+        <div class="feature-desc">Seed by prior performance so mixed-ability brackets are competitive at every level, not just the top.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Export Results</div>
+        <div class="feature-desc">Download a CSV of every student's round-by-round performance. Useful for formative tracking.</div>
+      </div>
+    </div>
+
+    <h2>Quick Setup</h2>
+    <ol class="steps">
+      <li><div><strong>Open pachinkomaster.com</strong> in your browser. No account needed.</div></li>
+      <li><div><strong>Add your students</strong> in the Players panel. Type names or paste a list.</div></li>
+      <li><div><strong>Set up prize slots</strong> for participation, categories, or tournament scoring.</div></li>
+      <li><div><strong>Bookmark the URL.</strong> Your class list saves automatically — reopen it next lesson and everything is there.</div></li>
+      <li><div><strong>Project it</strong> on your classroom display and drop.</div></li>
+    </ol>
+
+    <h2>What Teachers Say</h2>
+    <div class="quotes">
+      <div class="quote">
+        <div class="quote-text">"The kids are completely silent when the ball drops. I've never had 30 Year 9s pay attention like that before."</div>
+        <div class="quote-attr">Secondary School Teacher, Manchester</div>
+      </div>
+      <div class="quote">
+        <div class="quote-text">"I used to get complaints that I was picking favourites. Since I switched to PachinkoMaster, I haven't heard it once."</div>
+        <div class="quote-attr">Primary Teacher, Brisbane</div>
+      </div>
+      <div class="quote">
+        <div class="quote-text">"We ran a spelling knockout for our whole year group. The semi-final was genuinely tense — kids from other classes were watching."</div>
+        <div class="quote-attr">Year 4 Teacher, London</div>
+      </div>
+    </div>
+
+    <div class="cta-block">
+      <a class="cta" href="/">Try It in Your Class Today →</a>
+      <div class="cta-sub">Free, no sign-up, works on any browser</div>
+    </div>
+
+    <p>Want more ideas? Read our guides for teachers: <a href="/blog/random-name-picker-for-teachers/">The Best Random Name Picker for Teachers</a> and <a href="/blog/classroom-tournament-bracket-ideas/">8 Classroom Tournament Bracket Ideas</a>.</p>
+
+    <hr class="divider" />
+    <div class="footer-links">
+      <a href="/">PachinkoMaster</a> &nbsp;·&nbsp;
+      <a href="/blog/">Blog</a> &nbsp;·&nbsp;
+      <a href="/about">About</a> &nbsp;·&nbsp;
+      <a href="/privacy">Privacy Policy</a>
+    </div>
+  </div>
+</body>
+</html>
