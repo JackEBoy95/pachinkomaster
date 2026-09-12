@@ -799,7 +799,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         const blob = new Blob(recordingChunksRef.current, { type: mimeType || 'video/webm' })
         onRecordingReadyRef.current?.(blob)
       }
-      mr.start()
+      mr.start(200)
       mediaRecorderRef.current = mr
       recordingRef.current = true
     } catch { recordingRef.current = false }

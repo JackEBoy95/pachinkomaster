@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import styles from './ResultOverlay.module.css'
 import { shareText, shareSucceeded } from '../utils/share'
 
@@ -69,16 +69,6 @@ function SingleDropCard({ result, onDismiss, clipBlob, onClearClip }) {
     if (shareSucceeded(ok)) { setShared(true); setTimeout(() => setShared(false), 2000) }
   }
 
-  function handleDownloadClip() {
-    if (!clipBlob) return
-    const url = URL.createObjectURL(clipBlob)
-    const a = document.createElement('a')
-    a.href = url; a.download = 'pachinko-moment.webm'
-    a.click()
-    setTimeout(() => URL.revokeObjectURL(url), 5000)
-    onClearClip?.()
-  }
-
   return (
     <div className={styles.card} onClick={e => e.stopPropagation()}>
       <button className={styles.closeBtn} onClick={onDismiss} title="Close">✕</button>
@@ -98,15 +88,11 @@ function SingleDropCard({ result, onDismiss, clipBlob, onClearClip }) {
         <span className={styles.pointsNum} style={{ color: prize.color }}>+{prize.points}</span>
         <span className={styles.pointsLabel}>points</span>
       </div>
+      <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} />
       <div className={styles.cardActions}>
         <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleShare}>
           {shared ? '✓ Copied!' : '🔗 Share'}
         </button>
-        {clipBlob && (
-          <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleDownloadClip}>
-            📹 Save Clip
-          </button>
-        )}
         <button className={`btn-primary ${styles.dismissBtn}`} onClick={onDismiss}>Continue</button>
       </div>
     </div>
@@ -117,16 +103,6 @@ function SingleDropCard({ result, onDismiss, clipBlob, onClearClip }) {
 function MultiDropCard({ result, onDismiss, clipBlob, onClearClip }) {
   const { roundResults, roundWinner, roundScores } = result
   const [shared, setShared] = useState(false)
-
-  function handleDownloadClip() {
-    if (!clipBlob) return
-    const url = URL.createObjectURL(clipBlob)
-    const a = document.createElement('a')
-    a.href = url; a.download = 'pachinko-moment.webm'
-    a.click()
-    setTimeout(() => URL.revokeObjectURL(url), 5000)
-    onClearClip?.()
-  }
   const [page, setPage] = useState(0)
   const PAGE_SIZE = 8
 
@@ -220,17 +196,44 @@ function MultiDropCard({ result, onDismiss, clipBlob, onClearClip }) {
         </div>
       )}
 
+      <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} />
       <div className={styles.cardActions}>
         <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleShare}>
           {shared ? '✓ Copied!' : '🔗 Share'}
         </button>
-        {clipBlob && (
-          <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleDownloadClip}>
-            📹 Save Clip
-          </button>
-        )}
         <button className={`btn-primary ${styles.dismissBtn}`} onClick={onDismiss}>Continue</button>
       </div>
+    </div>
+  )
+}
+
+// ── Clip preview + download ───────────────────────────────────────────────────
+function ClipPreview({ clipBlob, onClearClip }) {
+  const clipUrl = useMemo(() => clipBlob ? URL.createObjectURL(clipBlob) : null, [clipBlob])
+  useEffect(() => () => { if (clipUrl) URL.revokeObjectURL(clipUrl) }, [clipUrl])
+
+  if (!clipUrl) return null
+
+  function handleDownload() {
+    const a = document.createElement('a')
+    a.href = clipUrl; a.download = 'pachinko-moment.webm'
+    a.click()
+    onClearClip?.()
+  }
+
+  return (
+    <div className={styles.clipWrap}>
+      <video
+        src={clipUrl}
+        className={styles.clipVideo}
+        autoPlay
+        loop
+        muted
+        playsInline
+      />
+      <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleDownload}>
+        ⬇️ Download Clip
+      </button>
     </div>
   )
 }
