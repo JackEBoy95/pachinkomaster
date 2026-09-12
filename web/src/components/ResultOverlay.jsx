@@ -215,8 +215,9 @@ function ClipPreview({ clipBlob, onClearClip }) {
   if (!clipUrl) return null
 
   function handleDownload() {
+    const ext = clipBlob.type.startsWith('video/mp4') ? 'mp4' : 'webm'
     const a = document.createElement('a')
-    a.href = clipUrl; a.download = 'pachinko-moment.webm'
+    a.href = clipUrl; a.download = `pachinko-moment.${ext}`
     a.click()
     onClearClip?.()
   }

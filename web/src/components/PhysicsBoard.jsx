@@ -788,15 +788,20 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
     recordingChunksRef.current = []
     const stream = canvas.captureStream(30)
-    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
-      ? 'video/webm;codecs=vp9'
-      : MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : ''
+    // Prefer MP4 (plays on macOS natively), fall back to WebM
+    const mimeType =
+      MediaRecorder.isTypeSupported('video/mp4;codecs=avc1')  ? 'video/mp4;codecs=avc1'  :
+      MediaRecorder.isTypeSupported('video/mp4')              ? 'video/mp4'               :
+      MediaRecorder.isTypeSupported('video/webm;codecs=vp9')  ? 'video/webm;codecs=vp9'  :
+      MediaRecorder.isTypeSupported('video/webm;codecs=vp8')  ? 'video/webm;codecs=vp8'  :
+                                                                 'video/webm'
+    const blobType = mimeType.split(';')[0]  // strip codec params for the Blob type
     try {
-      const mr = new MediaRecorder(stream, mimeType ? { mimeType, videoBitsPerSecond: 2_500_000 } : { videoBitsPerSecond: 2_500_000 })
+      const mr = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 2_500_000 })
       mr.ondataavailable = e => { if (e.data.size > 0) recordingChunksRef.current.push(e.data) }
       mr.onstop = () => {
         recordingRef.current = false
-        const blob = new Blob(recordingChunksRef.current, { type: mimeType || 'video/webm' })
+        const blob = new Blob(recordingChunksRef.current, { type: blobType })
         onRecordingReadyRef.current?.(blob)
       }
       mr.start(200)
