@@ -40,6 +40,7 @@ export default function App() {
   const [lightMode, setLightMode]         = useState(() => localStorage.getItem('lightMode') === 'true')
   const [showSeedModal, setShowSeedModal] = useState(false)
   const [customSeeds, setCustomSeeds]     = useState([])
+  const [clipBlob, setClipBlob]           = useState(null)
   const dropCountRef      = useRef(0)
   // Randomise ad cadence: show after 3–7 drops (re-rolled each time ad fires)
   const nextAdThresholdRef = useRef(Math.floor(Math.random() * 5) + 3)
@@ -151,7 +152,10 @@ export default function App() {
   // Wrap onBallLanded to play sound and track tournament scores
   const handleBallLanded = useCallback((idx, playerId, isLast) => {
     playBallLand()
-    if (isLast) theatreInFlightRef.current = false
+    if (isLast) {
+      theatreInFlightRef.current = false
+      boardRef.current?.stopRecording(600)
+    }
 
     if (tournamentRef.current && playerId != null) {
       const pts = prizes[idx]?.points ?? 0
@@ -245,6 +249,7 @@ export default function App() {
 
   const handleDismissResult = useCallback(() => {
     dismissResult()
+    setClipBlob(null)
     // Show interstitial ad on mobile after a random 3–7 drops
     dropCountRef.current += 1
     if (dropCountRef.current >= nextAdThresholdRef.current) {
@@ -494,6 +499,7 @@ export default function App() {
               activePlayer={activePlayer}
               onBallLanded={handleBallLanded}
               onDropAborted={handleDropAborted}
+              onRecordingReady={setClipBlob}
               speed={speed}
               ballSize={ballSize}
               pegDensity={pegDensity}
@@ -722,7 +728,14 @@ export default function App() {
       {/* AdBanner — re-enable once AdSense account is fully approved */}
       {/* <AdBanner /> */}
 
-      {!isTournamentActive && !isKnockoutActive && <ResultOverlay result={result} onDismiss={handleDismissResult} />}
+      {!isTournamentActive && !isKnockoutActive && (
+        <ResultOverlay
+          result={result}
+          onDismiss={handleDismissResult}
+          clipBlob={clipBlob}
+          onClearClip={() => setClipBlob(null)}
+        />
+      )}
 
       {/* AdInterstitial — re-enable once AdSense account is fully approved */}
       {/* <AdInterstitial show={showAd} onClose={() => setShowAd(false)} /> */}

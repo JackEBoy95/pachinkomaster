@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import styles from './ResultOverlay.module.css'
 import { shareText, shareSucceeded } from '../utils/share'
 
-export default function ResultOverlay({ result, onDismiss }) {
+export default function ResultOverlay({ result, onDismiss, clipBlob, onClearClip }) {
   const confettiRef = useRef(null)
 
   useEffect(() => {
@@ -51,15 +51,15 @@ export default function ResultOverlay({ result, onDismiss }) {
     <div className={styles.backdrop} onClick={onDismiss}>
       <canvas ref={confettiRef} className={styles.confetti} />
       {result.isMultiDrop
-        ? <MultiDropCard result={result} onDismiss={onDismiss} />
-        : <SingleDropCard result={result} onDismiss={onDismiss} />
+        ? <MultiDropCard result={result} onDismiss={onDismiss} clipBlob={clipBlob} onClearClip={onClearClip} />
+        : <SingleDropCard result={result} onDismiss={onDismiss} clipBlob={clipBlob} onClearClip={onClearClip} />
       }
     </div>
   )
 }
 
 // ── Single ball result ───────────────────────────────────────────────────────
-function SingleDropCard({ result, onDismiss }) {
+function SingleDropCard({ result, onDismiss, clipBlob, onClearClip }) {
   const { player, prize } = result
   const [shared, setShared] = useState(false)
 
@@ -67,6 +67,16 @@ function SingleDropCard({ result, onDismiss }) {
     const text = `🎰 ${player.name} landed on "${prize.label}" (+${prize.points} pts) on PachinkoMaster!`
     const ok = await shareText(text)
     if (shareSucceeded(ok)) { setShared(true); setTimeout(() => setShared(false), 2000) }
+  }
+
+  function handleDownloadClip() {
+    if (!clipBlob) return
+    const url = URL.createObjectURL(clipBlob)
+    const a = document.createElement('a')
+    a.href = url; a.download = 'pachinko-moment.webm'
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(url), 5000)
+    onClearClip?.()
   }
 
   return (
@@ -92,6 +102,11 @@ function SingleDropCard({ result, onDismiss }) {
         <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleShare}>
           {shared ? '✓ Copied!' : '🔗 Share'}
         </button>
+        {clipBlob && (
+          <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleDownloadClip}>
+            📹 Save Clip
+          </button>
+        )}
         <button className={`btn-primary ${styles.dismissBtn}`} onClick={onDismiss}>Continue</button>
       </div>
     </div>
@@ -99,9 +114,19 @@ function SingleDropCard({ result, onDismiss }) {
 }
 
 // ── Multi-drop round summary ─────────────────────────────────────────────────
-function MultiDropCard({ result, onDismiss }) {
+function MultiDropCard({ result, onDismiss, clipBlob, onClearClip }) {
   const { roundResults, roundWinner, roundScores } = result
   const [shared, setShared] = useState(false)
+
+  function handleDownloadClip() {
+    if (!clipBlob) return
+    const url = URL.createObjectURL(clipBlob)
+    const a = document.createElement('a')
+    a.href = url; a.download = 'pachinko-moment.webm'
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(url), 5000)
+    onClearClip?.()
+  }
   const [page, setPage] = useState(0)
   const PAGE_SIZE = 8
 
@@ -199,6 +224,11 @@ function MultiDropCard({ result, onDismiss }) {
         <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleShare}>
           {shared ? '✓ Copied!' : '🔗 Share'}
         </button>
+        {clipBlob && (
+          <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleDownloadClip}>
+            📹 Save Clip
+          </button>
+        )}
         <button className={`btn-primary ${styles.dismissBtn}`} onClick={onDismiss}>Continue</button>
       </div>
     </div>

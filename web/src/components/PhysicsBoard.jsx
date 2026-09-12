@@ -85,7 +85,7 @@ function rescueBall(ball, W) {
 }
 
 const PhysicsBoard = forwardRef(function PhysicsBoard(
-  { prizes, activePlayer, onBallLanded, onDropAborted, speed, ballSize, pegDensity, bounciness, onPegHit, skin, lightMode, locked, overlayShown },
+  { prizes, activePlayer, onBallLanded, onDropAborted, onRecordingReady, speed, ballSize, pegDensity, bounciness, onPegHit, skin, lightMode, locked, overlayShown },
   ref
 ) {
   const containerRef     = useRef(null)
@@ -112,6 +112,12 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const isTouchRef       = useRef(false)  // true once any touch event fires — suppresses synthetic mouse aim
   const physicsWorldWRef = useRef(0)      // W used to build the current physics engine (walls, pegs)
   const overlayShownRef  = useRef(overlayShown)
+  const mediaRecorderRef     = useRef(null)
+  const recordingChunksRef   = useRef([])
+  const recordingRef         = useRef(false)
+  const onRecordingReadyRef  = useRef(onRecordingReady)
+  const startRecordingRef    = useRef(null)
+  useEffect(() => { onRecordingReadyRef.current = onRecordingReady }, [onRecordingReady])
   const [dropping, setDropping]   = useState(false)
   const [resizeKey, setResizeKey] = useState(0)  // increments → triggers engine rebuild on resize
 
@@ -360,16 +366,34 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         for (let y = 0; y < H; y += 32) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke() }
       }
 
-      // Aim
-      if (hoveringRef.current && aimXRef.current !== null && !droppingRef.current) {
-        const ax = aimXRef.current
-        ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1
-        ctx.setLineDash([6, 6])
-        ctx.beginPath(); ctx.moveTo(ax, 0); ctx.lineTo(ax, H - SLOT_H); ctx.stroke()
-        ctx.setLineDash([])
+      // Drop indicator — always visible when idle, brighter when aiming
+      if (!droppingRef.current) {
+        const isAiming = hoveringRef.current && aimXRef.current !== null
+        const ax = aimXRef.current ?? W / 2
         const ap = activePlayerRef.current
-        ctx.fillStyle = ap?.color ? hexToRgba(ap.color, 0.45) : 'rgba(255,255,255,0.35)'
-        ctx.beginPath(); ctx.arc(ax, BR + 6, BR, 0, Math.PI * 2); ctx.fill()
+        const bc = ap?.color || '#FF4FA3'
+
+        // Guide line — only when actively aiming with cursor
+        if (isAiming) {
+          ctx.strokeStyle = hexToRgba(bc, 0.18); ctx.lineWidth = 1
+          ctx.setLineDash([5, 7])
+          ctx.beginPath(); ctx.moveTo(ax, BR * 2 + 16); ctx.lineTo(ax, H - SLOT_H); ctx.stroke()
+          ctx.setLineDash([])
+        }
+
+        // Downward chevron at top edge
+        const chevY = 4
+        ctx.fillStyle = hexToRgba(bc, isAiming ? 0.9 : 0.45)
+        ctx.beginPath()
+        ctx.moveTo(ax - 9, chevY); ctx.lineTo(ax + 9, chevY); ctx.lineTo(ax, chevY + 11)
+        ctx.closePath(); ctx.fill()
+
+        // Ball ghost at drop point
+        const ballAlpha = isAiming ? 0.65 : 0.3
+        ctx.fillStyle = hexToRgba(bc, ballAlpha)
+        ctx.beginPath(); ctx.arc(ax, BR + 18, BR, 0, Math.PI * 2); ctx.fill()
+        ctx.fillStyle = hexToRgba(bc, ballAlpha * 0.55)
+        ctx.beginPath(); ctx.arc(ax - BR * 0.28, BR + 18 - BR * 0.28, BR * 0.28, 0, Math.PI * 2); ctx.fill()
       }
 
       // ── Stuck-ball rescue (throttled: only every 20 frames) ─────────────
@@ -552,6 +576,18 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
           ctx.fillText(`${prize.points}pts`, mx, H - SLOT_H + 19 + labelSz + 5)
         }
       })
+
+      // Watermark — only rendered during active recording
+      if (recordingRef.current) {
+        ctx.save()
+        ctx.globalAlpha = 0.5
+        ctx.fillStyle = cssVars.isLightMode ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.7)'
+        ctx.font = 'bold 13px Rajdhani, system-ui, sans-serif'
+        ctx.textAlign = 'right'
+        ctx.textBaseline = 'bottom'
+        ctx.fillText('pachinkomaster.com', W - 8, H - SLOT_H - 6)
+        ctx.restore()
+      }
     }
     draw()
 
@@ -644,6 +680,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     if (!engineRef.current || droppingRef.current) return
     const canvas = canvasRef.current
     if (!canvas) return
+    startRecordingRef.current?.()
     // Use the W the physics engine was built with — NOT the live container width.
     // During the 350ms resize debounce the container may already report the new
     // (larger) size while walls/pegs are still at the old size.  Spawning beyond
@@ -673,6 +710,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     if (!engineRef.current || droppingRef.current) return
     const canvas = canvasRef.current
     if (!canvas) return
+    startRecordingRef.current?.()
     // Use the W the physics engine was built with — NOT the live container width.
     // During the 350ms resize debounce the container may already report the new
     // (larger) size while walls/pegs are still at the old size.  Spawning beyond
@@ -744,7 +782,37 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     }
   }, [spawnBall])
 
-  useImperativeHandle(ref, () => ({ dropBalls, dropAllPlayers }), [dropBalls, dropAllPlayers])
+  const startRecording = useCallback(() => {
+    const canvas = canvasRef.current
+    if (!canvas || typeof canvas.captureStream !== 'function') return
+    if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
+    recordingChunksRef.current = []
+    const stream = canvas.captureStream(30)
+    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+      ? 'video/webm;codecs=vp9'
+      : MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : ''
+    try {
+      const mr = new MediaRecorder(stream, mimeType ? { mimeType, videoBitsPerSecond: 2_500_000 } : { videoBitsPerSecond: 2_500_000 })
+      mr.ondataavailable = e => { if (e.data.size > 0) recordingChunksRef.current.push(e.data) }
+      mr.onstop = () => {
+        recordingRef.current = false
+        const blob = new Blob(recordingChunksRef.current, { type: mimeType || 'video/webm' })
+        onRecordingReadyRef.current?.(blob)
+      }
+      mr.start()
+      mediaRecorderRef.current = mr
+      recordingRef.current = true
+    } catch { recordingRef.current = false }
+  }, [])
+  startRecordingRef.current = startRecording
+
+  const stopRecording = useCallback((delay = 600) => {
+    setTimeout(() => {
+      if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
+    }, delay)
+  }, [])
+
+  useImperativeHandle(ref, () => ({ dropBalls, dropAllPlayers, startRecording, stopRecording }), [dropBalls, dropAllPlayers, startRecording, stopRecording])
 
   // Desktop: track cursor position for the aim guide and drop-from-cursor.
   // Skipped on touch devices — synthetic mousemove from taps would lock the aim
