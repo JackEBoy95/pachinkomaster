@@ -1,9 +1,9 @@
 import { useRef, useCallback, useState, useEffect } from 'react'
 
 const SOUND_FILES = {
-  pegHit:    '/sounds/peg-hit.mp3',
+  pegHit:    '/sounds/mixkit-neutral-bot-pinbal-tone-3137.wav',
   ballLand:  '/sounds/ball-land.mp3',
-  fanfare:   '/sounds/result-fanfare.mp3',
+  fanfare:   '/sounds/mixkit-happy-crowd-cheer-975.wav',
   bgMusic:   '/sounds/bg-music.mp3',
 }
 
