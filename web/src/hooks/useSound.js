@@ -14,8 +14,31 @@ export function useSound() {
 
   const buffers  = useRef({})
   const ctxRef   = useRef(null)
-  const bgRef    = useRef(null)   // background music Audio element
-  const lastHit  = useRef(0)      // throttle peg hits
+  const bgRef    = useRef(null)
+  const lastHit  = useRef(0)
+
+  const getCtx = useCallback(() => {
+    if (!ctxRef.current) {
+      ctxRef.current = new (window.AudioContext || window.webkitAudioContext)()
+    }
+    return ctxRef.current
+  }, [])
+
+  // Unlock AudioContext on the first user touch/click — required on iOS/Android.
+  // Must happen synchronously inside the event handler to stay within the
+  // browser's user-activation window.
+  useEffect(() => {
+    const unlock = () => {
+      const ctx = getCtx()
+      if (ctx.state === 'suspended') ctx.resume()
+    }
+    document.addEventListener('touchstart', unlock, { once: true, passive: true })
+    document.addEventListener('click',      unlock, { once: true })
+    return () => {
+      document.removeEventListener('touchstart', unlock)
+      document.removeEventListener('click',      unlock)
+    }
+  }, [getCtx])
 
   // Check which sound files actually exist
   useEffect(() => {
@@ -27,38 +50,28 @@ export function useSound() {
         return [key, false]
       }
     })
-    Promise.all(checks).then(results => {
-      setFilesReady(Object.fromEntries(results))
+    Promise.all(checks).then(results => setFilesReady(Object.fromEntries(results)))
+  }, [])
+
+  // Eagerly decode all available buffers so playback is fully synchronous.
+  useEffect(() => {
+    const ctx = getCtx()
+    Object.entries(filesReady).forEach(([key, ready]) => {
+      if (!ready || buffers.current[key]) return
+      fetch(SOUND_FILES[key])
+        .then(r => r.arrayBuffer())
+        .then(arr => ctx.decodeAudioData(arr))
+        .then(buf => { buffers.current[key] = buf })
+        .catch(() => {})
     })
-  }, [])
-
-  const getCtx = useCallback(() => {
-    if (!ctxRef.current) {
-      ctxRef.current = new (window.AudioContext || window.webkitAudioContext)()
-    }
-    return ctxRef.current
-  }, [])
-
-  const loadBuffer = useCallback(async (key) => {
-    if (buffers.current[key]) return buffers.current[key]
-    if (!filesReady[key]) return null
-    try {
-      const ctx = getCtx()
-      const res = await fetch(SOUND_FILES[key])
-      const arr = await res.arrayBuffer()
-      const buf = await ctx.decodeAudioData(arr)
-      buffers.current[key] = buf
-      return buf
-    } catch {
-      return null
-    }
   }, [filesReady, getCtx])
 
-  const playBuffer = useCallback(async (key, volume = 1.0) => {
-    const buf = await loadBuffer(key)
+  // Synchronous — relies on buffers being pre-loaded above.
+  const playBuffer = useCallback((key, volume = 1.0) => {
+    const buf = buffers.current[key]
     if (!buf) return
     const ctx = getCtx()
-    if (ctx.state === 'suspended') await ctx.resume()
+    if (ctx.state === 'suspended') return  // not yet unlocked
     const source = ctx.createBufferSource()
     const gain   = ctx.createGain()
     gain.gain.value = volume
@@ -66,13 +79,13 @@ export function useSound() {
     source.connect(gain)
     gain.connect(ctx.destination)
     source.start()
-  }, [loadBuffer, getCtx])
+  }, [getCtx])
 
-  // ── Public API ──────────────────────────────
+  // ── Public API ───────────────────────────────
   const playPegHit = useCallback(() => {
     if (!sfxEnabled || !filesReady.pegHit) return
     const now = Date.now()
-    if (now - lastHit.current < 60) return  // throttle rapid hits
+    if (now - lastHit.current < 60) return
     lastHit.current = now
     playBuffer('pegHit', 0.4)
   }, [sfxEnabled, filesReady, playBuffer])
@@ -86,6 +99,12 @@ export function useSound() {
     if (!sfxEnabled || !filesReady.fanfare) return
     playBuffer('fanfare', 1.0)
   }, [sfxEnabled, filesReady, playBuffer])
+
+  const toggleSfx = useCallback(() => {
+    const ctx = getCtx()
+    if (ctx.state === 'suspended') ctx.resume()
+    setSfxEnabled(v => !v)
+  }, [getCtx])
 
   const toggleMusic = useCallback(() => {
     if (!filesReady.bgMusic) return
@@ -104,13 +123,6 @@ export function useSound() {
       return next
     })
   }, [filesReady])
-
-  const toggleSfx = useCallback(() => {
-    // Resume AudioContext on first user gesture (required on mobile)
-    if (ctxRef.current?.state === 'suspended') ctxRef.current.resume()
-    if (!ctxRef.current) ctxRef.current = new (window.AudioContext || window.webkitAudioContext)()
-    setSfxEnabled(v => !v)
-  }, [])
 
   const anyFilesReady = Object.values(filesReady).some(Boolean)
 
