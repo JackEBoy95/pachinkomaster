@@ -8,8 +8,8 @@ const SOUND_FILES = {
 }
 
 // Max concurrent peg-hit voices — prevents audio overload on big drops
-const MAX_PEG_VOICES = 1
-const PEG_THROTTLE_MS = 80
+const MAX_PEG_VOICES = 3
+const PEG_THROTTLE_MS = 40
 
 export function useSound() {
   const [sfxEnabled, setSfxEnabled]     = useState(true)
