@@ -85,7 +85,7 @@ function rescueBall(ball, W) {
 }
 
 const PhysicsBoard = forwardRef(function PhysicsBoard(
-  { prizes, activePlayer, onBallLanded, onDropAborted, onRecordingReady, speed, ballSize, pegDensity, bounciness, onPegHit, skin, lightMode, locked, overlayShown },
+  { prizes, activePlayer, onBallLanded, onDropAborted, onRecordingReady, recordingResult, speed, ballSize, pegDensity, bounciness, onPegHit, skin, lightMode, locked, overlayShown },
   ref
 ) {
   const containerRef     = useRef(null)
@@ -115,10 +115,13 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const mediaRecorderRef     = useRef(null)
   const recordingChunksRef   = useRef([])
   const recordingRef         = useRef(false)
+  const recordingStartRef    = useRef(0)
   const onRecordingReadyRef  = useRef(onRecordingReady)
+  const recordingResultRef   = useRef(recordingResult)
   const startRecordingRef    = useRef(null)
   const stopTimerRef         = useRef(null)
-  useEffect(() => { onRecordingReadyRef.current = onRecordingReady }, [onRecordingReady])
+  useEffect(() => { onRecordingReadyRef.current  = onRecordingReady  }, [onRecordingReady])
+  useEffect(() => { recordingResultRef.current   = recordingResult   }, [recordingResult])
   const [dropping, setDropping]   = useState(false)
   const [resizeKey, setResizeKey] = useState(0)  // increments → triggers engine rebuild on resize
 
@@ -287,8 +290,20 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
               setDropping(false)
               stopTimerRef.current = setTimeout(() => {
                 stopTimerRef.current = null
-                if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
-              }, 1200)
+                if (mediaRecorderRef.current?.state !== 'recording') return
+                // Enforce minimum 2s of recorded content regardless of how
+                // fast the ball dropped — absorbs any premature stop calls.
+                const elapsed = Date.now() - recordingStartRef.current
+                const remaining = Math.max(0, 2000 - elapsed)
+                if (remaining > 0) {
+                  stopTimerRef.current = setTimeout(() => {
+                    stopTimerRef.current = null
+                    if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
+                  }, remaining)
+                } else {
+                  mediaRecorderRef.current.stop()
+                }
+              }, 2500)
             }
           }, 350)
         }
@@ -584,16 +599,51 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         }
       })
 
-      // Watermark — only rendered during active recording
+      // Watermark + result banner — only during active recording
       if (recordingRef.current) {
         ctx.save()
         ctx.globalAlpha = 0.5
         ctx.fillStyle = cssVars.isLightMode ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.7)'
         ctx.font = 'bold 13px Rajdhani, system-ui, sans-serif'
-        ctx.textAlign = 'right'
-        ctx.textBaseline = 'bottom'
+        ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'
         ctx.fillText('pachinkomaster.com', W - 8, H - SLOT_H - 6)
         ctx.restore()
+
+        // Result banner — drawn on canvas so it appears in the clip
+        const res = recordingResultRef.current
+        if (res && overlayShownRef.current) {
+          const winner = res.roundWinner ?? res.player
+          const prize  = res.roundWinner
+            ? (res.roundResults?.find(r => r.player.id === res.roundWinner.id)?.prize)
+            : res.prize
+          if (winner && prize) {
+            const bh = 64, by = H / 2 - bh / 2
+            ctx.save()
+            ctx.globalAlpha = 0.88
+            ctx.fillStyle = 'rgba(0,0,0,0.72)'
+            ctx.beginPath()
+            const rad = 14
+            ctx.roundRect(16, by, W - 32, bh, rad)
+            ctx.fill()
+            // Player colour strip
+            ctx.globalAlpha = 1
+            ctx.fillStyle = winner.color
+            ctx.beginPath()
+            ctx.roundRect(16, by, 6, bh, [rad, 0, 0, rad])
+            ctx.fill()
+            // Name
+            ctx.fillStyle = winner.color
+            ctx.font = `bold ${Math.min(22, W * 0.055)}px Rajdhani, system-ui, sans-serif`
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'
+            ctx.fillText(winner.name, 30, by + bh * 0.35)
+            // Prize
+            ctx.fillStyle = '#ffffff'
+            ctx.globalAlpha = 0.9
+            ctx.font = `${Math.min(16, W * 0.04)}px Rajdhani, system-ui, sans-serif`
+            ctx.fillText(`${prize.label}  +${prize.points}pts`, 30, by + bh * 0.7)
+            ctx.restore()
+          }
+        }
       }
     }
     draw()
@@ -817,7 +867,8 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       }
       mr.start(200)
       mediaRecorderRef.current = mr
-      recordingRef.current = true
+      recordingRef.current  = true
+      recordingStartRef.current = Date.now()
     } catch { recordingRef.current = false }
   }, [])
   startRecordingRef.current = startRecording

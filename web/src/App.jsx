@@ -510,6 +510,7 @@ export default function App() {
               onBallLanded={handleBallLanded}
               onDropAborted={handleDropAborted}
               onRecordingReady={setClipBlob}
+              recordingResult={result}
               speed={speed}
               ballSize={ballSize}
               pegDensity={pegDensity}
