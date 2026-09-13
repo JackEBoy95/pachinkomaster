@@ -8,7 +8,7 @@ const SOUND_FILES = {
 }
 
 export function useSound() {
-  const [sfxEnabled, setSfxEnabled]     = useState(false)
+  const [sfxEnabled, setSfxEnabled]     = useState(true)
   const [musicEnabled, setMusicEnabled] = useState(false)
   const [filesReady, setFilesReady]     = useState({})
 
