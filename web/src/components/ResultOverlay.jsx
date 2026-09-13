@@ -215,11 +215,9 @@ function ClipPreview({ clipBlob, onClearClip }) {
   if (!clipUrl) return null
 
   function handleDownload() {
-    const ext = clipBlob.type.startsWith('video/mp4') ? 'mp4' : 'webm'
     const a = document.createElement('a')
-    a.href = clipUrl; a.download = `pachinko-moment.${ext}`
+    a.href = clipUrl; a.download = 'pachinko-moment.webm'
     a.click()
-    onClearClip?.()
   }
 
   return (
@@ -233,8 +231,9 @@ function ClipPreview({ clipBlob, onClearClip }) {
         playsInline
       />
       <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleDownload}>
-        ⬇️ Download Clip
+        ⬇️ Save Clip
       </button>
+      <span className={styles.clipNote}>Opens in Chrome or VLC · not QuickTime</span>
     </div>
   )
 }

@@ -135,7 +135,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   useEffect(() => { bouncinessRef.current     = bounciness     }, [bounciness])
   useEffect(() => { onPegHitRef.current       = onPegHit       }, [onPegHit])
   useEffect(() => { onDropAbortedRef.current  = onDropAborted  }, [onDropAborted])
-  useEffect(() => { overlayShownRef.current   = overlayShown   }, [overlayShown])
+  useEffect(() => { overlayShownRef.current = overlayShown }, [overlayShown])
 
   // ── Peg grid ──────────────────────────────────────────────────────────────
   // Even rows: `cols` pegs spanning right up to the walls
@@ -282,6 +282,9 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
             if (isLast) {
               droppingRef.current = false
               setDropping(false)
+              setTimeout(() => {
+                if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
+              }, 1200)
             }
           }, 350)
         }
@@ -340,7 +343,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       // Pause physics + canvas when result overlay is visible — the overlay
       // covers the board entirely so there's nothing to render, and this
       // eliminates the main source of GPU load that made the confetti slow.
-      if (overlayShownRef.current) return
+      if (overlayShownRef.current && !recordingRef.current) return
       Matter.Runner.tick(runner, engine, 1000 / 60)
       const ctx = canvas.getContext('2d')
       // Reset to DPR-scaled identity each frame so CSS-pixel coordinates from
@@ -785,17 +788,17 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const startRecording = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas || typeof canvas.captureStream !== 'function') return
-    if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.onstop = null
+      mediaRecorderRef.current.stop()
+    }
     recordingChunksRef.current = []
     const stream = canvas.captureStream(30)
-    // Prefer MP4 (plays on macOS natively), fall back to WebM
     const mimeType =
-      MediaRecorder.isTypeSupported('video/mp4;codecs=avc1')  ? 'video/mp4;codecs=avc1'  :
-      MediaRecorder.isTypeSupported('video/mp4')              ? 'video/mp4'               :
       MediaRecorder.isTypeSupported('video/webm;codecs=vp9')  ? 'video/webm;codecs=vp9'  :
       MediaRecorder.isTypeSupported('video/webm;codecs=vp8')  ? 'video/webm;codecs=vp8'  :
                                                                  'video/webm'
-    const blobType = mimeType.split(';')[0]  // strip codec params for the Blob type
+    const blobType = mimeType.split(';')[0]
     try {
       const mr = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 2_500_000 })
       mr.ondataavailable = e => { if (e.data.size > 0) recordingChunksRef.current.push(e.data) }

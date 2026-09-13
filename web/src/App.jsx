@@ -154,7 +154,6 @@ export default function App() {
     playBallLand()
     if (isLast) {
       theatreInFlightRef.current = false
-      boardRef.current?.stopRecording(600)
     }
 
     if (tournamentRef.current && playerId != null) {
