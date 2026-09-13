@@ -129,12 +129,14 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const bouncinessRef   = useRef(bounciness)
   const onPegHitRef       = useRef(onPegHit)
   const onDropAbortedRef  = useRef(onDropAborted)
+  const onBallLandedRef   = useRef(onBallLanded)
   useEffect(() => { prizesRef.current         = prizes         }, [prizes])
   useEffect(() => { activePlayerRef.current   = activePlayer   }, [activePlayer])
   useEffect(() => { speedRef.current          = speed          }, [speed])
   useEffect(() => { ballSizeRef.current       = ballSize       }, [ballSize])
   useEffect(() => { bouncinessRef.current     = bounciness     }, [bounciness])
   useEffect(() => { onPegHitRef.current       = onPegHit       }, [onPegHit])
+  useEffect(() => { onBallLandedRef.current   = onBallLanded   }, [onBallLanded])
   useEffect(() => { onDropAbortedRef.current  = onDropAborted  }, [onDropAborted])
   useEffect(() => { overlayShownRef.current = overlayShown }, [overlayShown])
 
@@ -279,7 +281,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
           if (next) spawnBall(next.x, next.player)
 
           setTimeout(() => {
-            onBallLanded(idx, ball.playerId ?? null, isLast)
+            onBallLandedRef.current(idx, ball.playerId ?? null, isLast)
             if (isLast) {
               droppingRef.current = false
               setDropping(false)
@@ -647,7 +649,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       spawnQueueRef.current = []
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prizes.length, ballSize, pegDensity, bounciness, buildPegs, onBallLanded, resizeKey])
+  }, [prizes.length, ballSize, pegDensity, bounciness, buildPegs, resizeKey])
 
   // ── Spawn one ball ────────────────────────────────────────────────────────
   // All balls spawn from the SAME x/y position.
@@ -788,9 +790,8 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   }, [spawnBall])
 
   const startRecording = useCallback(() => {
-    // Skip on touch/mobile — VP9 encoding is too CPU-intensive and slows physics.
-    // Mobile users can use the OS screen recorder instead.
-    if (isTouchRef.current) return
+    // Skip on touch/mobile — VP9 encoding slows physics on mobile.
+    if (navigator.maxTouchPoints > 0) return
     const canvas = canvasRef.current
     if (!canvas || typeof canvas.captureStream !== 'function') return
     // Cancel any pending stop timer from a previous drop
