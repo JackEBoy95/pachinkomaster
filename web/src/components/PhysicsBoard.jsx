@@ -284,25 +284,21 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
           if (next) spawnBall(next.x, next.player)
 
           setTimeout(() => {
-            onBallLandedRef.current(idx, ball.playerId ?? null, isLast)
+            // Reset dropping state FIRST so a throw in the callback never leaves
+            // the board permanently locked.
             if (isLast) {
               droppingRef.current = false
               setDropping(false)
+            }
+            try {
+              onBallLandedRef.current(idx, ball.playerId ?? null, isLast)
+            } catch (err) {
+              console.error('[PhysicsBoard] onBallLanded threw', err)
+            }
+            if (isLast) {
               stopTimerRef.current = setTimeout(() => {
                 stopTimerRef.current = null
-                if (mediaRecorderRef.current?.state !== 'recording') return
-                // Enforce minimum 2s of recorded content regardless of how
-                // fast the ball dropped — absorbs any premature stop calls.
-                const elapsed = Date.now() - recordingStartRef.current
-                const remaining = Math.max(0, 2000 - elapsed)
-                if (remaining > 0) {
-                  stopTimerRef.current = setTimeout(() => {
-                    stopTimerRef.current = null
-                    if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
-                  }, remaining)
-                } else {
-                  mediaRecorderRef.current.stop()
-                }
+                if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
               }, 2500)
             }
           }, 350)
@@ -850,7 +846,11 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       mediaRecorderRef.current.onstop = null
       mediaRecorderRef.current.stop()
     }
-    recordingChunksRef.current = []
+    // Use a local chunks array closed over by this recorder's callbacks.
+    // This prevents a subsequent startRecording() call from clearing chunks
+    // that belong to this recorder before its onstop has fired.
+    const chunks = []
+    recordingChunksRef.current = chunks
     const stream = canvas.captureStream(30)
     const mimeType =
       MediaRecorder.isTypeSupported('video/webm;codecs=vp9')  ? 'video/webm;codecs=vp9'  :
@@ -859,10 +859,10 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     const blobType = mimeType.split(';')[0]
     try {
       const mr = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 2_500_000 })
-      mr.ondataavailable = e => { if (e.data.size > 0) recordingChunksRef.current.push(e.data) }
+      mr.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data) }
       mr.onstop = () => {
         recordingRef.current = false
-        const blob = new Blob(recordingChunksRef.current, { type: blobType })
+        const blob = new Blob(chunks, { type: blobType })
         onRecordingReadyRef.current?.(blob)
       }
       mr.start(200)

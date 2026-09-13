@@ -755,6 +755,8 @@ export default function App() {
         roundResult={tournament?.roundResult ?? null}
         onNext={handleDismissTournamentRound}
         onCancel={cancelTournament}
+        clipBlob={clipBlob}
+        onClearClip={() => setClipBlob(null)}
       />
 
       {/* Knockout overlays */}
@@ -762,6 +764,8 @@ export default function App() {
         <QualifyingResultCard
           result={knockout.qualifyingResult}
           onNext={handleDismissKnockout}
+          clipBlob={clipBlob}
+          onClearClip={() => setClipBlob(null)}
         />
       )}
       {isKnockoutActive && knockout?.bracket?.matchResult && (() => {
@@ -782,6 +786,8 @@ export default function App() {
             totalMatches={totalMatches}
             knockout={knockout}
             onNext={handleDismissKnockout}
+            clipBlob={clipBlob}
+            onClearClip={() => setClipBlob(null)}
           />
         )
       })()}

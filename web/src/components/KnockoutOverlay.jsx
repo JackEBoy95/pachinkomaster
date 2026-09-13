@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import styles from './KnockoutOverlay.module.css'
+import { ClipPreview } from './ResultOverlay'
 
 const TWEMOJI_CDN = 'https://twemoji.maxcdn.com/v/latest/svg'
 const twemojiUrl  = cp => `${TWEMOJI_CDN}/${cp.toLowerCase()}.svg`
@@ -48,7 +49,7 @@ function lighten(hex) {
 
 // ── Qualifying result card ────────────────────────────────────────────────────
 
-export function QualifyingResultCard({ result, onNext }) {
+export function QualifyingResultCard({ result, onNext, clipBlob, onClearClip }) {
   if (!result) return null
   const { advancers, eliminated, bracketSize } = result
 
@@ -89,6 +90,7 @@ export function QualifyingResultCard({ result, onNext }) {
           </div>
         </div>
 
+        <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} />
         <div className={styles.actions}>
           <button className={`btn-primary ${styles.nextBtn}`} onClick={onNext}>
             BUILD BRACKET →
@@ -136,7 +138,7 @@ function exportResultsCSV(knockout) {
 
 // ── Match result card ─────────────────────────────────────────────────────────
 
-export const MatchResultCard = memo(function MatchResultCard({ matchResult, roundName, matchNumber, totalMatches, knockout, onNext }) {
+export const MatchResultCard = memo(function MatchResultCard({ matchResult, roundName, matchNumber, totalMatches, knockout, onNext, clipBlob, onClearClip }) {
   if (!matchResult) return null
   const { match, winner, loser, score1, score2, isComplete } = matchResult
 
@@ -164,6 +166,7 @@ export const MatchResultCard = memo(function MatchResultCard({ matchResult, roun
           </div>
         )}
 
+        <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} />
         <div className={styles.actions}>
           {isComplete && (
             <button className={`btn-secondary ${styles.exportBtn}`} onClick={() => exportResultsCSV(knockout)}>

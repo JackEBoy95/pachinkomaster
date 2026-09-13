@@ -208,7 +208,7 @@ function MultiDropCard({ result, onDismiss, clipBlob, onClearClip }) {
 }
 
 // ── Clip preview + download ───────────────────────────────────────────────────
-function ClipPreview({ clipBlob, onClearClip }) {
+export function ClipPreview({ clipBlob, onClearClip }) {
   const clipUrl = useMemo(() => clipBlob ? URL.createObjectURL(clipBlob) : null, [clipBlob])
   useEffect(() => () => { if (clipUrl) URL.revokeObjectURL(clipUrl) }, [clipUrl])
 
