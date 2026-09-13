@@ -7,7 +7,8 @@ const SOUND_FILES = {
   bgMusic:   '/sounds/bg-music.mp3',
 }
 
-const MAX_PEG_VOICES = 7
+const MAX_PEG_VOICES  = 7
+const PEG_DEDUP_MS   = 10  // collapse simultaneous peg hits into one sound
 
 export function useSound() {
   const [sfxEnabled, setSfxEnabled]     = useState(true)
@@ -21,11 +22,12 @@ export function useSound() {
   useEffect(() => { sfxEnabledRef.current  = sfxEnabled  }, [sfxEnabled])
   useEffect(() => { filesReadyRef.current  = filesReady  }, [filesReady])
 
-  const rawBuffers  = useRef({})
-  const buffers     = useRef({})
-  const ctxRef      = useRef(null)
-  const bgRef       = useRef(null)
-  const pegVoices   = useRef(0)
+  const rawBuffers   = useRef({})
+  const buffers      = useRef({})
+  const ctxRef       = useRef(null)
+  const bgRef        = useRef(null)
+  const pegVoices    = useRef(0)
+  const lastPegHitMs = useRef(0)  // timestamp of most-recent peg-hit play
 
   // Fetch raw bytes (no AudioContext needed)
   useEffect(() => {
@@ -92,6 +94,10 @@ export function useSound() {
   // ── Public API — stable references, read state via refs ─────────────────
   const playPegHit = useCallback(() => {
     if (!sfxEnabledRef.current || !filesReadyRef.current.pegHit) return
+    // Deduplicate: multiple balls hitting pegs within PEG_DEDUP_MS play as one sound
+    const now = performance.now()
+    if (now - lastPegHitMs.current < PEG_DEDUP_MS) return
+    lastPegHitMs.current = now
     if (pegVoices.current >= MAX_PEG_VOICES) return
     pegVoices.current++
     playBuffer('pegHit', 0.35, () => { pegVoices.current-- })

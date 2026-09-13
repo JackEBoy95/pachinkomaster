@@ -209,8 +209,24 @@ function MultiDropCard({ result, onDismiss, clipBlob, onClearClip }) {
 
 // ── Clip preview + download ───────────────────────────────────────────────────
 export function ClipPreview({ clipBlob, onClearClip }) {
-  const clipUrl = useMemo(() => clipBlob ? URL.createObjectURL(clipBlob) : null, [clipBlob])
+  const videoRef = useRef(null)
+  const clipUrl  = useMemo(() => clipBlob ? URL.createObjectURL(clipBlob) : null, [clipBlob])
   useEffect(() => () => { if (clipUrl) URL.revokeObjectURL(clipUrl) }, [clipUrl])
+
+  // Chrome's MediaRecorder produces WebM with duration=Infinity. A <video loop>
+  // with infinite duration loops after the first buffered segment (~200ms) instead
+  // of at the real end. Fix: on loadedmetadata, if duration is Infinity, seek to a
+  // huge timestamp — that forces the browser to scan to the true end, then seek
+  // back to 0 and play normally.
+  function handleLoadedMetadata() {
+    const v = videoRef.current
+    if (!v) return
+    if (v.duration === Infinity || isNaN(v.duration)) {
+      v.currentTime = 1e101
+      const restore = () => { v.currentTime = 0; v.removeEventListener('timeupdate', restore) }
+      v.addEventListener('timeupdate', restore)
+    }
+  }
 
   if (!clipUrl) return null
 
@@ -223,12 +239,14 @@ export function ClipPreview({ clipBlob, onClearClip }) {
   return (
     <div className={styles.clipWrap}>
       <video
+        ref={videoRef}
         src={clipUrl}
         className={styles.clipVideo}
         autoPlay
         loop
         muted
         playsInline
+        onLoadedMetadata={handleLoadedMetadata}
       />
       <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleDownload}>
         ⬇️ Save Clip
