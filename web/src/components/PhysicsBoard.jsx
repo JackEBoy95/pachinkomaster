@@ -786,6 +786,9 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   }, [spawnBall])
 
   const startRecording = useCallback(() => {
+    // Skip on touch/mobile — VP9 encoding is too CPU-intensive and slows physics.
+    // Mobile users can use the OS screen recorder instead.
+    if (isTouchRef.current) return
     const canvas = canvasRef.current
     if (!canvas || typeof canvas.captureStream !== 'function') return
     if (mediaRecorderRef.current?.state === 'recording') {
