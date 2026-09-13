@@ -117,6 +117,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const recordingRef         = useRef(false)
   const onRecordingReadyRef  = useRef(onRecordingReady)
   const startRecordingRef    = useRef(null)
+  const stopTimerRef         = useRef(null)
   useEffect(() => { onRecordingReadyRef.current = onRecordingReady }, [onRecordingReady])
   const [dropping, setDropping]   = useState(false)
   const [resizeKey, setResizeKey] = useState(0)  // increments → triggers engine rebuild on resize
@@ -282,7 +283,8 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
             if (isLast) {
               droppingRef.current = false
               setDropping(false)
-              setTimeout(() => {
+              stopTimerRef.current = setTimeout(() => {
+                stopTimerRef.current = null
                 if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
               }, 1200)
             }
@@ -791,6 +793,8 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     if (isTouchRef.current) return
     const canvas = canvasRef.current
     if (!canvas || typeof canvas.captureStream !== 'function') return
+    // Cancel any pending stop timer from a previous drop
+    if (stopTimerRef.current) { clearTimeout(stopTimerRef.current); stopTimerRef.current = null }
     if (mediaRecorderRef.current?.state === 'recording') {
       mediaRecorderRef.current.onstop = null
       mediaRecorderRef.current.stop()
