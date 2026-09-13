@@ -69,7 +69,7 @@ export default function App() {
     processMatch, dismissMatchResult, cancelKnockout,
   } = useKnockoutTournament()
 
-  const { playPegHit, playBallLand, playFanfare } = useSound()
+  const { playPegHit, playBallLand, playFanfare, toggleSfx, sfxEnabled, anyFilesReady } = useSound()
 
   // Total balls per drop capped at 200 total — derived after players is available
   const maxBallCount = Math.max(1, Math.floor(200 / Math.max(1, players.length)))
@@ -424,6 +424,17 @@ export default function App() {
           >
             🎮 Games
           </button>
+
+          {anyFilesReady && (
+            <button
+              className={`${styles.modeToggle} ${sfxEnabled ? '' : styles.modeToggleLight}`}
+              onClick={toggleSfx}
+              title={sfxEnabled ? 'Mute sounds' : 'Enable sounds'}
+            >
+              <span>{sfxEnabled ? '🔊' : '🔇'}</span>
+              <span className={styles.modeToggleLabel}>{sfxEnabled ? 'Sound' : 'Muted'}</span>
+            </button>
+          )}
 
           <button
             className={`${styles.modeToggle} ${lightMode ? styles.modeToggleLight : ''}`}

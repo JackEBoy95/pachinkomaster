@@ -105,7 +105,12 @@ export function useSound() {
     })
   }, [filesReady])
 
-  const toggleSfx = useCallback(() => setSfxEnabled(v => !v), [])
+  const toggleSfx = useCallback(() => {
+    // Resume AudioContext on first user gesture (required on mobile)
+    if (ctxRef.current?.state === 'suspended') ctxRef.current.resume()
+    if (!ctxRef.current) ctxRef.current = new (window.AudioContext || window.webkitAudioContext)()
+    setSfxEnabled(v => !v)
+  }, [])
 
   const anyFilesReady = Object.values(filesReady).some(Boolean)
 
