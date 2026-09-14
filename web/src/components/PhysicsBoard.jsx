@@ -257,6 +257,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
 
     const runner = Matter.Runner.create()
     runnerRef.current = runner
+    Matter.Runner.run(runner, engine)
 
     Matter.Events.on(engine, 'collisionStart', ({ pairs }) => {
       pairs.forEach(({ bodyA, bodyB }) => {
@@ -360,7 +361,6 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       // covers the board entirely so there's nothing to render, and this
       // eliminates the main source of GPU load that made the confetti slow.
       if (overlayShownRef.current && !recordingRef.current) return
-      Matter.Runner.tick(runner, engine, 1000 / 60)
       const ctx = canvas.getContext('2d')
       // Reset to DPR-scaled identity each frame so CSS-pixel coordinates from
       // Matter.js map cleanly to physical pixels. setTransform replaces the
