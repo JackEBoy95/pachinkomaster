@@ -213,20 +213,22 @@ export function ClipPreview({ clipBlob, onClearClip }) {
   const clipUrl  = useMemo(() => clipBlob ? URL.createObjectURL(clipBlob) : null, [clipBlob])
   useEffect(() => () => { if (clipUrl) URL.revokeObjectURL(clipUrl) }, [clipUrl])
 
-  // Chrome's MediaRecorder produces WebM with duration=Infinity. A <video loop>
-  // with infinite duration loops after the first buffered segment (~200ms) instead
-  // of at the real end. Fix: on loadedmetadata, if duration is Infinity, seek to a
-  // huge timestamp — that forces the browser to scan to the true end, then seek
-  // back to 0 and play normally.
-  function handleLoadedMetadata() {
+  // Chrome MediaRecorder WebM files have duration=Infinity, which causes <video loop>
+  // to restart after the first buffered segment (~200ms) instead of at the real end.
+  // Fix: once metadata loads and we detect Infinity, seek past the end so Chrome
+  // scans to find the true duration, then jump back to 0 and resume playback.
+  useEffect(() => {
     const v = videoRef.current
-    if (!v) return
-    if (v.duration === Infinity || isNaN(v.duration)) {
+    if (!v || !clipUrl) return
+    const onMeta = () => {
+      if (v.duration !== Infinity && !isNaN(v.duration)) return
+      const onSeeked = () => { v.currentTime = 0; v.play().catch(() => {}) }
+      v.addEventListener('seeked', onSeeked, { once: true })
       v.currentTime = 1e101
-      const restore = () => { v.currentTime = 0; v.removeEventListener('timeupdate', restore) }
-      v.addEventListener('timeupdate', restore)
     }
-  }
+    v.addEventListener('loadedmetadata', onMeta, { once: true })
+    return () => v.removeEventListener('loadedmetadata', onMeta)
+  }, [clipUrl])
 
   if (!clipUrl) return null
 
@@ -246,7 +248,6 @@ export function ClipPreview({ clipBlob, onClearClip }) {
         loop
         muted
         playsInline
-        onLoadedMetadata={handleLoadedMetadata}
       />
       <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleDownload}>
         ⬇️ Save Clip

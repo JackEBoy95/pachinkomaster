@@ -298,6 +298,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
             if (isLast) {
               stopTimerRef.current = setTimeout(() => {
                 stopTimerRef.current = null
+                console.log('[clip] stop timer fired, state=', mediaRecorderRef.current?.state)
                 if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
               }, 2500)
             }
@@ -843,6 +844,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     // Cancel any pending stop timer from a previous drop
     if (stopTimerRef.current) { clearTimeout(stopTimerRef.current); stopTimerRef.current = null }
     if (mediaRecorderRef.current?.state === 'recording') {
+      console.log('[clip] startRecording cancelled previous recorder')
       mediaRecorderRef.current.onstop = null
       mediaRecorderRef.current.stop()
     }
@@ -862,14 +864,17 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       mr.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data) }
       mr.onstop = () => {
         recordingRef.current = false
+        const durationMs = Date.now() - recordingStartRef.current
         const blob = new Blob(chunks, { type: blobType })
+        console.log(`[clip] onstop: chunks=${chunks.length} blob=${(blob.size/1024).toFixed(1)}KB duration≈${durationMs}ms`)
         onRecordingReadyRef.current?.(blob)
       }
       mr.start(200)
       mediaRecorderRef.current = mr
       recordingRef.current  = true
       recordingStartRef.current = Date.now()
-    } catch { recordingRef.current = false }
+      console.log('[clip] startRecording started', mimeType)
+    } catch (e) { console.error('[clip] startRecording failed', e); recordingRef.current = false }
   }, [])
   startRecordingRef.current = startRecording
 
