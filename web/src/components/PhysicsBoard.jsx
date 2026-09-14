@@ -28,6 +28,12 @@ function preRasterize(src, img) {
 function getCachedImage(src) {
   if (imgCache.has(src)) return imgCache.get(src)
   const img = new Image()
+  // crossOrigin must be set before src so the CORS request fires correctly.
+  // Without it, drawing external SVGs (flags, twemoji) taints the canvas and
+  // captureStream() stops delivering frames to MediaRecorder.
+  if (src.startsWith('http://') || src.startsWith('https://')) {
+    img.crossOrigin = 'anonymous'
+  }
   img.src = src
   img.onload  = () => { img._ready = true; preRasterize(src, img) }
   img.onerror = () => { img._error = true }
@@ -42,6 +48,9 @@ function getPrizeImage(prize) {
   const cached = prizeImgCache.get(prize.id)
   if (cached && cached.src === prize.image) return cached.img
   const img = new Image()
+  if (prize.image.startsWith('http://') || prize.image.startsWith('https://')) {
+    img.crossOrigin = 'anonymous'
+  }
   img.src = prize.image
   img.onload = () => { img._ready = true }
   prizeImgCache.set(prize.id, { img, src: prize.image })
