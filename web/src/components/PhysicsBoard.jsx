@@ -117,6 +117,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const recordingChunksRef   = useRef([])
   const recordingRef         = useRef(false)
   const recordingStartRef    = useRef(0)
+  const recFrameCountRef     = useRef(0)
   const onRecordingReadyRef  = useRef(onRecordingReady)
   const recordingResultRef   = useRef(recordingResult)
   const startRecordingRef    = useRef(null)
@@ -601,6 +602,12 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       if (recordingRef.current && recCanvasRef.current) {
         const rc = recCanvasRef.current
         rc.getContext('2d').drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, rc.width, rc.height)
+        // Force a chunk every 12 frames (~5/s) so large long drops don't starve
+        // the timeslice mechanism under CPU pressure.
+        recFrameCountRef.current++
+        if (recFrameCountRef.current % 12 === 0 && mediaRecorderRef.current?.state === 'recording') {
+          mediaRecorderRef.current.requestData()
+        }
       }
 
       // Watermark + result banner — only during active recording
@@ -880,8 +887,8 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     // throttling). An off-DOM canvas is a pure software surface and delivers
     // frames consistently. Each draw loop copies the main canvas to it.
     const recCanvas = document.createElement('canvas')
-    recCanvas.width  = canvas.clientWidth  || canvas.width
-    recCanvas.height = canvas.clientHeight || canvas.height
+    recCanvas.width  = canvas.width
+    recCanvas.height = canvas.height
     recCanvasRef.current = recCanvas
     const stream = recCanvas.captureStream(30)
     const mimeType =
@@ -901,6 +908,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       mediaRecorderRef.current = mr
       recordingRef.current  = true
       recordingStartRef.current = Date.now()
+      recFrameCountRef.current = 0
     } catch (e) { console.error('[clip] startRecording failed', e); recordingRef.current = false }
   }, [])
   startRecordingRef.current = startRecording
