@@ -7,7 +7,7 @@ const SOUND_FILES = {
   bgMusic:   '/sounds/bg-music.mp3',
 }
 
-const MAX_PEG_VOICES = 10
+const MAX_PEG_VOICES = 7
 
 export function useSound() {
   const [sfxEnabled, setSfxEnabled]     = useState(true)

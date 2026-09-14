@@ -856,7 +856,6 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     recordingChunksRef.current = chunks
     const stream = canvas.captureStream(30)
     const mimeType =
-      MediaRecorder.isTypeSupported('video/webm;codecs=vp9')  ? 'video/webm;codecs=vp9'  :
       MediaRecorder.isTypeSupported('video/webm;codecs=vp8')  ? 'video/webm;codecs=vp8'  :
                                                                  'video/webm'
     const blobType = mimeType.split(';')[0]
