@@ -878,12 +878,13 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     const blobType = mimeType.split(';')[0]
     try {
       const mr = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 2_500_000 })
-      mr.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data) }
+      let totalEvents = 0
+      mr.ondataavailable = e => { totalEvents++; if (e.data.size > 0) chunks.push(e.data) }
       mr.onstop = () => {
         recordingRef.current = false
         const durationMs = Date.now() - recordingStartRef.current
         const blob = new Blob(chunks, { type: blobType })
-        console.log(`[clip] onstop: chunks=${chunks.length} blob=${(blob.size/1024).toFixed(1)}KB duration≈${durationMs}ms`)
+        console.log(`[clip] onstop: chunks=${chunks.length} blob=${(blob.size/1024).toFixed(1)}KB duration≈${durationMs}ms totalEvents=${totalEvents}`)
         onRecordingReadyRef.current?.(blob)
       }
       mr.start(200)
