@@ -837,8 +837,9 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   }, [spawnBall])
 
   const startRecording = useCallback(() => {
-    // Skip on touch/mobile — VP9 encoding slows physics on mobile.
-    if (navigator.maxTouchPoints > 0) return
+    // Skip on phones/tablets (coarse pointer, no hover) — VP9 encoding is too heavy.
+    // Using a media query instead of maxTouchPoints so touchscreen laptops still record.
+    if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return
     const canvas = canvasRef.current
     if (!canvas || typeof canvas.captureStream !== 'function') return
     // Cancel any pending stop timer from a previous drop
