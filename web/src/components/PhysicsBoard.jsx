@@ -355,12 +355,19 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
 
     // ── Draw loop ────────────────────────────────────────────────────────────
     let animId
+    let drawCount = 0; let lastDrawLog = 0
     const draw = () => {
       animId = requestAnimationFrame(draw)
       // Pause physics + canvas when result overlay is visible — the overlay
       // covers the board entirely so there's nothing to render, and this
       // eliminates the main source of GPU load that made the confetti slow.
       if (overlayShownRef.current && !recordingRef.current) return
+      drawCount++
+      const nowMs = Date.now()
+      if (recordingRef.current && nowMs - lastDrawLog >= 1000) {
+        console.log(`[clip] draw fps≈${drawCount} inFlight=${inFlightRef.current}`)
+        drawCount = 0; lastDrawLog = nowMs
+      }
       const ctx = canvas.getContext('2d')
       // Reset to DPR-scaled identity each frame so CSS-pixel coordinates from
       // Matter.js map cleanly to physical pixels. setTransform replaces the
@@ -877,9 +884,15 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
                                                                  'video/webm'
     const blobType = mimeType.split(';')[0]
     try {
+      const trackStartMs = Date.now()
+      stream.getTracks().forEach(t => {
+        t.onended = () => console.log(`[clip] TRACK ENDED at +${Date.now() - trackStartMs}ms`)
+        t.onmute   = () => console.log(`[clip] track muted  at +${Date.now() - trackStartMs}ms`)
+      })
       const mr = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 2_500_000 })
       let totalEvents = 0
       mr.ondataavailable = e => { totalEvents++; if (e.data.size > 0) chunks.push(e.data) }
+      mr.onerror = e => console.log('[clip] MediaRecorder error', e)
       mr.onstop = () => {
         recordingRef.current = false
         const durationMs = Date.now() - recordingStartRef.current
