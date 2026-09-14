@@ -113,6 +113,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const physicsWorldWRef = useRef(0)      // W used to build the current physics engine (walls, pegs)
   const overlayShownRef  = useRef(overlayShown)
   const mediaRecorderRef     = useRef(null)
+  const captureTrackRef      = useRef(null)
   const recordingChunksRef   = useRef([])
   const recordingRef         = useRef(false)
   const recordingStartRef    = useRef(0)
@@ -603,6 +604,9 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         }
       })
 
+      // Push this frame into the captureStream (manual mode, captureStream(0))
+      captureTrackRef.current?.requestFrame()
+
       // Watermark + result banner — only during active recording
       if (recordingRef.current) {
         const now = Date.now()
@@ -878,7 +882,11 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     // that belong to this recorder before its onstop has fired.
     const chunks = []
     recordingChunksRef.current = chunks
-    const stream = canvas.captureStream(30)
+    // captureStream(0) = manual capture; we call requestFrame() each draw
+    // so every RAF paint is guaranteed to land in the stream, regardless of
+    // Chrome's internal scheduler which throttles captureStream(N) under load.
+    const stream = canvas.captureStream(0)
+    captureTrackRef.current = stream.getVideoTracks()[0] ?? null
     const mimeType =
       MediaRecorder.isTypeSupported('video/webm;codecs=vp8')  ? 'video/webm;codecs=vp8'  :
                                                                  'video/webm'
@@ -895,6 +903,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       mr.onerror = e => console.log('[clip] MediaRecorder error', e)
       mr.onstop = () => {
         recordingRef.current = false
+        captureTrackRef.current = null
         const durationMs = Date.now() - recordingStartRef.current
         const blob = new Blob(chunks, { type: blobType })
         console.log(`[clip] onstop: chunks=${chunks.length} blob=${(blob.size/1024).toFixed(1)}KB duration≈${durationMs}ms totalEvents=${totalEvents}`)
