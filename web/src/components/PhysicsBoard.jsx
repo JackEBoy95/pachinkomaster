@@ -113,8 +113,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const physicsWorldWRef = useRef(0)      // W used to build the current physics engine (walls, pegs)
   const overlayShownRef  = useRef(overlayShown)
   const mediaRecorderRef     = useRef(null)
-  const captureStreamRef     = useRef(null)
-  const captureTrackRef      = useRef(null)
+  const recCanvasRef         = useRef(null)
   const recordingChunksRef   = useRef([])
   const recordingRef         = useRef(false)
   const recordingStartRef    = useRef(0)
@@ -357,19 +356,12 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
 
     // ── Draw loop ────────────────────────────────────────────────────────────
     let animId
-    let drawCount = 0; let lastDrawLog = 0
     const draw = () => {
       animId = requestAnimationFrame(draw)
       // Pause physics + canvas when result overlay is visible — the overlay
       // covers the board entirely so there's nothing to render, and this
       // eliminates the main source of GPU load that made the confetti slow.
       if (overlayShownRef.current && !recordingRef.current) return
-      drawCount++
-      const nowMs = Date.now()
-      if (recordingRef.current && nowMs - lastDrawLog >= 1000) {
-        console.log(`[clip] draw fps≈${drawCount} inFlight=${inFlightRef.current}`)
-        drawCount = 0; lastDrawLog = nowMs
-      }
       const ctx = canvas.getContext('2d')
       // Reset to DPR-scaled identity each frame so CSS-pixel coordinates from
       // Matter.js map cleanly to physical pixels. setTransform replaces the
@@ -605,8 +597,11 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         }
       })
 
-      // Push this frame into the captureStream (manual mode, captureStream(0))
-      captureTrackRef.current?.requestFrame()
+      // Mirror main canvas to the off-DOM recording canvas each frame
+      if (recordingRef.current && recCanvasRef.current) {
+        const rc = recCanvasRef.current
+        rc.getContext('2d').drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, rc.width, rc.height)
+      }
 
       // Watermark + result banner — only during active recording
       if (recordingRef.current) {
@@ -866,63 +861,46 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   }, [spawnBall])
 
   const startRecording = useCallback(() => {
-    // Skip on phones/tablets (coarse pointer, no hover) — VP9 encoding is too heavy.
+    // Skip on phones/tablets (coarse pointer, no hover) — encoding is too heavy.
     // Using a media query instead of maxTouchPoints so touchscreen laptops still record.
     if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return
     const canvas = canvasRef.current
     if (!canvas || typeof canvas.captureStream !== 'function') return
-    // Cancel any pending stop timer from a previous drop
     if (stopTimerRef.current) { clearTimeout(stopTimerRef.current); stopTimerRef.current = null }
     if (mediaRecorderRef.current?.state === 'recording') {
-      console.log('[clip] startRecording cancelled previous recorder')
       mediaRecorderRef.current.onstop = null
       mediaRecorderRef.current.stop()
     }
-    // Use a local chunks array closed over by this recorder's callbacks.
-    // This prevents a subsequent startRecording() call from clearing chunks
-    // that belong to this recorder before its onstop has fired.
+    // Local chunks array — prevents a subsequent startRecording() call from
+    // clearing the ref before this recorder's onstop has fired.
     const chunks = []
     recordingChunksRef.current = chunks
-    // Stop any previous captureStream — Chrome won't reliably deliver frames
-    // to a new stream while an old one from the same canvas is still open.
-    captureStreamRef.current?.getTracks().forEach(t => t.stop())
-    captureStreamRef.current = null
-    // captureStream(0) = manual capture; we call requestFrame() each draw
-    // so every RAF paint is guaranteed to land in the stream, regardless of
-    // Chrome's internal scheduler which throttles captureStream(N) under load.
-    const stream = canvas.captureStream(0)
-    captureStreamRef.current = stream
-    captureTrackRef.current = stream.getVideoTracks()[0] ?? null
-    console.log('[clip] captureTrack type:', captureTrackRef.current?.constructor?.name)
+    // Use a fresh off-DOM canvas as the capture source. Chrome's captureStream
+    // on the main DOM canvas is unreliable under load (compositor coverage, layer
+    // throttling). An off-DOM canvas is a pure software surface and delivers
+    // frames consistently. Each draw loop copies the main canvas to it.
+    const recCanvas = document.createElement('canvas')
+    recCanvas.width  = canvas.clientWidth  || canvas.width
+    recCanvas.height = canvas.clientHeight || canvas.height
+    recCanvasRef.current = recCanvas
+    const stream = recCanvas.captureStream(30)
     const mimeType =
-      MediaRecorder.isTypeSupported('video/webm;codecs=vp8')  ? 'video/webm;codecs=vp8'  :
-                                                                 'video/webm'
+      MediaRecorder.isTypeSupported('video/webm;codecs=vp8') ? 'video/webm;codecs=vp8' :
+                                                                'video/webm'
     const blobType = mimeType.split(';')[0]
     try {
-      const trackStartMs = Date.now()
-      stream.getTracks().forEach(t => {
-        t.onended = () => console.log(`[clip] TRACK ENDED at +${Date.now() - trackStartMs}ms`)
-        t.onmute   = () => console.log(`[clip] track muted  at +${Date.now() - trackStartMs}ms`)
-      })
       const mr = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 2_500_000 })
-      let totalEvents = 0
-      mr.ondataavailable = e => { totalEvents++; if (e.data.size > 0) chunks.push(e.data) }
-      mr.onerror = e => console.log('[clip] MediaRecorder error', e)
+      mr.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data) }
       mr.onstop = () => {
         recordingRef.current = false
-        captureTrackRef.current = null
-        captureStreamRef.current?.getTracks().forEach(t => t.stop())
-        captureStreamRef.current = null
-        const durationMs = Date.now() - recordingStartRef.current
+        recCanvasRef.current = null
         const blob = new Blob(chunks, { type: blobType })
-        console.log(`[clip] onstop: chunks=${chunks.length} blob=${(blob.size/1024).toFixed(1)}KB duration≈${durationMs}ms totalEvents=${totalEvents}`)
         onRecordingReadyRef.current?.(blob)
       }
       mr.start(200)
       mediaRecorderRef.current = mr
       recordingRef.current  = true
       recordingStartRef.current = Date.now()
-      console.log('[clip] startRecording started', mimeType)
     } catch (e) { console.error('[clip] startRecording failed', e); recordingRef.current = false }
   }, [])
   startRecordingRef.current = startRecording
