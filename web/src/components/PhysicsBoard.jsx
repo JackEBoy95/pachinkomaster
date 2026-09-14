@@ -598,12 +598,29 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
 
       // Watermark + result banner — only during active recording
       if (recordingRef.current) {
+        const now = Date.now()
         ctx.save()
         ctx.globalAlpha = 0.5
         ctx.fillStyle = cssVars.isLightMode ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.7)'
         ctx.font = 'bold 13px Rajdhani, system-ui, sans-serif'
         ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'
         ctx.fillText('pachinkomaster.com', W - 8, H - SLOT_H - 6)
+        ctx.restore()
+
+        // Pulsing REC dot — keeps canvas changing each frame so the encoder
+        // can't skip static frames (VP8/VP9 both drop duplicate frames otherwise)
+        const pulse = 0.4 + 0.6 * Math.abs(Math.sin(now / 600))
+        ctx.save()
+        ctx.globalAlpha = pulse
+        ctx.fillStyle = '#ff3b3b'
+        ctx.beginPath()
+        ctx.arc(14, 14, 5, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.fillStyle = '#ffffff'
+        ctx.font = 'bold 10px system-ui, sans-serif'
+        ctx.textAlign = 'left'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('REC', 22, 14)
         ctx.restore()
 
         // Result banner — drawn on canvas so it appears in the clip
