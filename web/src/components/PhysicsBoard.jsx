@@ -113,6 +113,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const physicsWorldWRef = useRef(0)      // W used to build the current physics engine (walls, pegs)
   const overlayShownRef  = useRef(overlayShown)
   const mediaRecorderRef     = useRef(null)
+  const captureStreamRef     = useRef(null)
   const captureTrackRef      = useRef(null)
   const recordingChunksRef   = useRef([])
   const recordingRef         = useRef(false)
@@ -882,11 +883,17 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
     // that belong to this recorder before its onstop has fired.
     const chunks = []
     recordingChunksRef.current = chunks
+    // Stop any previous captureStream — Chrome won't reliably deliver frames
+    // to a new stream while an old one from the same canvas is still open.
+    captureStreamRef.current?.getTracks().forEach(t => t.stop())
+    captureStreamRef.current = null
     // captureStream(0) = manual capture; we call requestFrame() each draw
     // so every RAF paint is guaranteed to land in the stream, regardless of
     // Chrome's internal scheduler which throttles captureStream(N) under load.
     const stream = canvas.captureStream(0)
+    captureStreamRef.current = stream
     captureTrackRef.current = stream.getVideoTracks()[0] ?? null
+    console.log('[clip] captureTrack type:', captureTrackRef.current?.constructor?.name)
     const mimeType =
       MediaRecorder.isTypeSupported('video/webm;codecs=vp8')  ? 'video/webm;codecs=vp8'  :
                                                                  'video/webm'
@@ -904,6 +911,8 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       mr.onstop = () => {
         recordingRef.current = false
         captureTrackRef.current = null
+        captureStreamRef.current?.getTracks().forEach(t => t.stop())
+        captureStreamRef.current = null
         const durationMs = Date.now() - recordingStartRef.current
         const blob = new Blob(chunks, { type: blobType })
         console.log(`[clip] onstop: chunks=${chunks.length} blob=${(blob.size/1024).toFixed(1)}KB duration≈${durationMs}ms totalEvents=${totalEvents}`)
