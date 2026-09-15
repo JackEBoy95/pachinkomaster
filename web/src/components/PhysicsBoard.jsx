@@ -310,9 +310,8 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
             if (isLast) {
               stopTimerRef.current = setTimeout(() => {
                 stopTimerRef.current = null
-                console.log('[clip] stop timer fired, state=', mediaRecorderRef.current?.state)
                 if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
-              }, 800)
+              }, 6500)
             }
           }, 350)
         }
