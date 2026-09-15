@@ -606,18 +606,6 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         }
       })
 
-      // Mirror main canvas to the off-DOM recording canvas each frame
-      if (recordingRef.current && recCanvasRef.current) {
-        const rc = recCanvasRef.current
-        rc.getContext('2d').drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, rc.width, rc.height)
-        // Force a chunk every 12 frames (~5/s) so large long drops don't starve
-        // the timeslice mechanism under CPU pressure.
-        recFrameCountRef.current++
-        if (recFrameCountRef.current % 12 === 0 && mediaRecorderRef.current?.state === 'recording') {
-          mediaRecorderRef.current.requestData()
-        }
-      }
-
       // Watermark + result banner — only during active recording
       if (recordingRef.current) {
         const now = Date.now()
@@ -678,6 +666,17 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
             ctx.font = `${Math.min(16, W * 0.04)}px Rajdhani, system-ui, sans-serif`
             ctx.fillText(`${prize.label}  +${prize.points}pts`, 30, by + bh * 0.7)
             ctx.restore()
+          }
+        }
+
+        // Mirror to off-DOM recording canvas AFTER all overlays are painted,
+        // so the watermark and result banner are included in the captured frames.
+        if (recCanvasRef.current) {
+          const rc = recCanvasRef.current
+          rc.getContext('2d').drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, rc.width, rc.height)
+          recFrameCountRef.current++
+          if (recFrameCountRef.current % 12 === 0 && mediaRecorderRef.current?.state === 'recording') {
+            mediaRecorderRef.current.requestData()
           }
         }
       }
