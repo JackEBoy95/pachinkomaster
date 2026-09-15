@@ -633,40 +633,103 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         ctx.fillText('REC', 22, 14)
         ctx.restore()
 
-        // Result banner — drawn on canvas so it appears in the clip
+        // Result overlay — drawn on canvas so it appears in the clip
         const res = recordingResultRef.current
         if (res && overlayShownRef.current) {
-          const winner = res.roundWinner ?? res.player
-          const prize  = res.roundWinner
-            ? (res.roundResults?.find(r => r.player.id === res.roundWinner.id)?.prize)
-            : res.prize
-          if (winner && prize) {
-            const bh = 64, by = H / 2 - bh / 2
-            ctx.save()
-            ctx.globalAlpha = 0.88
-            ctx.fillStyle = 'rgba(0,0,0,0.72)'
-            ctx.beginPath()
-            const rad = 14
-            ctx.roundRect(16, by, W - 32, bh, rad)
-            ctx.fill()
-            // Player colour strip
+          ctx.save()
+          if (res.isMultiDrop && res.roundScores && res.roundResults) {
+            // ── Full scoreboard for multi-player rounds ──────────────────────
+            // Build unique player list with this-round totals, sorted desc.
+            const seen = {}
+            res.roundResults.forEach(({ player }) => { seen[player.id] = player })
+            const rows = Object.values(seen)
+              .map(p => ({ player: p, score: res.roundScores[p.id] || 0 }))
+              .sort((a, b) => b.score - a.score)
+
+            const rowH   = Math.min(26, Math.floor((H * 0.78) / rows.length))
+            const maxRows = Math.min(rows.length, Math.floor((H * 0.78) / rowH))
+            const titleH = 32
+            const padB   = 10
+            const panelH = titleH + maxRows * rowH + padB
+            const panelX = 16, panelW = W - 32
+            const panelY = H / 2 - panelH / 2
+            const fSm    = Math.min(12, W * 0.03)
+            const fMd    = Math.min(14, W * 0.035)
+
+            ctx.globalAlpha = 0.94
+            ctx.fillStyle = 'rgba(8, 8, 22, 0.97)'
+            ctx.beginPath(); ctx.roundRect(panelX, panelY, panelW, panelH, 12); ctx.fill()
+
+            // Title
             ctx.globalAlpha = 1
-            ctx.fillStyle = winner.color
-            ctx.beginPath()
-            ctx.roundRect(16, by, 6, bh, [rad, 0, 0, rad])
-            ctx.fill()
-            // Name
-            ctx.fillStyle = winner.color
-            ctx.font = `bold ${Math.min(22, W * 0.055)}px Rajdhani, system-ui, sans-serif`
-            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'
-            ctx.fillText(winner.name, 30, by + bh * 0.35)
-            // Prize
             ctx.fillStyle = '#ffffff'
-            ctx.globalAlpha = 0.9
-            ctx.font = `${Math.min(16, W * 0.04)}px Rajdhani, system-ui, sans-serif`
-            ctx.fillText(`${prize.label}  +${prize.points}pts`, 30, by + bh * 0.7)
-            ctx.restore()
+            ctx.font = `bold ${fMd}px Rajdhani, system-ui, sans-serif`
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+            ctx.fillText('ROUND RESULTS', panelX + panelW / 2, panelY + titleH / 2)
+
+            // Divider
+            ctx.globalAlpha = 0.2
+            ctx.fillStyle = '#ffffff'
+            ctx.fillRect(panelX + 10, panelY + titleH - 1, panelW - 20, 1)
+
+            rows.slice(0, maxRows).forEach(({ player, score }, i) => {
+              const ry = panelY + titleH + i * rowH
+              const isWinner = player.id === res.roundWinner?.id
+              ctx.globalAlpha = 1
+
+              // Winner row highlight
+              if (isWinner) {
+                ctx.globalAlpha = 0.12
+                ctx.fillStyle = player.color
+                ctx.fillRect(panelX + 4, ry + 1, panelW - 8, rowH - 2)
+                ctx.globalAlpha = 1
+              }
+
+              // Color strip
+              ctx.fillStyle = player.color
+              ctx.fillRect(panelX + 6, ry + 4, 3, rowH - 8)
+
+              // Rank
+              ctx.fillStyle = isWinner ? '#FFD700' : 'rgba(255,255,255,0.4)'
+              ctx.font = `${fSm}px Rajdhani, system-ui, sans-serif`
+              ctx.textAlign = 'right'; ctx.textBaseline = 'middle'
+              ctx.fillText(`${i + 1}`, panelX + 22, ry + rowH / 2)
+
+              // Name
+              ctx.fillStyle = isWinner ? '#ffffff' : 'rgba(255,255,255,0.75)'
+              ctx.font = `${isWinner ? 'bold ' : ''}${fMd}px Rajdhani, system-ui, sans-serif`
+              ctx.textAlign = 'left'
+              ctx.fillText(player.name, panelX + 28, ry + rowH / 2)
+
+              // Score
+              ctx.fillStyle = isWinner ? player.color : 'rgba(255,255,255,0.6)'
+              ctx.font = `bold ${fMd}px Rajdhani, system-ui, sans-serif`
+              ctx.textAlign = 'right'
+              ctx.fillText(`${score}`, panelX + panelW - 8, ry + rowH / 2)
+            })
+          } else {
+            // ── Simple winner banner for single-player drops ─────────────────
+            const winner = res.player
+            const prize  = res.prize
+            if (winner && prize) {
+              const bh = 64, by = H / 2 - bh / 2
+              ctx.globalAlpha = 0.88
+              ctx.fillStyle = 'rgba(0,0,0,0.72)'
+              ctx.beginPath()
+              ctx.roundRect(16, by, W - 32, bh, 14); ctx.fill()
+              ctx.globalAlpha = 1
+              ctx.fillStyle = winner.color
+              ctx.beginPath(); ctx.roundRect(16, by, 6, bh, [14, 0, 0, 14]); ctx.fill()
+              ctx.fillStyle = winner.color
+              ctx.font = `bold ${Math.min(22, W * 0.055)}px Rajdhani, system-ui, sans-serif`
+              ctx.textAlign = 'left'; ctx.textBaseline = 'middle'
+              ctx.fillText(winner.name, 30, by + bh * 0.35)
+              ctx.fillStyle = '#ffffff'; ctx.globalAlpha = 0.9
+              ctx.font = `${Math.min(16, W * 0.04)}px Rajdhani, system-ui, sans-serif`
+              ctx.fillText(`${prize.label}  +${prize.points}pts`, 30, by + bh * 0.7)
+            }
           }
+          ctx.restore()
         }
 
         // Mirror to off-DOM recording canvas AFTER all overlays are painted,
