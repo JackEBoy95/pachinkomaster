@@ -647,7 +647,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
               .sort((a, b) => b.score - a.score)
 
             const rowH   = Math.min(26, Math.floor((H * 0.78) / rows.length))
-            const maxRows = Math.min(rows.length, Math.floor((H * 0.78) / rowH))
+            const maxRows = Math.min(rows.length, Math.floor((H * 0.78) / rowH), 10)
             const titleH = 32
             const padB   = 10
             const panelH = titleH + maxRows * rowH + padB
