@@ -948,6 +948,9 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       mediaRecorderRef.current.onstop = null
       mediaRecorderRef.current.stop()
     }
+    // Clear the previous clip immediately so the overlay doesn't show a stale
+    // video while the new recording is in progress.
+    onRecordingReadyRef.current?.(null)
     // Local chunks array — prevents a subsequent startRecording() call from
     // clearing the ref before this recorder's onstop has fired.
     const chunks = []
