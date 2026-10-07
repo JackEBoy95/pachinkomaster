@@ -88,7 +88,7 @@ function SingleDropCard({ result, onDismiss, clipBlob, onClearClip }) {
         <span className={styles.pointsNum} style={{ color: prize.color }}>+{prize.points}</span>
         <span className={styles.pointsLabel}>points</span>
       </div>
-      <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} />
+      <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} clipName={`${player.name} - ${prize.label}`} />
       <div className={styles.cardActions}>
         <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleShare}>
           {shared ? '✓ Copied!' : '🔗 Share'}
@@ -196,7 +196,7 @@ function MultiDropCard({ result, onDismiss, clipBlob, onClearClip }) {
         </div>
       )}
 
-      <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} />
+      <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} clipName={roundWinner ? `${roundWinner.name} wins` : 'Round Result'} />
       <div className={styles.cardActions}>
         <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleShare}>
           {shared ? '✓ Copied!' : '🔗 Share'}
@@ -208,7 +208,15 @@ function MultiDropCard({ result, onDismiss, clipBlob, onClearClip }) {
 }
 
 // ── Clip preview + download ───────────────────────────────────────────────────
-export function ClipPreview({ clipBlob, onClearClip }) {
+function toFilename(name) {
+  return (name || 'pachinko-moment')
+    .replace(/[^a-zA-Z0-9\s\-_]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .slice(0, 80) || 'pachinko-moment'
+}
+
+export function ClipPreview({ clipBlob, onClearClip, clipName }) {
   const videoRef = useRef(null)
   const clipUrl  = useMemo(() => clipBlob ? URL.createObjectURL(clipBlob) : null, [clipBlob])
   useEffect(() => () => { if (clipUrl) URL.revokeObjectURL(clipUrl) }, [clipUrl])
@@ -234,7 +242,7 @@ export function ClipPreview({ clipBlob, onClearClip }) {
 
   function handleDownload() {
     const a = document.createElement('a')
-    a.href = clipUrl; a.download = 'pachinko-moment.webm'
+    a.href = clipUrl; a.download = `${toFilename(clipName)}.webm`
     a.click()
   }
 

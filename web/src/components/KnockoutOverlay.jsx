@@ -90,7 +90,7 @@ export function QualifyingResultCard({ result, onNext, clipBlob, onClearClip }) 
           </div>
         </div>
 
-        <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} />
+        <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} clipName="Knockout Qualifying" />
         <div className={styles.actions}>
           <button className={`btn-primary ${styles.nextBtn}`} onClick={onNext}>
             BUILD BRACKET →
@@ -166,7 +166,15 @@ export const MatchResultCard = memo(function MatchResultCard({ matchResult, roun
           </div>
         )}
 
-        <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} />
+        <ClipPreview
+          clipBlob={clipBlob}
+          onClearClip={onClearClip}
+          clipName={
+            isComplete
+              ? `Knockout Final - ${winner?.name} Champion`
+              : `${roundName} Match ${matchNumber} - ${winner?.name} vs ${loser?.name}`
+          }
+        />
         <div className={styles.actions}>
           {isComplete && (
             <button className={`btn-secondary ${styles.exportBtn}`} onClick={() => exportResultsCSV(knockout)}>

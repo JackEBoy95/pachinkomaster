@@ -204,7 +204,7 @@ function RoundCard({ roundResult, onNext, onCancel, clipBlob, onClearClip }) {
         >›</button>
       </div>
 
-      <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} />
+      <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} clipName={`Tournament Round ${roundNumber}`} />
       <div className={styles.actions}>
         <button className={`btn-primary ${styles.nextBtn}`} onClick={onNext}>
           NEXT ROUND →
