@@ -94,7 +94,7 @@ function rescueBall(ball, W) {
 }
 
 const PhysicsBoard = forwardRef(function PhysicsBoard(
-  { prizes, activePlayer, onBallLanded, onDropAborted, onRecordingReady, recordingResult, speed, ballSize, pegDensity, bounciness, onPegHit, skin, lightMode, locked, overlayShown },
+  { prizes, activePlayer, onBallLanded, onDropAborted, onRecordingReady, onRecordingStart, recordingResult, speed, ballSize, pegDensity, bounciness, onPegHit, skin, lightMode, locked, overlayShown },
   ref
 ) {
   const containerRef     = useRef(null)
@@ -127,11 +127,14 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const recordingRef         = useRef(false)
   const recordingStartRef    = useRef(0)
   const recFrameCountRef     = useRef(0)
+  const resultShownAtRef     = useRef(0)
   const onRecordingReadyRef  = useRef(onRecordingReady)
+  const onRecordingStartRef  = useRef(onRecordingStart)
   const recordingResultRef   = useRef(recordingResult)
   const startRecordingRef    = useRef(null)
   const stopTimerRef         = useRef(null)
   useEffect(() => { onRecordingReadyRef.current  = onRecordingReady  }, [onRecordingReady])
+  useEffect(() => { onRecordingStartRef.current  = onRecordingStart  }, [onRecordingStart])
   useEffect(() => { recordingResultRef.current   = recordingResult   }, [recordingResult])
   const [dropping, setDropping]   = useState(false)
   const [resizeKey, setResizeKey] = useState(0)  // increments → triggers engine rebuild on resize
@@ -636,6 +639,8 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
         // Result overlay — drawn on canvas so it appears in the clip
         const res = recordingResultRef.current
         if (res && overlayShownRef.current) {
+          // Track when results first appeared so we can page through them
+          if (!resultShownAtRef.current) resultShownAtRef.current = Date.now()
           ctx.save()
           if (res.isMultiDrop && res.roundScores && res.roundResults) {
             // ── Full scoreboard for multi-player rounds ──────────────────────
@@ -646,7 +651,13 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
               .map(p => ({ player: p, score: res.roundScores[p.id] || 0 }))
               .sort((a, b) => b.score - a.score)
 
-            const maxRows = Math.min(rows.length, 10)
+            const PAGE = 10
+            const totalPages = Math.ceil(rows.length / PAGE)
+            const page    = totalPages > 1
+              ? Math.floor((Date.now() - resultShownAtRef.current) / 4000) % totalPages
+              : 0
+            const pageRows = rows.slice(page * PAGE, (page + 1) * PAGE)
+            const maxRows = pageRows.length
             const rowH   = Math.min(26, Math.floor((H * 0.78 - 42) / maxRows))
             const titleH = 32
             const padB   = 10
@@ -660,19 +671,23 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
             ctx.fillStyle = 'rgba(8, 8, 22, 0.97)'
             ctx.beginPath(); ctx.roundRect(panelX, panelY, panelW, panelH, 12); ctx.fill()
 
-            // Title
+            // Title + optional page indicator
             ctx.globalAlpha = 1
             ctx.fillStyle = '#ffffff'
             ctx.font = `bold ${fMd}px Rajdhani, system-ui, sans-serif`
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-            ctx.fillText('ROUND RESULTS', panelX + panelW / 2, panelY + titleH / 2)
+            const titleText = totalPages > 1
+              ? `ROUND RESULTS  ${page + 1}/${totalPages}`
+              : 'ROUND RESULTS'
+            ctx.fillText(titleText, panelX + panelW / 2, panelY + titleH / 2)
 
             // Divider
             ctx.globalAlpha = 0.2
             ctx.fillStyle = '#ffffff'
             ctx.fillRect(panelX + 10, panelY + titleH - 1, panelW - 20, 1)
 
-            rows.slice(0, maxRows).forEach(({ player, score }, i) => {
+            pageRows.forEach(({ player, score }, i) => {
+              const rank = page * PAGE + i + 1
               const ry = panelY + titleH + i * rowH
               const isWinner = player.id === res.roundWinner?.id
               ctx.globalAlpha = 1
@@ -693,7 +708,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
               ctx.fillStyle = isWinner ? '#FFD700' : 'rgba(255,255,255,0.4)'
               ctx.font = `${fSm}px Rajdhani, system-ui, sans-serif`
               ctx.textAlign = 'right'; ctx.textBaseline = 'middle'
-              ctx.fillText(`${i + 1}`, panelX + 22, ry + rowH / 2)
+              ctx.fillText(`${rank}`, panelX + 22, ry + rowH / 2)
 
               // Name
               ctx.fillStyle = isWinner ? '#ffffff' : 'rgba(255,255,255,0.75)'
@@ -751,36 +766,16 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       const newH = container.offsetHeight
       // Container is hidden (mobile tab switch) — ignore completely
       if (newW === 0 || newH === 0) return
-
-      // Large resize → schedule a full engine rebuild and return WITHOUT updating
-      // W, H, or the peg canvas. Keeping visual coords in sync with the physics
-      // world (walls, peg bodies) prevents the ball/collision mismatch where
-      // balls appear to bounce off air or fall through pegs during the window
-      // before the rebuild fires. Debounce reduced to 150 ms to minimise the gap.
-      if (Math.abs(newW - W) > 30 || Math.abs(newH - H) > 30) {
+      // Any meaningful resize schedules a full engine rebuild. We never update
+      // W, H, peg positions, or canvas dimensions here — doing so would move the
+      // visual pegs away from the physics peg bodies, causing balls to appear to
+      // bounce off air or pass through pegs. During the 150 ms debounce the canvas
+      // may look slightly CSS-stretched, which is far less disorienting than the
+      // physics/visual mismatch. Sub-pixel jitter (≤ 2 px) is ignored.
+      if (Math.abs(newW - W) > 2 || Math.abs(newH - H) > 2) {
         clearTimeout(resizeDebounceRef.current)
         resizeDebounceRef.current = setTimeout(() => setResizeKey(k => k + 1), 150)
-        return
       }
-
-      // Small resize (< 30 px) — safe to update visual dimensions immediately
-      // since walls/pegs remain effectively valid for the tiny delta.
-      canvas.width = newW * dpr; canvas.height = newH * dpr
-      W = newW; H = newH
-      // Recompute peg layout for the new visual size so the peg canvas is
-      // redrawn correctly. Ball size (effectiveBallSizeRef) is intentionally
-      // NOT updated here — it must stay at the value used to build the physics
-      // world (walls/pegs) so balls spawned during the debounce window are
-      // correctly sized for the CURRENT physics boundaries, not the new ones.
-      const resBR          = computeBR(W, ballSize, pegDensity)
-      const resPEG_R       = Math.max(3, Math.round(resBR * 0.42))
-      const resUsableW     = W - (resPEG_R + 3) * 2
-      const resMaxSafeCols = Math.max(4, Math.floor(1 + resUsableW / (2 * resBR + 2 * resPEG_R + 4)))
-      const resCols        = Math.min(pegDensity, resMaxSafeCols)
-      const resAspect      = H / W
-      const resPegRows     = resAspect > 1.4 ? 14 : resAspect > 0.9 ? 11 : PEG_ROWS
-      pegPositionsRef.current = buildPegs(W, H, resCols, resPEG_R, resPegRows)
-      buildPegCanvas()
     })
     ro.observe(container)
 
@@ -948,9 +943,10 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       mediaRecorderRef.current.onstop = null
       mediaRecorderRef.current.stop()
     }
-    // Clear the previous clip immediately so the overlay doesn't show a stale
-    // video while the new recording is in progress.
+    // Clear the previous clip and signal that recording has started so the
+    // overlay can show a "clip on its way" placeholder.
     onRecordingReadyRef.current?.(null)
+    onRecordingStartRef.current?.()
     // Local chunks array — prevents a subsequent startRecording() call from
     // clearing the ref before this recorder's onstop has fired.
     const chunks = []
@@ -981,7 +977,8 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       mediaRecorderRef.current = mr
       recordingRef.current  = true
       recordingStartRef.current = Date.now()
-      recFrameCountRef.current = 0
+      recFrameCountRef.current  = 0
+      resultShownAtRef.current  = 0
     } catch (e) { console.error('[clip] startRecording failed', e); recordingRef.current = false }
   }, [])
   startRecordingRef.current = startRecording

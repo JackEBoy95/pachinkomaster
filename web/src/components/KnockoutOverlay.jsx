@@ -49,7 +49,7 @@ function lighten(hex) {
 
 // ── Qualifying result card ────────────────────────────────────────────────────
 
-export function QualifyingResultCard({ result, onNext, clipBlob, onClearClip }) {
+export function QualifyingResultCard({ result, onNext, clipBlob, isRecording, onClearClip }) {
   if (!result) return null
   const { advancers, eliminated, bracketSize } = result
 
@@ -90,7 +90,7 @@ export function QualifyingResultCard({ result, onNext, clipBlob, onClearClip }) 
           </div>
         </div>
 
-        <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} clipName="Knockout Qualifying" />
+        <ClipPreview clipBlob={clipBlob} isRecording={isRecording} onClearClip={onClearClip} clipName="Knockout Qualifying" />
         <div className={styles.actions}>
           <button className={`btn-primary ${styles.nextBtn}`} onClick={onNext}>
             BUILD BRACKET →
@@ -138,7 +138,7 @@ function exportResultsCSV(knockout) {
 
 // ── Match result card ─────────────────────────────────────────────────────────
 
-export const MatchResultCard = memo(function MatchResultCard({ matchResult, roundName, matchNumber, totalMatches, knockout, onNext, clipBlob, onClearClip }) {
+export const MatchResultCard = memo(function MatchResultCard({ matchResult, roundName, matchNumber, totalMatches, knockout, onNext, clipBlob, isRecording, onClearClip }) {
   if (!matchResult) return null
   const { match, winner, loser, score1, score2, isComplete } = matchResult
 
@@ -168,6 +168,7 @@ export const MatchResultCard = memo(function MatchResultCard({ matchResult, roun
 
         <ClipPreview
           clipBlob={clipBlob}
+          isRecording={isRecording}
           onClearClip={onClearClip}
           clipName={
             isComplete

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo } from 'react'
 import styles from './ResultOverlay.module.css'
 import { shareText, shareSucceeded } from '../utils/share'
 
-export default function ResultOverlay({ result, onDismiss, clipBlob, onClearClip }) {
+export default function ResultOverlay({ result, onDismiss, clipBlob, isRecording, onClearClip }) {
   const confettiRef = useRef(null)
 
   useEffect(() => {
@@ -51,15 +51,15 @@ export default function ResultOverlay({ result, onDismiss, clipBlob, onClearClip
     <div className={styles.backdrop} onClick={onDismiss}>
       <canvas ref={confettiRef} className={styles.confetti} />
       {result.isMultiDrop
-        ? <MultiDropCard result={result} onDismiss={onDismiss} clipBlob={clipBlob} onClearClip={onClearClip} />
-        : <SingleDropCard result={result} onDismiss={onDismiss} clipBlob={clipBlob} onClearClip={onClearClip} />
+        ? <MultiDropCard result={result} onDismiss={onDismiss} clipBlob={clipBlob} isRecording={isRecording} onClearClip={onClearClip} />
+        : <SingleDropCard result={result} onDismiss={onDismiss} clipBlob={clipBlob} isRecording={isRecording} onClearClip={onClearClip} />
       }
     </div>
   )
 }
 
 // ── Single ball result ───────────────────────────────────────────────────────
-function SingleDropCard({ result, onDismiss, clipBlob, onClearClip }) {
+function SingleDropCard({ result, onDismiss, clipBlob, isRecording, onClearClip }) {
   const { player, prize } = result
   const [shared, setShared] = useState(false)
 
@@ -88,7 +88,7 @@ function SingleDropCard({ result, onDismiss, clipBlob, onClearClip }) {
         <span className={styles.pointsNum} style={{ color: prize.color }}>+{prize.points}</span>
         <span className={styles.pointsLabel}>points</span>
       </div>
-      <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} clipName={`${player.name} - ${prize.label}`} />
+      <ClipPreview clipBlob={clipBlob} isRecording={isRecording} onClearClip={onClearClip} clipName={`${player.name} - ${prize.label}`} />
       <div className={styles.cardActions}>
         <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleShare}>
           {shared ? '✓ Copied!' : '🔗 Share'}
@@ -100,7 +100,7 @@ function SingleDropCard({ result, onDismiss, clipBlob, onClearClip }) {
 }
 
 // ── Multi-drop round summary ─────────────────────────────────────────────────
-function MultiDropCard({ result, onDismiss, clipBlob, onClearClip }) {
+function MultiDropCard({ result, onDismiss, clipBlob, isRecording, onClearClip }) {
   const { roundResults, roundWinner, roundScores } = result
   const [shared, setShared] = useState(false)
   const [page, setPage] = useState(0)
@@ -196,7 +196,7 @@ function MultiDropCard({ result, onDismiss, clipBlob, onClearClip }) {
         </div>
       )}
 
-      <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} clipName={roundWinner ? `${roundWinner.name} wins` : 'Round Result'} />
+      <ClipPreview clipBlob={clipBlob} isRecording={isRecording} onClearClip={onClearClip} clipName={roundWinner ? `${roundWinner.name} wins` : 'Round Result'} />
       <div className={styles.cardActions}>
         <button className={`btn-secondary ${styles.shareBtn}`} onClick={handleShare}>
           {shared ? '✓ Copied!' : '🔗 Share'}
@@ -216,7 +216,7 @@ function toFilename(name) {
     .slice(0, 80) || 'pachinko-moment'
 }
 
-export function ClipPreview({ clipBlob, onClearClip, clipName }) {
+export function ClipPreview({ clipBlob, isRecording, onClearClip, clipName }) {
   const videoRef = useRef(null)
   const clipUrl  = useMemo(() => clipBlob ? URL.createObjectURL(clipBlob) : null, [clipBlob])
   useEffect(() => () => { if (clipUrl) URL.revokeObjectURL(clipUrl) }, [clipUrl])
@@ -238,7 +238,14 @@ export function ClipPreview({ clipBlob, onClearClip, clipName }) {
     return () => v.removeEventListener('loadedmetadata', onMeta)
   }, [clipUrl])
 
-  if (!clipUrl) return null
+  if (!clipUrl) {
+    if (!isRecording) return null
+    return (
+      <div className={styles.clipWrap}>
+        <div className={styles.clipPending}>🎬 Your clip is on its way…</div>
+      </div>
+    )
+  }
 
   function handleDownload() {
     const a = document.createElement('a')

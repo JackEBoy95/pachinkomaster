@@ -41,6 +41,7 @@ export default function App() {
   const [showSeedModal, setShowSeedModal] = useState(false)
   const [customSeeds, setCustomSeeds]     = useState([])
   const [clipBlob, setClipBlob]           = useState(null)
+  const [isRecording, setIsRecording]     = useState(false)
   const dropCountRef      = useRef(0)
   // Randomise ad cadence: show after 3–7 drops (re-rolled each time ad fires)
   const nextAdThresholdRef = useRef(Math.floor(Math.random() * 5) + 3)
@@ -509,7 +510,8 @@ export default function App() {
               activePlayer={activePlayer}
               onBallLanded={handleBallLanded}
               onDropAborted={handleDropAborted}
-              onRecordingReady={setClipBlob}
+              onRecordingReady={blob => { setClipBlob(blob); if (blob) setIsRecording(false) }}
+              onRecordingStart={() => setIsRecording(true)}
               recordingResult={result}
               speed={speed}
               ballSize={ballSize}
@@ -744,6 +746,7 @@ export default function App() {
           result={result}
           onDismiss={handleDismissResult}
           clipBlob={clipBlob}
+          isRecording={isRecording}
           onClearClip={() => setClipBlob(null)}
         />
       )}
@@ -756,6 +759,7 @@ export default function App() {
         onNext={handleDismissTournamentRound}
         onCancel={cancelTournament}
         clipBlob={clipBlob}
+        isRecording={isRecording}
         onClearClip={() => setClipBlob(null)}
       />
 
@@ -765,6 +769,7 @@ export default function App() {
           result={knockout.qualifyingResult}
           onNext={handleDismissKnockout}
           clipBlob={clipBlob}
+          isRecording={isRecording}
           onClearClip={() => setClipBlob(null)}
         />
       )}
@@ -787,6 +792,7 @@ export default function App() {
             knockout={knockout}
             onNext={handleDismissKnockout}
             clipBlob={clipBlob}
+            isRecording={isRecording}
             onClearClip={() => setClipBlob(null)}
           />
         )

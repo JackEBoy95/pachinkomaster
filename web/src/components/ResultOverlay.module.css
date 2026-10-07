@@ -362,6 +362,15 @@
   text-align: center;
 }
 
+.clipPending {
+  font-size: 13px;
+  color: var(--text-secondary);
+  opacity: 0.8;
+  text-align: center;
+  padding: 12px 0;
+  font-style: italic;
+}
+
 /* ── Mobile ──────────────────────────────────── */
 @media (max-width: 640px) {
   .card {

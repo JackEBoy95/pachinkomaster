@@ -52,7 +52,7 @@ function Ball({ color, size, ballSkin }) {
   )
 }
 
-export default function TournamentOverlay({ roundResult, onNext, onCancel, clipBlob, onClearClip }) {
+export default function TournamentOverlay({ roundResult, onNext, onCancel, clipBlob, isRecording, onClearClip }) {
   const confettiRef = useRef(null)
 
   useEffect(() => {
@@ -116,14 +116,14 @@ export default function TournamentOverlay({ roundResult, onNext, onCancel, clipB
 
   return (
     <div className={styles.backdrop}>
-      <RoundCard roundResult={roundResult} onNext={onNext} onCancel={onCancel} clipBlob={clipBlob} onClearClip={onClearClip} />
+      <RoundCard roundResult={roundResult} onNext={onNext} onCancel={onCancel} clipBlob={clipBlob} isRecording={isRecording} onClearClip={onClearClip} />
     </div>
   )
 }
 
 // ── Round card (mid-tournament) ───────────────────────────────────────────────
 
-function RoundCard({ roundResult, onNext, onCancel, clipBlob, onClearClip }) {
+function RoundCard({ roundResult, onNext, onCancel, clipBlob, isRecording, onClearClip }) {
   const { roundNumber, eliminated, surviving } = roundResult
   const [tab, setTab]             = useState('eliminated')
   const [elimPage, setElimPage]   = useState(0)
@@ -204,7 +204,7 @@ function RoundCard({ roundResult, onNext, onCancel, clipBlob, onClearClip }) {
         >›</button>
       </div>
 
-      <ClipPreview clipBlob={clipBlob} onClearClip={onClearClip} clipName={`Tournament Round ${roundNumber}`} />
+      <ClipPreview clipBlob={clipBlob} isRecording={isRecording} onClearClip={onClearClip} clipName={`Tournament Round ${roundNumber}`} />
       <div className={styles.actions}>
         <button className={`btn-primary ${styles.nextBtn}`} onClick={onNext}>
           NEXT ROUND →
