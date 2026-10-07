@@ -125,9 +125,10 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const recCanvasRef         = useRef(null)
   const recordingChunksRef   = useRef([])
   const recordingRef         = useRef(false)
-  const recordingStartRef    = useRef(0)
-  const recFrameCountRef     = useRef(0)
-  const resultShownAtRef     = useRef(0)
+  const recordingStartRef        = useRef(0)
+  const recFrameCountRef         = useRef(0)
+  const resultShownAtRef         = useRef(0)
+  const stopTimerExtendedRef     = useRef(false)
   const onRecordingReadyRef  = useRef(onRecordingReady)
   const onRecordingStartRef  = useRef(onRecordingStart)
   const recordingResultRef        = useRef(recordingResult)
@@ -662,9 +663,25 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
 
             const PAGE = 10
             const totalPages = Math.ceil(rows.length / PAGE)
-            const page    = totalPages > 1
+            const page = totalPages > 1
               ? Math.floor((Date.now() - resultShownAtRef.current) / 4000) % totalPages
               : 0
+
+            // Extend the stop timer the first time we know how many pages
+            // there are, so every page gets a full 4-second window.
+            if (!stopTimerExtendedRef.current && totalPages > 0 && stopTimerRef.current) {
+              stopTimerExtendedRef.current = true
+              const msNeeded = totalPages * 4000 + 1500
+              const elapsed  = Date.now() - recordingStartRef.current
+              const extra    = msNeeded - elapsed
+              if (extra > 0) {
+                clearTimeout(stopTimerRef.current)
+                stopTimerRef.current = setTimeout(() => {
+                  stopTimerRef.current = null
+                  if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
+                }, extra)
+              }
+            }
             const pageRows = rows.slice(page * PAGE, (page + 1) * PAGE)
             const maxRows = pageRows.length
             const rowH   = Math.min(26, Math.floor((H * 0.78 - 42) / maxRows))
@@ -977,10 +994,11 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       }
       mr.start(200)
       mediaRecorderRef.current = mr
-      recordingRef.current  = true
-      recordingStartRef.current = Date.now()
-      recFrameCountRef.current  = 0
-      resultShownAtRef.current  = 0
+      recordingRef.current       = true
+      recordingStartRef.current  = Date.now()
+      recFrameCountRef.current   = 0
+      resultShownAtRef.current   = 0
+      stopTimerExtendedRef.current = false
     } catch (e) { console.error('[clip] startRecording failed', e); recordingRef.current = false }
   }, [])
   startRecordingRef.current = startRecording
