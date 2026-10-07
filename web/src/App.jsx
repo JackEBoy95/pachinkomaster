@@ -513,6 +513,7 @@ export default function App() {
               onRecordingReady={blob => { setClipBlob(blob); if (blob) setIsRecording(false) }}
               onRecordingStart={() => setIsRecording(true)}
               recordingResult={result}
+              tournamentRoundResult={tournament?.roundResult ?? null}
               speed={speed}
               ballSize={ballSize}
               pegDensity={pegDensity}

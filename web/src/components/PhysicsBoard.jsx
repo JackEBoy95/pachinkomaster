@@ -94,7 +94,7 @@ function rescueBall(ball, W) {
 }
 
 const PhysicsBoard = forwardRef(function PhysicsBoard(
-  { prizes, activePlayer, onBallLanded, onDropAborted, onRecordingReady, onRecordingStart, recordingResult, speed, ballSize, pegDensity, bounciness, onPegHit, skin, lightMode, locked, overlayShown },
+  { prizes, activePlayer, onBallLanded, onDropAborted, onRecordingReady, onRecordingStart, recordingResult, tournamentRoundResult, speed, ballSize, pegDensity, bounciness, onPegHit, skin, lightMode, locked, overlayShown },
   ref
 ) {
   const containerRef     = useRef(null)
@@ -130,12 +130,14 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const resultShownAtRef     = useRef(0)
   const onRecordingReadyRef  = useRef(onRecordingReady)
   const onRecordingStartRef  = useRef(onRecordingStart)
-  const recordingResultRef   = useRef(recordingResult)
+  const recordingResultRef        = useRef(recordingResult)
+  const tournamentRoundResultRef  = useRef(tournamentRoundResult)
   const startRecordingRef    = useRef(null)
   const stopTimerRef         = useRef(null)
-  useEffect(() => { onRecordingReadyRef.current  = onRecordingReady  }, [onRecordingReady])
-  useEffect(() => { onRecordingStartRef.current  = onRecordingStart  }, [onRecordingStart])
-  useEffect(() => { recordingResultRef.current   = recordingResult   }, [recordingResult])
+  useEffect(() => { onRecordingReadyRef.current       = onRecordingReady       }, [onRecordingReady])
+  useEffect(() => { onRecordingStartRef.current       = onRecordingStart       }, [onRecordingStart])
+  useEffect(() => { recordingResultRef.current        = recordingResult        }, [recordingResult])
+  useEffect(() => { tournamentRoundResultRef.current  = tournamentRoundResult  }, [tournamentRoundResult])
   const [dropping, setDropping]   = useState(false)
   const [resizeKey, setResizeKey] = useState(0)  // increments → triggers engine rebuild on resize
 
@@ -643,13 +645,20 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
           if (!resultShownAtRef.current) resultShownAtRef.current = Date.now()
           ctx.save()
           if (res.isMultiDrop && res.roundScores && res.roundResults) {
-            // ── Full scoreboard for multi-player rounds ──────────────────────
-            // Build unique player list with this-round totals, sorted desc.
-            const seen = {}
-            res.roundResults.forEach(({ player }) => { seen[player.id] = player })
-            const rows = Object.values(seen)
-              .map(p => ({ player: p, score: res.roundScores[p.id] || 0 }))
-              .sort((a, b) => b.score - a.score)
+            // ── Scoreboard for multi-player rounds ───────────────────────────
+            // For tournament mode use only the players eliminated this round
+            // (sorted lowest score first so rank 1 = last place this round).
+            // For plain multi-drop, fall back to all players sorted desc.
+            const tournElim = tournamentRoundResultRef.current?.eliminated
+            const rows = tournElim && tournElim.length > 0
+              ? [...tournElim].sort((a, b) => a.score - b.score)
+              : (() => {
+                  const seen = {}
+                  res.roundResults.forEach(({ player }) => { seen[player.id] = player })
+                  return Object.values(seen)
+                    .map(p => ({ player: p, score: res.roundScores[p.id] || 0 }))
+                    .sort((a, b) => b.score - a.score)
+                })()
 
             const PAGE = 10
             const totalPages = Math.ceil(rows.length / PAGE)
@@ -672,13 +681,15 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
             ctx.beginPath(); ctx.roundRect(panelX, panelY, panelW, panelH, 12); ctx.fill()
 
             // Title + optional page indicator
+            const isTournElim = !!(tournamentRoundResultRef.current?.eliminated?.length)
             ctx.globalAlpha = 1
             ctx.fillStyle = '#ffffff'
             ctx.font = `bold ${fMd}px Rajdhani, system-ui, sans-serif`
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+            const baseTitle = isTournElim ? 'ELIMINATED' : 'ROUND RESULTS'
             const titleText = totalPages > 1
-              ? `ROUND RESULTS  ${page + 1}/${totalPages}`
-              : 'ROUND RESULTS'
+              ? `${baseTitle}  ${page + 1}/${totalPages}`
+              : baseTitle
             ctx.fillText(titleText, panelX + panelW / 2, panelY + titleH / 2)
 
             // Divider
@@ -689,35 +700,26 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
             pageRows.forEach(({ player, score }, i) => {
               const rank = page * PAGE + i + 1
               const ry = panelY + titleH + i * rowH
-              const isWinner = player.id === res.roundWinner?.id
               ctx.globalAlpha = 1
-
-              // Winner row highlight
-              if (isWinner) {
-                ctx.globalAlpha = 0.12
-                ctx.fillStyle = player.color
-                ctx.fillRect(panelX + 4, ry + 1, panelW - 8, rowH - 2)
-                ctx.globalAlpha = 1
-              }
 
               // Color strip
               ctx.fillStyle = player.color
               ctx.fillRect(panelX + 6, ry + 4, 3, rowH - 8)
 
               // Rank
-              ctx.fillStyle = isWinner ? '#FFD700' : 'rgba(255,255,255,0.4)'
+              ctx.fillStyle = 'rgba(255,255,255,0.4)'
               ctx.font = `${fSm}px Rajdhani, system-ui, sans-serif`
               ctx.textAlign = 'right'; ctx.textBaseline = 'middle'
               ctx.fillText(`${rank}`, panelX + 22, ry + rowH / 2)
 
               // Name
-              ctx.fillStyle = isWinner ? '#ffffff' : 'rgba(255,255,255,0.75)'
-              ctx.font = `${isWinner ? 'bold ' : ''}${fMd}px Rajdhani, system-ui, sans-serif`
+              ctx.fillStyle = 'rgba(255,255,255,0.75)'
+              ctx.font = `${fMd}px Rajdhani, system-ui, sans-serif`
               ctx.textAlign = 'left'
               ctx.fillText(player.name, panelX + 28, ry + rowH / 2)
 
               // Score
-              ctx.fillStyle = isWinner ? player.color : 'rgba(255,255,255,0.6)'
+              ctx.fillStyle = 'rgba(255,255,255,0.6)'
               ctx.font = `bold ${fMd}px Rajdhani, system-ui, sans-serif`
               ctx.textAlign = 'right'
               ctx.fillText(`${score}`, panelX + panelW - 8, ry + rowH / 2)
