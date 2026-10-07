@@ -668,18 +668,18 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
               : 0
 
             // Extend the stop timer the first time we know how many pages
-            // there are, so every page gets a full 4-second window.
-            if (!stopTimerExtendedRef.current && totalPages > 0 && stopTimerRef.current) {
+            // there are. Pages are timed from resultShownAtRef, so calculate
+            // remaining time from that point, not from recording start.
+            if (!stopTimerExtendedRef.current && totalPages > 0) {
               stopTimerExtendedRef.current = true
-              const msNeeded = totalPages * 4000 + 1500
-              const elapsed  = Date.now() - recordingStartRef.current
-              const extra    = msNeeded - elapsed
-              if (extra > 0) {
-                clearTimeout(stopTimerRef.current)
+              const elapsedSinceResults = Date.now() - resultShownAtRef.current
+              const msFromNow = totalPages * 4000 - elapsedSinceResults + 1500
+              if (msFromNow > 0) {
+                if (stopTimerRef.current) clearTimeout(stopTimerRef.current)
                 stopTimerRef.current = setTimeout(() => {
                   stopTimerRef.current = null
                   if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
-                }, extra)
+                }, msFromNow)
               }
             }
             const pageRows = rows.slice(page * PAGE, (page + 1) * PAGE)
