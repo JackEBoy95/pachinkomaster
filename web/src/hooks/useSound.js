@@ -7,7 +7,7 @@ const SOUND_FILES = {
   bgMusic:   '/sounds/bg-music.mp3',
 }
 
-const MAX_PEG_VOICES = 7
+const PEG_HIT_INTERVAL_MS = 50  // max one peg sound per 50 ms (~20/s)
 
 export function useSound() {
   const [sfxEnabled, setSfxEnabled]     = useState(true)
@@ -21,11 +21,11 @@ export function useSound() {
   useEffect(() => { sfxEnabledRef.current  = sfxEnabled  }, [sfxEnabled])
   useEffect(() => { filesReadyRef.current  = filesReady  }, [filesReady])
 
-  const rawBuffers  = useRef({})
-  const buffers     = useRef({})
-  const ctxRef      = useRef(null)
-  const bgRef       = useRef(null)
-  const pegVoices   = useRef(0)
+  const rawBuffers      = useRef({})
+  const buffers         = useRef({})
+  const ctxRef          = useRef(null)
+  const bgRef           = useRef(null)
+  const lastPegHitRef   = useRef(0)
 
   // Fetch raw bytes (no AudioContext needed)
   useEffect(() => {
@@ -92,19 +92,18 @@ export function useSound() {
   // ── Public API — stable references, read state via refs ─────────────────
   const playPegHit = useCallback(() => {
     if (!sfxEnabledRef.current) return
-    if (pegVoices.current >= MAX_PEG_VOICES) return
-    // Check readiness before incrementing so a failed start never leaks a voice
+    const now = performance.now()
+    if (now - lastPegHitRef.current < PEG_HIT_INTERVAL_MS) return
     const buf = buffers.current.pegHit
     const ctx = ctxRef.current
     if (!buf || !ctx || ctx.state !== 'running') return
-    pegVoices.current++
+    lastPegHitRef.current = now
     const source = ctx.createBufferSource()
     const gain   = ctx.createGain()
     gain.gain.value = 0.35
     source.buffer = buf
     source.connect(gain)
     gain.connect(ctx.destination)
-    source.onended = () => { pegVoices.current-- }
     source.start()
   }, [])  // no deps — reads everything via refs
 
