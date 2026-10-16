@@ -91,11 +91,22 @@ export function useSound() {
 
   // ── Public API — stable references, read state via refs ─────────────────
   const playPegHit = useCallback(() => {
-    if (!sfxEnabledRef.current || !filesReadyRef.current.pegHit) return
+    if (!sfxEnabledRef.current) return
     if (pegVoices.current >= MAX_PEG_VOICES) return
+    // Check readiness before incrementing so a failed start never leaks a voice
+    const buf = buffers.current.pegHit
+    const ctx = ctxRef.current
+    if (!buf || !ctx || ctx.state !== 'running') return
     pegVoices.current++
-    playBuffer('pegHit', 0.35, () => { pegVoices.current-- })
-  }, [playBuffer])  // no sfxEnabled/filesReady in deps → stable reference
+    const source = ctx.createBufferSource()
+    const gain   = ctx.createGain()
+    gain.gain.value = 0.35
+    source.buffer = buf
+    source.connect(gain)
+    gain.connect(ctx.destination)
+    source.onended = () => { pegVoices.current-- }
+    source.start()
+  }, [])  // no deps — reads everything via refs
 
   const playBallLand = useCallback(() => {
     if (!sfxEnabledRef.current || !filesReadyRef.current.ballLand) return

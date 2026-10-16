@@ -180,27 +180,59 @@ export const FAST_FOOD_TEMPLATE = {
 }
 
 // ── Baby Names ────────────────────────────────────────────────────────────────
-// Six baby skin-tone variants cycle across all names
-const BABY_EMOJIS = ['1F476','1F476-1F3FB','1F476-1F3FC','1F476-1F3FD','1F476-1F3FE','1F476-1F3FF']
-const BABY_NAME_LIST = [
-  // Boys
-  'Oliver', 'Noah', 'Liam', 'William', 'Elijah', 'James', 'Aiden', 'Lucas',
-  'Mason', 'Ethan', 'Logan', 'Sebastian', 'Mateo', 'Henry', 'Owen',
-  'Carter', 'Wyatt', 'Leo', 'Jack', 'Benjamin', 'Isaac', 'Alexander',
-  'Michael', 'Dylan', 'Charlie', 'Daniel', 'Theodore', 'Finn', 'Archie', 'Freddie',
-  // Girls
-  'Olivia', 'Emma', 'Charlotte', 'Amelia', 'Ava', 'Sophia', 'Isabella',
-  'Mia', 'Evelyn', 'Harper', 'Luna', 'Camila', 'Ella', 'Elizabeth',
-  'Eleanor', 'Sofia', 'Scarlett', 'Emily', 'Chloe', 'Penelope',
-  'Riley', 'Zoey', 'Nora', 'Lily', 'Grace', 'Isla', 'Freya', 'Rosie', 'Poppy', 'Daisy',
+// Baby boy emoji (blue tones) and baby girl emoji (pink tones)
+const BOY_EMOJIS  = ['1F476-1F3FB','1F476-1F3FC','1F476-1F3FD','1F476-1F3FE','1F476-1F3FF','1F476']
+const GIRL_EMOJIS = ['1F467-1F3FB','1F467-1F3FC','1F467-1F3FD','1F467-1F3FE','1F467-1F3FF','1F467']
+
+const BOY_COLORS = [
+  '#42A5F5','#29B6F6','#26C6DA','#00E5FF','#1E88E5','#039BE5',
+  '#0288D1','#0277BD','#01579B','#40C4FF','#80D8FF','#0091EA',
+  '#1565C0','#283593','#1976D2','#1E88E5','#64B5F6','#90CAF9',
 ]
-export const BABY_NAMES_TEMPLATE = {
-  id: 'prebuilt_baby_names', name: '👶 Baby Names', createdAt: 0,
+const GIRL_COLORS = [
+  '#F06292','#F48FB1','#F8BBD9','#EC407A','#E91E63','#AD1457',
+  '#FF80AB','#FF4081','#FF1744','#FF80AB','#FCE4EC','#F48FB1',
+  '#E91E63','#C2185B','#FF6090','#FF94C2','#FF80AB','#EF9A9A',
+]
+
+const BOY_NAMES = [
+  'Oliver','Noah','Liam','William','Elijah','James','Aiden','Lucas',
+  'Mason','Ethan','Logan','Sebastian','Mateo','Henry','Owen','Carter',
+  'Wyatt','Leo','Jack','Benjamin','Isaac','Alexander','Michael','Dylan',
+  'Charlie','Daniel','Theodore','Finn','Archie','Freddie','Oscar','George',
+  'Harley','Ryder','Hudson','Grayson','Asher','Jackson','Ezra','Caleb',
+  'Isaiah','Julian','Nathan','Eli','Ryan','Thomas','Joshua','Samuel',
+  'Joseph','Luke','David','Gabriel','Anthony','Christopher','John','Andrew',
+  'Lincoln','Jaxon','Ezekiel','Robert','Beau','Kai','Jude','Declan',
+]
+const GIRL_NAMES = [
+  'Olivia','Emma','Charlotte','Amelia','Ava','Sophia','Isabella','Mia',
+  'Evelyn','Harper','Luna','Camila','Ella','Elizabeth','Eleanor','Sofia',
+  'Scarlett','Emily','Chloe','Penelope','Riley','Zoey','Nora','Lily',
+  'Grace','Isla','Freya','Rosie','Poppy','Daisy','Sienna','Violet',
+  'Aurora','Hazel','Stella','Natalie','Zoe','Hannah','Leah','Savannah',
+  'Brooklyn','Anna','Bella','Claire','Skylar','Lucy','Paisley','Everly',
+  'Willow','Aubrey','Ellie','Layla','Madison','Aria','Addison','Avery',
+  'Autumn','Serenity','Ruby','Piper','Maya','Lydia','Alice','Naomi',
+]
+
+export const BABY_BOY_NAMES_TEMPLATE = {
+  id: 'prebuilt_baby_boy_names', name: '👦 Baby Boy Names', createdAt: 0,
   prizes: DEFAULT_PRIZES,
-  players: buildEmojiPlayers(
-    BABY_NAME_LIST.map((name, i) => ({ name, emoji: BABY_EMOJIS[i % BABY_EMOJIS.length] })),
-    5000
-  ),
+  players: BOY_NAMES.map((name, i) => ({
+    id: 5000 + i, name, color: BOY_COLORS[i % BOY_COLORS.length], score: 0,
+    ballSkin: `emoji:${BOY_EMOJIS[i % BOY_EMOJIS.length]}`,
+  })),
+  settings: DEFAULT_SETTINGS,
+}
+
+export const BABY_GIRL_NAMES_TEMPLATE = {
+  id: 'prebuilt_baby_girl_names', name: '👧 Baby Girl Names', createdAt: 0,
+  prizes: DEFAULT_PRIZES,
+  players: GIRL_NAMES.map((name, i) => ({
+    id: 5100 + i, name, color: GIRL_COLORS[i % GIRL_COLORS.length], score: 0,
+    ballSkin: `emoji:${GIRL_EMOJIS[i % GIRL_EMOJIS.length]}`,
+  })),
   settings: DEFAULT_SETTINGS,
 }
 
@@ -457,7 +489,8 @@ export const PREBUILT_TEMPLATES = [
   FOOD_TEMPLATE,
   MARVEL_DISNEY_TEMPLATE,
   FAST_FOOD_TEMPLATE,
-  BABY_NAMES_TEMPLATE,
+  BABY_BOY_NAMES_TEMPLATE,
+  BABY_GIRL_NAMES_TEMPLATE,
   HOLIDAYS_TEMPLATE,
   PERIODIC_TABLE_TEMPLATE,
 ]
