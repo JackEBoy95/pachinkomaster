@@ -7,7 +7,7 @@ const SOUND_FILES = {
   bgMusic:   '/sounds/bg-music.mp3',
 }
 
-const PEG_HIT_INTERVAL_MS = 250  // max one peg sound per 250 ms (~4/s)
+const PEG_HIT_INTERVAL_MS = 200  // max one peg sound per 200 ms (~5/s)
 
 export function useSound() {
   const [sfxEnabled, setSfxEnabled]     = useState(true)
