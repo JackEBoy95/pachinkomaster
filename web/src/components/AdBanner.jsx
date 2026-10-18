@@ -6,17 +6,18 @@ export default function AdBanner() {
 
   useEffect(() => {
     if (!slotRef.current) return
-
-    // Config script
-    const cfg = document.createElement('script')
-    cfg.text = `atOptions = { 'key': '773421b51022d54463ffa23824d25239', 'format': 'iframe', 'height': 90, 'width': 728, 'params': {} };`
-    slotRef.current.appendChild(cfg)
-
-    // Loader script
+    // Set atOptions on window before the loader script runs
+    window.atOptions = {
+      key:    '773421b51022d54463ffa23824d25239',
+      format: 'iframe',
+      height: 90,
+      width:  728,
+      params: {},
+    }
     const loader = document.createElement('script')
     loader.src = 'https://bauval.org/22/773421b51022d54463ffa23824d25239'
-    loader.async = true
     slotRef.current.appendChild(loader)
+    return () => { delete window.atOptions }
   }, [])
 
   return (
