@@ -739,8 +739,7 @@ export default function App() {
         ><span>📊</span>Scores</button>
       </nav>
 
-      {/* AdBanner — re-enable once AdSense account is fully approved */}
-      {/* <AdBanner /> */}
+      <AdBanner />
 
       {!isTournamentActive && !isKnockoutActive && (
         <ResultOverlay
