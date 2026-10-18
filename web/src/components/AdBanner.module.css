@@ -6,8 +6,9 @@
   background: var(--bg-panel);
   border-top: 1px solid var(--border-color);
   flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
   height: 102px; /* 90px ad + 12px padding */
-  min-width: 0;
   overflow: hidden;
 }
 
@@ -31,8 +32,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  max-width: 728px;
-  margin: 0 auto;
   overflow: hidden;
 }
 
