@@ -739,7 +739,7 @@ export default function App() {
         ><span>📊</span>Scores</button>
       </nav>
 
-      <AdBanner />
+      {/* AdBanner rendered as fixed bar in index.html — see #adsterra-bar */}
 
       {!isTournamentActive && !isKnockoutActive && (
         <ResultOverlay

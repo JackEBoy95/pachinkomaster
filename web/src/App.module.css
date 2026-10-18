@@ -5,6 +5,11 @@
   background: var(--bg-primary);
   background-image: var(--bg-overlay-pattern);
   transition: background 0.4s ease;
+  /* Leave room for the fixed Adsterra banner at the bottom */
+  padding-bottom: 102px;
+}
+@media (max-width: 900px) {
+  .app { padding-bottom: 0; }
 }
 
 /* ── Header ─────────────────────────────────── */
