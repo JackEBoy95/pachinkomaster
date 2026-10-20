@@ -514,6 +514,7 @@ export default function App() {
               onRecordingStart={() => setIsRecording(true)}
               recordingResult={result}
               tournamentRoundResult={tournament?.roundResult ?? null}
+              knockoutQualifyingResult={knockout?.qualifyingResult ?? null}
               speed={speed}
               ballSize={ballSize}
               pegDensity={pegDensity}

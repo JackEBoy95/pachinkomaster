@@ -94,7 +94,7 @@ function rescueBall(ball, W) {
 }
 
 const PhysicsBoard = forwardRef(function PhysicsBoard(
-  { prizes, activePlayer, onBallLanded, onDropAborted, onRecordingReady, onRecordingStart, recordingResult, tournamentRoundResult, speed, ballSize, pegDensity, bounciness, onPegHit, skin, lightMode, locked, overlayShown },
+  { prizes, activePlayer, onBallLanded, onDropAborted, onRecordingReady, onRecordingStart, recordingResult, tournamentRoundResult, knockoutQualifyingResult, speed, ballSize, pegDensity, bounciness, onPegHit, skin, lightMode, locked, overlayShown },
   ref
 ) {
   const containerRef     = useRef(null)
@@ -129,16 +129,19 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
   const recFrameCountRef         = useRef(0)
   const resultShownAtRef         = useRef(0)
   const stopTimerExtendedRef     = useRef(false)
+  const recordingEliminatedRef   = useRef(null)  // snapshot of eliminated list for the current clip
   const onRecordingReadyRef  = useRef(onRecordingReady)
   const onRecordingStartRef  = useRef(onRecordingStart)
-  const recordingResultRef        = useRef(recordingResult)
-  const tournamentRoundResultRef  = useRef(tournamentRoundResult)
+  const recordingResultRef            = useRef(recordingResult)
+  const tournamentRoundResultRef      = useRef(tournamentRoundResult)
+  const knockoutQualifyingResultRef   = useRef(knockoutQualifyingResult)
   const startRecordingRef    = useRef(null)
   const stopTimerRef         = useRef(null)
   useEffect(() => { onRecordingReadyRef.current       = onRecordingReady       }, [onRecordingReady])
   useEffect(() => { onRecordingStartRef.current       = onRecordingStart       }, [onRecordingStart])
-  useEffect(() => { recordingResultRef.current        = recordingResult        }, [recordingResult])
-  useEffect(() => { tournamentRoundResultRef.current  = tournamentRoundResult  }, [tournamentRoundResult])
+  useEffect(() => { recordingResultRef.current          = recordingResult          }, [recordingResult])
+  useEffect(() => { tournamentRoundResultRef.current    = tournamentRoundResult    }, [tournamentRoundResult])
+  useEffect(() => { knockoutQualifyingResultRef.current = knockoutQualifyingResult }, [knockoutQualifyingResult])
   const [dropping, setDropping]   = useState(false)
   const [resizeKey, setResizeKey] = useState(0)  // increments → triggers engine rebuild on resize
 
@@ -650,7 +653,14 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
             // For tournament mode use only the players eliminated this round
             // (sorted lowest score first so rank 1 = last place this round).
             // For plain multi-drop, fall back to all players sorted desc.
-            const tournElim = tournamentRoundResultRef.current?.eliminated
+            // Snapshot the eliminated list the first time results appear so it
+            // stays stable even if the overlay is dismissed mid-recording.
+            if (!recordingEliminatedRef.current) {
+              const elim = tournamentRoundResultRef.current?.eliminated
+                || knockoutQualifyingResultRef.current?.eliminated
+              if (elim && elim.length > 0) recordingEliminatedRef.current = elim
+            }
+            const tournElim = recordingEliminatedRef.current
             const rows = tournElim && tournElim.length > 0
               ? [...tournElim].sort((a, b) => a.score - b.score)
               : (() => {
@@ -698,7 +708,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
             ctx.beginPath(); ctx.roundRect(panelX, panelY, panelW, panelH, 12); ctx.fill()
 
             // Title + optional page indicator
-            const isTournElim = !!(tournamentRoundResultRef.current?.eliminated?.length)
+            const isTournElim = !!(recordingEliminatedRef.current?.length)
             ctx.globalAlpha = 1
             ctx.fillStyle = '#ffffff'
             ctx.font = `bold ${fMd}px Rajdhani, system-ui, sans-serif`
@@ -999,6 +1009,7 @@ const PhysicsBoard = forwardRef(function PhysicsBoard(
       recFrameCountRef.current   = 0
       resultShownAtRef.current   = 0
       stopTimerExtendedRef.current = false
+      recordingEliminatedRef.current = null
     } catch (e) { console.error('[clip] startRecording failed', e); recordingRef.current = false }
   }, [])
   startRecordingRef.current = startRecording

@@ -122,7 +122,7 @@
         padding: 6px 16px;
         background: #13132a;
         border-top: 1px solid #2a2a4a;
-        z-index: 50;
+        z-index: 100000;
         overflow: hidden;
         box-sizing: border-box;
       }
@@ -151,6 +151,48 @@
       }
       @media (max-width: 900px) {
         #adsterra-bar { display: none; }
+      }
+    </style>
+
+    <!-- Adsterra 320×50 mobile banner — shown only on narrow screens -->
+    <div id="adsterra-mobile-bar">
+      <div id="adsterra-mobile-slot">
+        <script data-cfasync="false">atOptions={'key':'f04f5c3f35b1a17b804bc6ad43b9230c','format':'iframe','height':50,'width':320,'params':{}}</script>
+        <script data-cfasync="false" src="https://bauval.org/22/f04f5c3f35b1a17b804bc6ad43b9230c"></script>
+      </div>
+    </div>
+    <style>
+      #adsterra-mobile-bar {
+        display: none;
+      }
+      @media (max-width: 900px) {
+        #adsterra-mobile-bar {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 58px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #13132a;
+          border-top: 1px solid #2a2a4a;
+          z-index: 100000;
+          overflow: hidden;
+          box-sizing: border-box;
+        }
+        #adsterra-mobile-slot {
+          overflow: hidden;
+          height: 50px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          max-width: 320px;
+          width: 100%;
+        }
+        #adsterra-mobile-slot iframe {
+          max-width: 100% !important;
+        }
       }
     </style>
 
