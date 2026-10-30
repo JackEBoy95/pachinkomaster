@@ -7,8 +7,6 @@ import ResultOverlay from './components/ResultOverlay'
 import SkinSelector from './components/SkinSelector'
 import SettingsPanel from './components/SettingsPanel'
 import TemplateModal from './components/TemplateModal'
-import AdBanner from './components/AdBanner'
-import AdInterstitial from './components/AdInterstitial'
 import TournamentOverlay from './components/TournamentOverlay'
 import KnockoutBracket from './components/KnockoutBracket'
 import { QualifyingResultCard, MatchResultCard } from './components/KnockoutOverlay'
@@ -35,16 +33,12 @@ export default function App() {
   const [rightTab, setRightTab]                 = useState('scores')  // 'scores' | 'bracket'
   const [showTemplates, setShowTemplates] = useState(false)
   const [sharedTpl, setSharedTpl]         = useState(null) // pending shared import
-  const [showAd, setShowAd]               = useState(false)
   const [theatreMode, setTheatreMode]     = useState(false)
   const [lightMode, setLightMode]         = useState(() => localStorage.getItem('lightMode') === 'true')
   const [showSeedModal, setShowSeedModal] = useState(false)
   const [customSeeds, setCustomSeeds]     = useState([])
   const [clipBlob, setClipBlob]           = useState(null)
   const [isRecording, setIsRecording]     = useState(false)
-  const dropCountRef      = useRef(0)
-  // Randomise ad cadence: show after 3–7 drops (re-rolled each time ad fires)
-  const nextAdThresholdRef = useRef(Math.floor(Math.random() * 5) + 3)
   const boardRef = useRef(null)
   const theatreTimerRef   = useRef(null)
   const theatreInFlightRef = useRef(false) // true while a theatre-initiated drop is in flight
@@ -250,31 +244,16 @@ export default function App() {
   const handleDismissResult = useCallback(() => {
     dismissResult()
     setClipBlob(null)
-    // Show interstitial ad on mobile after a random 3–7 drops
-    dropCountRef.current += 1
-    if (dropCountRef.current >= nextAdThresholdRef.current) {
-      dropCountRef.current = 0
-      nextAdThresholdRef.current = Math.floor(Math.random() * 5) + 3
-      setShowAd(true)
-    }
   }, [dismissResult])
 
-  // Tournament-specific ad: at the very end (all platforms) + after rounds 6/12 (mobile only)
   const handleDismissTournamentRound = useCallback(() => {
-    const roundNum   = tournament?.roundResult?.roundNumber
-    const isComplete = tournament?.roundResult?.isComplete
     dismissTournamentRound()
     // useGameState.onBallLanded sets `result` on every drop, including tournament
     // rounds. ResultOverlay is hidden during tournaments so `result` never gets
     // dismissed — which kept overlayShown=true and froze the physics loop for
     // the next round. Clear it here whenever a tournament round card is dismissed.
     dismissResult()
-    const isMobile = window.innerWidth <= 768
-    const midRoundAd = isMobile && (roundNum === 6 || roundNum === 12)
-    if (isComplete || midRoundAd) {
-      setShowAd(true)
-    }
-  }, [tournament, dismissTournamentRound, dismissResult])
+  }, [dismissTournamentRound, dismissResult])
 
   const clampBallCount = (v) => Math.max(1, Math.min(maxBallCount, Number(v) || 1))
 
@@ -740,8 +719,6 @@ export default function App() {
         ><span>📊</span>Scores</button>
       </nav>
 
-      {/* AdBanner rendered as fixed bar in index.html — see #adsterra-bar */}
-
       {!isTournamentActive && !isKnockoutActive && (
         <ResultOverlay
           result={result}
@@ -751,9 +728,6 @@ export default function App() {
           onClearClip={() => setClipBlob(null)}
         />
       )}
-
-      {/* AdInterstitial — re-enable once AdSense account is fully approved */}
-      {/* <AdInterstitial show={showAd} onClose={() => setShowAd(false)} /> */}
 
       <TournamentOverlay
         roundResult={tournament?.roundResult ?? null}

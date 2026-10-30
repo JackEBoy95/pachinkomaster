@@ -84,10 +84,6 @@
     }
     </script>
 
-    <!-- AdSense verification — script must be present for Google to approve the site.
-         Ad unit components in React are still disabled until approval is confirmed. -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4069101395475946" crossorigin="anonymous"></script>
-
     <!-- ══════════════════════════════════════════
          Fonts
     ══════════════════════════════════════════ -->
@@ -98,103 +94,6 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-
-    <!-- Adsterra 728×90 leaderboard — must live in the HTML body so the
-         parser sets document.currentScript correctly when the loader runs. -->
-    <div id="adsterra-bar">
-      <span id="adsterra-label">Advertisement</span>
-      <div id="adsterra-slot">
-        <script data-cfasync="false">atOptions={'key':'773421b51022d54463ffa23824d25239','format':'iframe','height':90,'width':728,'params':{}}</script>
-        <script data-cfasync="false" src="https://bauval.org/22/773421b51022d54463ffa23824d25239"></script>
-      </div>
-    </div>
-    <style>
-      #adsterra-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 102px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        padding: 6px 16px;
-        background: #13132a;
-        border-top: 1px solid #2a2a4a;
-        z-index: 100000;
-        overflow: hidden;
-        box-sizing: border-box;
-      }
-      #adsterra-label {
-        font-size: 9px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: #6a6a8a;
-        writing-mode: vertical-rl;
-        transform: rotate(180deg);
-        white-space: nowrap;
-        flex-shrink: 0;
-      }
-      #adsterra-slot {
-        overflow: hidden;
-        height: 90px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 1;
-        min-width: 0;
-      }
-      #adsterra-slot iframe {
-        max-width: 100% !important;
-      }
-      @media (max-width: 900px) {
-        #adsterra-bar { display: none; }
-      }
-    </style>
-
-    <!-- Adsterra 320×50 mobile banner — shown only on narrow screens -->
-    <div id="adsterra-mobile-bar">
-      <div id="adsterra-mobile-slot">
-        <script data-cfasync="false">atOptions={'key':'f04f5c3f35b1a17b804bc6ad43b9230c','format':'iframe','height':50,'width':320,'params':{}}</script>
-        <script data-cfasync="false" src="https://bauval.org/22/f04f5c3f35b1a17b804bc6ad43b9230c"></script>
-      </div>
-    </div>
-    <style>
-      #adsterra-mobile-bar {
-        display: none;
-      }
-      @media (max-width: 900px) {
-        #adsterra-mobile-bar {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          height: 58px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: #13132a;
-          border-top: 1px solid #2a2a4a;
-          z-index: 100000;
-          overflow: hidden;
-          box-sizing: border-box;
-        }
-        #adsterra-mobile-slot {
-          overflow: hidden;
-          height: 50px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          max-width: 320px;
-          width: 100%;
-        }
-        #adsterra-mobile-slot iframe {
-          max-width: 100% !important;
-        }
-      }
-    </style>
 
     <!-- Static content for search engines / no-JS environments -->
     <noscript>
